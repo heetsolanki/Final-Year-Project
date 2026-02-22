@@ -127,7 +127,7 @@ body {
 }
 
 .feature-card {
-  @apply bg-white p-10 rounded-2xl border border-gray-200 shadow-sm transition hover:border-[#C9A227] hover:shadow-lg;
+  @apply bg-white px-10 py-8 rounded-2xl border border-gray-400 shadow-sm transition hover:border-[#C9A227] hover:shadow-lg;
 }
 
 .feature-icon {
@@ -135,7 +135,7 @@ body {
 }
 
 .feature-card:hover .feature-icon {
-  @apply bg-[#0A1F44] text-white;
+  @apply bg-[#0A1F44] text-white translate-y-[-4px];
 }
 
 .feature-title {
@@ -382,20 +382,114 @@ body {
   @apply text-gray-600 leading-relaxed text-sm;
 }
 
+/* WHAT WE OFFER */
+
+.offer-section {
+  @apply bg-[#f4f6f9] section-padding text-center;
+}
+
+.offer-section h3, p {
+  @apply text-left
+}
+
+.offer-title {
+  @apply text-4xl font-semibold text-[#0A1F44];
+}
+
+.offer-underline {
+  @apply w-16 h-1 bg-[#C9A227] mx-auto my-6;
+}
+
+.offer-subtitle {
+  @apply text-gray-600 max-w-2xl mx-auto leading-relaxed;
+}
+
+.offer-grid {
+  @apply container-custom grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-20;
+}
+
 /* DEVELOPERS */
 
 .dev-section {
-  @apply bg-white text-center;
+  @apply bg-[#fff] section-padding text-center;
 }
 
 .dev-title {
-  @apply text-3xl font-semibold text-[#0A1F44];
+  @apply text-4xl font-semibold text-[#0A1F44];
+}
+
+.dev-underline {
+  @apply w-16 h-1 bg-[#C9A227] mx-auto my-6;
+}
+
+.dev-layout {
+  @apply container-custom grid grid-cols-1 lg:grid-cols-2 gap-20 items-center mt-20 text-left;
+}
+
+/* LEFT SIDE */
+
+.dev-icon-box {
+  @apply w-16 h-16 bg-[#0A1F44] rounded-2xl flex items-center justify-center mb-6;
+}
+
+.dev-icon-box svg {
+  @apply w-8 h-8 text-[#C9A227];
+}
+
+.dev-left-title {
+  @apply text-2xl font-semibold text-[#0A1F44] mb-6;
+}
+
+.dev-left-text {
+  @apply text-gray-600 leading-relaxed mb-6;
+}
+
+.dev-badges {
+  @apply flex flex-wrap gap-4 mt-8;
+}
+
+.dev-badge {
+  @apply px-5 py-2 rounded-full bg-white border border-gray-300 text-sm text-[#0A1F44];
+}
+
+/* RIGHT CARD */
+
+.dev-card {
+  @apply bg-white rounded-2xl shadow-xl p-10;
+}
+
+.dev-profile {
+  @apply flex items-start gap-6;
+}
+
+.dev-avatar {
+  @apply w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center;
+}
+
+.dev-avatar svg {
+  @apply w-10 h-10 text-gray-500;
+}
+
+.dev-name {
+  @apply text-xl font-semibold text-[#0A1F44];
+}
+
+.dev-role {
+  @apply text-[#C9A227] font-medium mt-1;
 }
 
 .dev-description {
-  @apply mt-6 text-gray-600 max-w-3xl mx-auto;
+  @apply text-gray-600 mt-4 leading-relaxed;
 }
 
-.dev-card {
-  @apply mt-16 max-w-xl mx-auto;
+.dev-socials {
+  @apply flex gap-4 mt-6;
+}
+
+.dev-social-icon {
+  @apply w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center cursor-pointer transition;
+}
+
+.dev-social-icon:hover {
+  @apply bg-[#0A1F44] text-white;
 }
