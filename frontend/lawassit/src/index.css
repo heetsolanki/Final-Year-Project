@@ -18,7 +18,9 @@ body {
   @apply py-24;
 }
 
-/* ================= NAVBAR ================= */
+/* ================= HOME PAGE ================= */
+
+/* NAVBAR */
 
 .nav-wrapper {
   @apply fixed top-8 left-1/2 -translate-x-1/2 w-[92%] max-w-[1300px] z-50;
@@ -36,19 +38,13 @@ body {
   @apply text-sm font-medium text-[#0A1F44] relative transition;
 }
 
-/* NAV LINK BASE */
-
 .nav-link {
   @apply text-sm font-medium text-[#0A1F44] transition relative cursor-pointer;
 }
 
-/* TEXT COLOR HOVER */
-
 .nav-link:hover {
   @apply text-[#C9A227];
 }
-
-/* GOLD UNDERLINE */
 
 .nav-link::after {
   content: "";
@@ -61,8 +57,6 @@ body {
   background-color: #C9A227;
   transition: width 0.3s ease;
 }
-
-/* UNDERLINE ANIMATION */
 
 .nav-link:hover::after {
   width: 100%;
@@ -80,7 +74,7 @@ body {
   @apply bg-[#0A1F44] text-white hover:bg-[#123A6F];
 }
 
-/* ================= HERO ================= */
+/* HERO */
 
 .hero-section {
   @apply pt-56 bg-white mb-20;
@@ -110,8 +104,6 @@ body {
   @apply border border-[#0A1F44] text-[#0A1F44] px-7 py-3 rounded-lg hover:bg-[#0A1F44] hover:text-white transition;
 }
 
-/* Hero Mini Cards */
-
 .hero-grid {
   @apply bg-gray-100 p-6 rounded-2xl grid grid-cols-2 gap-6;
 }
@@ -124,7 +116,7 @@ body {
   @apply w-10 h-10 text-[#0A1F44] mb-4;
 }
 
-/* ================= FEATURES ================= */
+/* FEATURES */
 
 .features-section {
   @apply bg-[#f6f8fb] section-padding;
@@ -154,7 +146,7 @@ body {
   @apply text-sm text-gray-600 leading-relaxed;
 }
 
-/* ================= HOW IT WORKS ================= */
+/* HOW IT WORKS */
 
 .how-section {
   @apply bg-white section-padding text-center;
@@ -184,7 +176,7 @@ body {
   @apply text-sm text-gray-600;
 }
 
-/* ================= FOOTER ================= */
+/* FOOTER */
 
 .footer {
   @apply bg-[#0A1F44] pt-24 pb-10 text-gray-300;
@@ -210,8 +202,6 @@ body {
   @apply text-center text-sm text-gray-400;
 }
 
-/* Brand */
-
 .footer-brand {
   @apply flex items-center gap-2 text-white text-lg font-semibold mb-4;
 }
@@ -222,4 +212,190 @@ body {
 
 .footer-description {
   @apply text-sm text-gray-300 leading-relaxed;
+}
+
+/* ================= ABOUT PAGE ================= */
+
+/* HERO */
+
+.about-hero {
+  @apply pt-24 pb-24 relative overflow-hidden;
+  background-color: #f9fafc;
+}
+.about-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(10, 31, 68, 0.03) 0px,
+    rgba(10, 31, 68, 0.03) 1px,
+    transparent 1px,
+    transparent 14px
+  );
+  pointer-events: none;
+}
+
+.about-hero-layout {
+  @apply container-custom flex flex-col lg:flex-row items-center justify-between gap-16 relative z-10;
+}
+
+.about-hero-title {
+  @apply text-6xl font-bold text-[#0A1F44] leading-tight;
+}
+
+.about-hero-underline {
+  @apply w-16 h-1 bg-[#C9A227] my-8;
+}
+
+.about-hero-text {
+  @apply text-lg text-gray-600 max-w-lg leading-relaxed;
+}
+
+.about-hero-graphic {
+  @apply relative flex items-center justify-center;
+}
+
+.hero-ring-1 {
+  @apply absolute w-[340px] h-[340px] rounded-full;
+  background: rgba(10, 31, 68, 0.05);
+}
+
+.hero-ring-2 {
+  @apply absolute w-[280px] h-[280px] rounded-full;
+  background: rgba(10, 31, 68, 0.08);
+}
+
+.hero-ring-3 {
+  @apply absolute w-[220px] h-[220px] rounded-full;
+  background: rgba(10, 31, 68, 0.12);
+}
+
+.hero-circle-main {
+  @apply w-[180px] h-[180px] bg-[#0A1F44] rounded-full flex items-center justify-center relative z-10;
+}
+
+.hero-circle-main svg {
+  @apply w-16 h-16 text-[#C9A227];
+}
+
+/* Gold badge */
+
+.hero-circle-badge {
+  @apply absolute top-0 right-0 w-14 h-14 bg-[#C9A227] rounded-full flex items-center justify-center shadow-xl z-20;
+  transform: translate(30%, -30%);
+}
+
+.hero-circle-badge svg {
+  @apply w-6 h-6 text-[#0A1F44];
+}
+
+/* WHO WE ARE */
+
+.who-section {
+  @apply bg-[#f4f6f9] section-padding;
+}
+
+.who-layout {
+  @apply container-custom grid grid-cols-1 lg:grid-cols-2 gap-20 items-center;
+}
+
+/* Left Side */
+
+.who-title {
+  @apply text-4xl font-semibold text-[#0A1F44];
+}
+
+.who-underline {
+  @apply w-16 h-1 bg-[#C9A227] my-6;
+}
+
+.who-text {
+  @apply text-gray-600 leading-relaxed mb-6 max-w-xl;
+}
+
+/* Right Card */
+
+.who-card {
+  @apply bg-white rounded-2xl shadow-lg p-10 relative size-full;
+  border-top: 4px solid #C9A227;
+}
+
+.who-card-icon {
+  @apply w-16 h-16 bg-[#0A1F44] rounded-xl flex items-center justify-center mb-6;
+}
+
+.who-card-icon svg {
+  @apply w-8 h-8 text-[#C9A227];
+}
+
+.who-card-title {
+  @apply text-xl font-semibold text-[#0A1F44] mb-4;
+}
+
+.who-card-text {
+  @apply text-gray-600 leading-relaxed;
+}
+
+/* MISSION */
+
+.mission-section {
+  @apply bg-[#0A1F44] section-padding text-center;
+}
+
+.mission-title {
+  @apply text-4xl font-semibold text-white;
+}
+
+.mission-underline {
+  @apply w-16 h-1 bg-[#C9A227] mx-auto my-6;
+}
+
+.mission-subtitle {
+  @apply text-gray-300 max-w-2xl mx-auto leading-relaxed;
+}
+
+.mission-grid {
+  @apply container-custom grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-10 mt-20;
+}
+
+/* Mission Card */
+
+.mission-card {
+  @apply bg-[#f3f4f6] rounded-2xl p-10 text-left shadow-lg relative;
+  border-top: 4px solid #C9A227;
+}
+
+.mission-icon-box {
+  @apply w-14 h-14 bg-[#e9e3d2] rounded-xl flex items-center justify-center mb-6;
+}
+
+.mission-icon-box svg {
+  @apply w-6 h-6 text-[#C9A227];
+}
+
+.mission-card-title {
+  @apply text-lg font-semibold text-[#0A1F44] mb-4;
+}
+
+.mission-card-text {
+  @apply text-gray-600 leading-relaxed text-sm;
+}
+
+/* DEVELOPERS */
+
+.dev-section {
+  @apply bg-white text-center;
+}
+
+.dev-title {
+  @apply text-3xl font-semibold text-[#0A1F44];
+}
+
+.dev-description {
+  @apply mt-6 text-gray-600 max-w-3xl mx-auto;
+}
+
+.dev-card {
+  @apply mt-16 max-w-xl mx-auto;
 }
