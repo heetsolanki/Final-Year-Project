@@ -4,54 +4,90 @@ import {
   Users,
   Search,
   LayoutDashboard,
-  ClipboardList
+  ClipboardList,
 } from "lucide-react";
 
 function Features() {
   return (
-    <section className="section section-alt fade-up">
-      <div className="container">
-        <h2>Our Key Features</h2>
+    <section className="features-section fade-up">
+      <div className="container-custom">
 
-        <div className="grid-3">
+        {/* Section Heading */}
+        <div className="text-center max-w-3xl mx-auto">
+          <h2 className="text-3xl font-bold text-[#0A1F44]">
+            Our Key Features
+          </h2>
 
-          <div className="card">
-            <MessageSquare size={30} />
-            <h3>Submit Legal Query</h3>
-            <p>Easily submit consumer complaints.</p>
+          <p className="mt-4 text-gray-600 text-lg">
+            Everything you need to navigate consumer rights and get the legal help you deserve.
+          </p>
+        </div>
+
+        {/* Features Grid */}
+        <div className="features-grid">
+
+          <div className="feature-card">
+            <div className="feature-icon">
+              <MessageSquare size={22} />
+            </div>
+            <h3 className="feature-title">Submit Legal Query</h3>
+            <p className="feature-text">
+              Easily submit your consumer complaints and legal questions through our streamlined form.
+            </p>
           </div>
 
-          <div className="card">
-            <UploadCloud size={30} />
-            <h3>Upload Supporting Documents</h3>
-            <p>Attach contracts and receipts securely.</p>
+          <div className="feature-card">
+            <div className="feature-icon">
+              <UploadCloud size={22} />
+            </div>
+            <h3 className="feature-title">Upload Supporting Documents</h3>
+            <p className="feature-text">
+              Attach receipts, contracts, or any evidence to strengthen your case.
+            </p>
           </div>
 
-          <div className="card">
-            <Users size={30} />
-            <h3>Expert Consultation</h3>
-            <p>Connect with verified professionals.</p>
+          <div className="feature-card">
+            <div className="feature-icon">
+              <Users size={22} />
+            </div>
+            <h3 className="feature-title">Expert Consultation</h3>
+            <p className="feature-text">
+              Connect with verified legal professionals who specialize in consumer rights.
+            </p>
           </div>
 
-          <div className="card">
-            <Search size={30} />
-            <h3>Smart Legal Search</h3>
-            <p>Search consumer laws instantly.</p>
+          <div className="feature-card">
+            <div className="feature-icon">
+              <Search size={22} />
+            </div>
+            <h3 className="feature-title">Smart Legal Search</h3>
+            <p className="feature-text">
+              Search through our comprehensive database of consumer laws and precedents.
+            </p>
           </div>
 
-          <div className="card">
-            <LayoutDashboard size={30} />
-            <h3>Secure Dashboard</h3>
-            <p>Manage all your cases securely.</p>
+          <div className="feature-card">
+            <div className="feature-icon">
+              <LayoutDashboard size={22} />
+            </div>
+            <h3 className="feature-title">Secure Dashboard</h3>
+            <p className="feature-text">
+              Manage all your queries, documents, and consultations from one secure dashboard.
+            </p>
           </div>
 
-          <div className="card">
-            <ClipboardList size={30} />
-            <h3>Track Complaint Status</h3>
-            <p>Stay updated in real-time.</p>
+          <div className="feature-card">
+            <div className="feature-icon">
+              <ClipboardList size={22} />
+            </div>
+            <h3 className="feature-title">Track Complaint Status</h3>
+            <p className="feature-text">
+              Stay updated with real-time tracking of your complaint progress.
+            </p>
           </div>
 
         </div>
+
       </div>
     </section>
   );
