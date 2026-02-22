@@ -2,53 +2,60 @@ import { Scale, Shield, FileText, Users } from "lucide-react";
 
 function Hero() {
   return (
-    <section className="section section-soft hero fade-up">
-      <div className="container hero-content">
+    <section className="hero-section fade-up">
+      <div className="hero-layout">
 
         {/* LEFT CONTENT */}
-        <div>
-          <h1>
+        <div className="max-w-xl">
+          <h1 className="hero-title">
             Know Your Consumer Rights. Get Legal Help Instantly.
           </h1>
 
-          <p>
+          <p className="hero-text">
             Submit complaints, connect with legal experts,
             and navigate your rights with confidence.
           </p>
 
-          <div style={{ marginTop: "30px" }}>
-            <button className="btn-primary">Submit a Query</button>
-            <button className="btn-outline" style={{ marginLeft: "15px" }}>
+          <div className="hero-buttons">
+            <button className="btn-primary">
+              Submit a Query
+            </button>
+
+            <button className="btn-outline">
               Explore Your Rights
             </button>
           </div>
         </div>
 
-        {/* RIGHT SQUARE CARDS */}
+        {/* RIGHT MINI CARDS */}
         <div className="hero-grid">
 
-          <div className="card hero-card">
+          <div className="hero-card">
             <Scale size={30} />
-            <h3>Justice</h3>
-            <p>Fair resolution for consumer disputes.</p>
+            <h3 className="mt-3 font-semibold text-[#0A1F44]">
+              Justice
+            </h3>
           </div>
 
-          <div className="card hero-card">
+          <div className="hero-card">
             <Shield size={30} />
-            <h3>Protection</h3>
-            <p>Safeguarding your consumer rights.</p>
+            <h3 className="mt-3 font-semibold text-[#0A1F44]">
+              Protection
+            </h3>
           </div>
 
-          <div className="card hero-card">
+          <div className="hero-card">
             <FileText size={30} />
-            <h3>Documents</h3>
-            <p>Secure document submission.</p>
+            <h3 className="mt-3 font-semibold text-[#0A1F44]">
+              Documents
+            </h3>
           </div>
 
-          <div className="card hero-card">
+          <div className="hero-card">
             <Users size={30} />
-            <h3>Experts</h3>
-            <p>Verified legal professionals.</p>
+            <h3 className="mt-3 font-semibold text-[#0A1F44]">
+              Experts
+            </h3>
           </div>
 
         </div>
