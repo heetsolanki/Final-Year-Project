@@ -1,4 +1,5 @@
 import { Scale } from "lucide-react";
+import "../styles/footer.css";
 
 function Footer() {
   return (

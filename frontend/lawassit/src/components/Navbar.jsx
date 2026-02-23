@@ -1,7 +1,11 @@
-import { Scale } from "lucide-react";
+import { useState } from "react";
+import { Scale, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import "../styles/navbar.css";
 
 function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <div className="nav-wrapper">
       <nav className="navbar">
@@ -13,14 +17,13 @@ function Navbar() {
           <span className="nav-link">Submit Query</span>
         </div>
 
-        {/* CENTER LOGO */}
+        {/* LOGO */}
         <div className="text-[#0A1F44] hover:text-[#C9A227] transition cursor-pointer">
           <Scale size={28} />
         </div>
 
-        {/* RIGHT LINKS + BUTTONS */}
+        {/* RIGHT LINKS */}
         <div className="nav-links">
-
           <span className="nav-link">Experts</span>
           <Link to="/about" className="nav-link">About</Link>
 
@@ -31,10 +34,31 @@ function Navbar() {
           <button className="nav-btn nav-register">
             Register
           </button>
+        </div>
 
+        {/* HAMBURGER */}
+        <div className="nav-hamburger" onClick={() => setIsOpen(!isOpen)}>
+          {isOpen ? <X size={26} /> : <Menu size={26} />}
         </div>
 
       </nav>
+
+      {/* MOBILE MENU */}
+      <div className={`mobile-menu ${isOpen ? "active" : ""}`}>
+        <Link to="/" className="nav-link" onClick={() => setIsOpen(false)}>Home</Link>
+        <span className="nav-link">Explore Rights</span>
+        <span className="nav-link">Submit Query</span>
+        <span className="nav-link">Experts</span>
+        <Link to="/about" className="nav-link">About</Link>
+
+        <button className="nav-btn nav-login w-full text-center">
+          Login
+        </button>
+
+        <button className="nav-btn nav-register w-full text-center">
+          Register
+        </button>
+      </div>
     </div>
   );
 }

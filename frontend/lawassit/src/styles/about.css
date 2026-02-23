@@ -1,0 +1,397 @@
+.container-custom {
+  @apply max-w-7xl mx-auto px-6;
+}
+
+.section-padding {
+  @apply py-24;
+}
+
+/* HERO */
+
+.about-hero {
+  @apply pt-24 pb-24 relative overflow-hidden;
+  background-color: #f9fafc;
+}
+.about-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(10, 31, 68, 0.03) 0px,
+    rgba(10, 31, 68, 0.03) 1px,
+    transparent 1px,
+    transparent 14px
+  );
+  pointer-events: none;
+}
+
+.about-hero-layout {
+  @apply container-custom flex flex-col lg:flex-row items-center justify-between gap-16 relative z-10;
+}
+
+.about-hero-title {
+  @apply text-6xl font-bold text-[#0A1F44] leading-tight;
+}
+
+.about-hero-underline {
+  @apply w-16 h-1 bg-[#C9A227] my-8;
+}
+
+.about-hero-text {
+  @apply text-lg text-gray-600 max-w-lg leading-relaxed;
+}
+
+.about-hero-graphic {
+  @apply relative flex items-center justify-center;
+}
+
+.hero-ring-1 {
+  @apply absolute w-[340px] h-[340px] rounded-full;
+  background: rgba(10, 31, 68, 0.05);
+}
+
+.hero-ring-2 {
+  @apply absolute w-[280px] h-[280px] rounded-full;
+  background: rgba(10, 31, 68, 0.08);
+}
+
+.hero-ring-3 {
+  @apply absolute w-[220px] h-[220px] rounded-full;
+  background: rgba(10, 31, 68, 0.12);
+}
+
+.hero-circle-main {
+  @apply w-[180px] h-[180px] bg-[#0A1F44] rounded-full flex items-center justify-center relative z-10;
+}
+
+.hero-circle-main svg {
+  @apply w-16 h-16 text-[#C9A227];
+}
+
+/* Gold badge */
+
+.hero-circle-badge {
+  @apply absolute top-0 right-0 w-14 h-14 bg-[#C9A227] rounded-full flex items-center justify-center shadow-xl z-20;
+  transform: translate(30%, -30%);
+}
+
+.hero-circle-badge svg {
+  @apply w-6 h-6 text-[#0A1F44];
+}
+
+/* WHO WE ARE */
+
+.who-section {
+  @apply bg-[#f4f6f9] section-padding;
+}
+
+.who-layout {
+  @apply container-custom grid grid-cols-1 lg:grid-cols-2 gap-20 items-center;
+}
+
+/* Left Side */
+
+.who-title {
+  @apply text-4xl font-semibold text-[#0A1F44];
+}
+
+.who-underline {
+  @apply w-16 h-1 bg-[#C9A227] my-6;
+}
+
+.who-text {
+  @apply text-gray-600 leading-relaxed mb-6 max-w-xl;
+}
+
+/* Right Card */
+
+.who-card {
+  @apply bg-white rounded-2xl shadow-lg p-10 relative size-full;
+  border-top: 4px solid #C9A227;
+}
+
+.who-card-icon {
+  @apply w-16 h-16 bg-[#0A1F44] rounded-xl flex items-center justify-center mb-6;
+}
+
+.who-card-icon svg {
+  @apply w-8 h-8 text-[#C9A227];
+}
+
+.who-card-title {
+  @apply text-xl font-semibold text-[#0A1F44] mb-4;
+}
+
+.who-card-text {
+  @apply text-gray-600 leading-relaxed;
+}
+
+/* MISSION */
+
+.mission-section {
+  @apply bg-[#0A1F44] section-padding text-center;
+}
+
+.mission-title {
+  @apply text-4xl font-bold text-white;
+}
+
+.mission-underline {
+  @apply w-16 h-1 bg-[#C9A227] mx-auto my-6;
+}
+
+.mission-subtitle {
+  @apply text-gray-300 max-w-2xl mx-auto leading-relaxed;
+}
+
+.mission-grid {
+  @apply container-custom grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-10 mt-20;
+}
+
+/* Mission Card */
+
+.mission-card {
+  @apply bg-[#f3f4f6] rounded-2xl p-10 text-left shadow-lg relative;
+  border-top: 4px solid #C9A227;
+}
+
+.mission-icon-box {
+  @apply w-14 h-14 bg-[#e9e3d2] rounded-xl flex items-center justify-center mb-6;
+}
+
+.mission-icon-box svg {
+  @apply w-6 h-6 text-[#C9A227];
+}
+
+.mission-card-title {
+  @apply text-lg font-semibold text-[#0A1F44] mb-4;
+}
+
+.mission-card-text {
+  @apply text-gray-600 leading-relaxed text-sm;
+}
+
+/* WHAT WE OFFER */
+
+.offer-section {
+  @apply bg-[#f4f6f9] section-padding text-center;
+}
+
+.offer-section h3, p {
+  @apply text-left
+}
+
+.offer-title {
+  @apply text-4xl font-bold text-[#0A1F44];
+}
+
+.offer-underline {
+  @apply w-16 h-1 bg-[#C9A227] mx-auto my-6;
+}
+
+.offer-subtitle {
+  @apply text-gray-600 max-w-2xl mx-auto leading-relaxed;
+}
+
+.offer-grid {
+  @apply container-custom grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-20;
+}
+
+/* DEVELOPERS */
+
+.dev-section {
+  @apply bg-[#fff] section-padding text-center;
+}
+
+.dev-title {
+  @apply text-4xl font-bold text-[#0A1F44];
+}
+
+.dev-underline {
+  @apply w-16 h-1 bg-[#C9A227] mx-auto my-6;
+}
+
+.dev-layout {
+  @apply container-custom grid grid-cols-1 lg:grid-cols-2 gap-20 items-center mt-20 text-left;
+}
+
+/* LEFT SIDE */
+
+.dev-icon-box {
+  @apply w-16 h-16 bg-[#0A1F44] rounded-2xl flex items-center justify-center mb-6;
+}
+
+.dev-icon-box svg {
+  @apply w-8 h-8 text-[#C9A227];
+}
+
+.dev-left-title {
+  @apply text-2xl font-semibold text-[#0A1F44] mb-6;
+}
+
+.dev-left-text {
+  @apply text-gray-600 leading-relaxed mb-6;
+}
+
+.dev-badges {
+  @apply flex flex-wrap gap-4 mt-8;
+}
+
+.dev-badge {
+  @apply px-5 py-2 rounded-full bg-white border border-gray-300 text-sm text-[#0A1F44];
+}
+
+/* RIGHT CARD */
+
+.dev-card {
+  @apply bg-white rounded-2xl shadow-xl p-10;
+}
+
+.dev-profile {
+  @apply flex items-start gap-6;
+}
+
+.dev-avatar {
+  @apply w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center;
+}
+
+.dev-avatar svg {
+  @apply w-10 h-10 text-gray-500;
+}
+
+.dev-name {
+  @apply text-xl font-semibold text-[#0A1F44];
+}
+
+.dev-role {
+  @apply text-[#C9A227] font-medium mt-1;
+}
+
+.dev-description {
+  @apply text-gray-600 mt-4 leading-relaxed;
+}
+
+.dev-socials {
+  @apply flex gap-4 mt-6;
+}
+
+.dev-social-icon {
+  @apply w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center cursor-pointer transition;
+}
+
+.dev-social-icon:hover {
+  @apply bg-[#0A1F44] text-white;
+}
+
+/* ABOUT MOBILE OPTIMIZATION */
+
+@media (max-width: 768px) {
+
+  /* HERO */
+  .about-hero {
+    @apply pt-16 pb-16;
+  }
+
+  .about-hero-title {
+    @apply text-3xl leading-snug text-center;
+  }
+
+  .about-hero-text {
+    @apply text-base text-center mx-auto;
+  }
+
+  .about-hero-underline {
+    @apply mx-auto my-6;
+  }
+
+  .about-hero-layout {
+    @apply gap-10 text-center;
+  }
+
+  /* Reduce rings size */
+  .hero-ring-1 {
+    @apply w-[220px] h-[220px];
+  }
+
+  .hero-ring-2 {
+    @apply w-[180px] h-[180px];
+  }
+
+  .hero-ring-3 {
+    @apply w-[140px] h-[140px];
+  }
+
+  .hero-circle-main {
+    @apply w-[120px] h-[120px];
+  }
+
+  .hero-circle-main svg {
+    @apply w-10 h-10;
+  }
+
+  .hero-circle-badge svg{
+    @apply w-6 h-6;
+  }
+
+  .hero-circle-badge {
+    @apply w-10 h-10;
+  }
+
+  /* WHO SECTION */
+  .who-layout {
+    @apply gap-12 text-center;
+  }
+
+  .who-title {
+    @apply text-2xl;
+  }
+
+  .who-card {
+    @apply p-6;
+  }
+
+  /* MISSION */
+  .mission-title {
+    @apply text-2xl;
+  }
+
+  .mission-grid {
+    @apply gap-6 mt-12;
+  }
+
+  .mission-card {
+    @apply p-6;
+  }
+
+  /* OFFER */
+  .offer-title {
+    @apply text-2xl;
+  }
+
+  .offer-grid {
+    @apply gap-6 mt-12;
+  }
+
+  /* DEVELOPER SECTION */
+  .dev-title {
+    @apply text-2xl;
+  }
+
+  .dev-layout {
+    @apply gap-12 mt-12;
+  }
+
+  .dev-profile {
+    @apply flex-col items-center text-center;
+  }
+
+  .dev-avatar {
+    @apply mx-auto;
+  }
+
+  .dev-socials {
+    @apply justify-center;
+  }
+
+}

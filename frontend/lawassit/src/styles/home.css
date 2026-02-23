@@ -1,0 +1,172 @@
+.container-custom {
+  @apply max-w-7xl mx-auto px-6;
+}
+
+.section-padding {
+  @apply py-24;
+}
+
+/* HERO */
+
+.hero-section {
+  @apply pt-56 bg-white mb-20;
+}
+
+.hero-layout {
+  @apply container-custom flex flex-col lg:flex-row items-center justify-between gap-16;
+}
+
+.hero-title {
+  @apply text-5xl font-bold text-[#0A1F44] leading-tight;
+}
+
+.hero-text {
+  @apply mt-6 text-lg text-gray-600;
+}
+
+.hero-buttons {
+  @apply mt-8 flex gap-4;
+}
+
+.btn-primary {
+  @apply bg-[#0A1F44] text-white px-7 py-3 rounded-lg hover:bg-[#123A6F] transition;
+}
+
+.btn-outline {
+  @apply border border-[#0A1F44] text-[#0A1F44] px-7 py-3 rounded-lg hover:bg-[#0A1F44] hover:text-white transition;
+}
+
+.hero-grid {
+  @apply bg-gray-100 p-6 rounded-2xl grid grid-cols-2 gap-6;
+}
+
+.hero-card {
+  @apply bg-white w-40 h-40 flex flex-col items-center justify-center rounded-xl shadow-md transition hover:shadow-lg;
+}
+
+.hero-card svg {
+  @apply w-10 h-10 text-[#0A1F44] mb-4;
+}
+
+/* FEATURES */
+
+.features-section {
+  @apply bg-[#f6f8fb] section-padding;
+}
+
+.features-grid {
+  @apply container-custom grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-16;
+}
+
+.feature-card {
+  @apply bg-white px-10 py-8 rounded-2xl border border-gray-400 shadow-sm transition hover:border-[#C9A227] hover:shadow-lg;
+}
+
+.feature-icon {
+  @apply w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center mb-6 transition;
+}
+
+.feature-card:hover .feature-icon {
+  @apply bg-[#0A1F44] text-white translate-y-[-4px];
+}
+
+.feature-title {
+  @apply text-lg font-semibold text-[#0A1F44] mb-2;
+}
+
+.feature-text {
+  @apply text-sm text-gray-600 leading-relaxed;
+}
+
+/* HOW IT WORKS */
+
+.how-section {
+  @apply bg-white section-padding text-center;
+}
+
+.how-grid {
+  @apply container-custom grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mt-20 relative;
+}
+
+.how-line {
+  @apply hidden lg:block absolute top-8 left-[5%] w-[90%] h-[2px] bg-gray-300;
+}
+
+.how-number {
+  @apply w-16 h-16 bg-[#0A1F44] text-white rounded-full flex items-center justify-center mx-auto font-semibold;
+}
+
+.how-icon {
+  @apply w-12 h-12 bg-[#e7dfc8] text-[#C9A227] rounded-lg flex items-center justify-center mx-auto my-6;
+}
+
+.how-title {
+  @apply text-lg font-semibold text-[#0A1F44] mb-2;
+}
+
+.how-text {
+  @apply text-sm text-gray-600;
+}
+
+/* MOBILE OPTIMIZATION */
+
+@media (max-width: 768px) {
+
+  /* HERO FIXES */
+  .hero-section {
+    @apply pt-40 mb-12;
+  }
+
+  .hero-title {
+    @apply text-3xl leading-snug text-center;
+  }
+
+  .hero-text {
+    @apply text-base text-center;
+  }
+
+  .hero-buttons {
+    @apply flex-col items-center gap-4;
+  }
+
+  .btn-primary,
+  .btn-outline {
+    @apply w-full text-center;
+  }
+
+  .hero-layout {
+    @apply gap-10;
+  }
+
+  .hero-grid {
+    @apply p-4 gap-4;
+  }
+
+  .hero-card {
+    @apply w-full h-32 text-sm px-4 py-3;
+  }
+
+  /* FEATURES */
+  .features-grid {
+    @apply mt-12 gap-6;
+  }
+
+  .feature-card {
+    @apply px-6 py-6;
+  }
+
+  /* HOW SECTION */
+  .how-grid {
+    @apply mt-14 gap-12;
+  }
+
+  .how-line {
+    @apply hidden;
+  }
+
+  /* SECTION PADDING */
+  .section-padding {
+    @apply py-16;
+  }
+
+}

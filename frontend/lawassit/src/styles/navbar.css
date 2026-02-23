@@ -1,0 +1,87 @@
+.nav-wrapper {
+  @apply fixed top-8 left-1/2 -translate-x-1/2 w-[92%] max-w-[1300px] z-50;
+}
+
+.navbar {
+  @apply flex items-center justify-between px-8 py-4 rounded-full bg-white/70 backdrop-blur-xl shadow-lg border border-white/40;
+}
+
+.nav-links {
+  @apply flex items-center gap-8 cursor-pointer;
+}
+
+.nav-link {
+  @apply text-sm font-medium text-[#0A1F44] relative transition;
+}
+
+.nav-link {
+  @apply text-sm font-medium text-[#0A1F44] transition relative cursor-pointer;
+}
+
+.nav-link:hover {
+  @apply text-[#C9A227];
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%);
+  width: 0%;
+  height: 2px;
+  background-color: #C9A227;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.nav-btn {
+  @apply px-6 py-2 rounded-full text-sm transition;
+}
+
+.nav-login {
+  @apply border border-[#0A1F44] text-[#0A1F44] hover:bg-[#0A1F44] hover:text-white;
+}
+
+.nav-register {
+  @apply bg-[#0A1F44] text-white hover:bg-[#123A6F];
+}
+
+/* MOBILE NAVBAR */
+
+.nav-hamburger {
+  @apply hidden text-[#0A1F44] cursor-pointer;
+}
+
+.mobile-menu {
+  @apply hidden flex-col items-center gap-6 mt-4 px-6 py-6 rounded-2xl bg-white/90 backdrop-blur-xl shadow-xl border border-white/40;
+}
+
+.mobile-menu.active {
+  @apply flex;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+
+  .nav-wrapper {
+    @apply top-4 w-[95%];
+  }
+
+  .navbar {
+    @apply px-6 py-3 rounded-2xl;
+  }
+
+  .nav-links {
+    @apply hidden;
+  }
+
+  .nav-hamburger {
+    @apply block;
+  }
+
+}
