@@ -113,7 +113,7 @@
 }
 
 .how-text {
-  @apply text-sm text-gray-600;
+  @apply text-sm text-gray-600 text-center;
 }
 
 /* MOBILE OPTIMIZATION */
