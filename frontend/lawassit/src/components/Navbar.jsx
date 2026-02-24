@@ -11,7 +11,11 @@ function Navbar() {
       <nav className="navbar">
         {/* LEFT LINKS */}
         <div className="nav-links">
-          <Link to="/" className="nav-link" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+          <Link
+            to="/"
+            className="nav-link"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
             Home
           </Link>
           <span className="nav-link">Explore Rights</span>
@@ -19,22 +23,38 @@ function Navbar() {
         </div>
 
         {/* LOGO */}
-        <div className="text-[#0A1F44] hover:text-[#C9A227] transition cursor-pointer">
+        <Link
+          to="/"
+          className="text-[#0A1F44] hover:text-[#C9A227] transition cursor-pointer"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        >
           <Scale size={28} />
-        </div>
+        </Link>
 
         {/* RIGHT LINKS */}
         <div className="nav-links">
           <span className="nav-link">Experts</span>
-          <Link to="/about" className="nav-link" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+          <Link
+            to="/about"
+            className="nav-link"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
             About
           </Link>
 
-          <Link to="/login" className="nav-btn nav-login" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+          <Link
+            to="/login"
+            className="nav-btn nav-login"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
             Login
           </Link>
 
-          <Link to="/register" className="nav-btn nav-register" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+          <Link
+            to="/register"
+            className="nav-btn nav-register"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
             Register
           </Link>
         </div>
@@ -47,24 +67,48 @@ function Navbar() {
 
       {/* MOBILE MENU */}
       <div className={`mobile-menu ${isOpen ? "active" : ""}`}>
-        <Link to="/" className="nav-link" onClick={() => { setIsOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+        <Link
+          to="/"
+          className="nav-link"
+          onClick={() => {
+            setIsOpen(false);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        >
           Home
         </Link>
         <span className="nav-link">Explore Rights</span>
         <span className="nav-link">Submit Query</span>
         <span className="nav-link">Experts</span>
-        <Link to="/about" className="nav-link" onClick={() => { setIsOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+        <Link
+          to="/about"
+          className="nav-link"
+          onClick={() => {
+            setIsOpen(false);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        >
           About
         </Link>
 
-        <Link to="/login" className="nav-btn nav-login w-full text-center" onClick={() => { setIsOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+        <Link
+          to="/login"
+          className="nav-btn nav-login w-full text-center"
+          onClick={() => {
+            setIsOpen(false);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        >
           Login
         </Link>
 
         <Link
           to="/register"
           className="nav-btn nav-register w-full text-center"
-          onClick={() => { setIsOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+          onClick={() => {
+            setIsOpen(false);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
         >
           Register
         </Link>
