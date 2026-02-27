@@ -36,11 +36,11 @@
   @apply mt-8 flex gap-4;
 }
 
-.btn-primary {
+.home-btn-primary {
   @apply bg-[#0A1F44] text-white px-7 py-3 rounded-lg hover:bg-[#123A6F] transition;
 }
 
-.btn-outline {
+.home-btn-outline {
   @apply border border-[#0A1F44] text-[#0A1F44] px-7 py-3 rounded-lg hover:bg-[#0A1F44] hover:text-white transition;
 }
 
