@@ -79,7 +79,16 @@ function Navbar() {
         </Link>
         <span className="nav-link">Explore Rights</span>
         <span className="nav-link">Submit Query</span>
-        <span className="nav-link">Experts</span>
+        <Link
+          to="/experts"
+          className="nav-link"
+          onClick={() => {
+            setIsOpen(false);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        >
+          Experts
+        </Link>
         <Link
           to="/about"
           className="nav-link"
