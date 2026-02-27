@@ -33,7 +33,7 @@ function Navbar() {
 
         {/* RIGHT LINKS */}
         <div className="nav-links">
-          <span className="nav-link">Experts</span>
+          <Link to="/experts" className="nav-link" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Experts</Link>
           <Link
             to="/about"
             className="nav-link"
