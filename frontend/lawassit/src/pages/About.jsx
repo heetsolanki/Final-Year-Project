@@ -284,7 +284,7 @@ function About() {
                 </div>
 
                 <div>
-                  <h4 className="dev-name">Your Name</h4>
+                  <h4 className="dev-name">Heet Solanki</h4>
                   <p className="dev-role">Full Stack Developer</p>
 
                   <p className="dev-description">
