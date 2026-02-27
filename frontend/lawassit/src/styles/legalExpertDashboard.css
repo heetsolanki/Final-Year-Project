@@ -1,0 +1,238 @@
+/* ================= WRAPPER ================= */
+
+.expert-dashboard-wrapper {
+  @apply min-h-screen bg-gray-50 py-14 px-4 pt-36;
+}
+
+.expert-dashboard-container {
+  @apply max-w-6xl mx-auto bg-white rounded-2xl shadow-sm p-10 transition-all duration-300;
+}
+
+.expert-dashboard-container:hover {
+  @apply shadow-xl -translate-y-1;
+}
+
+/* ================= HEADER ================= */
+
+.expert-dashboard-header {
+  @apply mb-12;
+}
+
+.expert-dashboard-title {
+  @apply text-2xl font-bold text-[#1E3A8A];
+}
+
+.expert-dashboard-subtext {
+  @apply text-gray-500 text-sm mt-1;
+}
+
+/* ================= STATS ================= */
+
+.expert-stats-grid {
+  @apply grid grid-cols-1 md:grid-cols-4 gap-6 mb-12;
+}
+
+.expert-stat-card {
+  @apply flex items-center gap-4 p-6 bg-gray-50 rounded-2xl border border-gray-100 transition-all duration-300 cursor-pointer relative;
+}
+
+.expert-stat-card:hover {
+  @apply bg-white -translate-y-1;
+}
+
+/* Keep your glow logic style */
+
+.expert-stat-card:nth-child(1):hover {
+  box-shadow: 3px 3px 10px rgba(37, 99, 235, 0.25);
+}
+
+.expert-stat-card:nth-child(2):hover {
+  box-shadow: 3px 3px 10px rgba(212, 175, 55, 0.35);
+}
+
+.expert-stat-card:nth-child(3):hover {
+  box-shadow: 3px 3px 10px rgba(34, 197, 94, 0.25);
+}
+
+.expert-stat-card:nth-child(4):hover {
+  box-shadow: 3px 3px 10px rgba(239, 68, 68, 0.25);
+}
+
+.expert-stat-card h3 {
+  @apply text-sm text-gray-500;
+}
+
+.expert-stat-card p {
+  @apply text-2xl font-bold text-[#1E3A8A];
+}
+
+/* ================= TABLE ================= */
+
+.expert-table-wrapper {
+  @apply overflow-x-auto rounded-2xl border border-gray-100 transition duration-300;
+}
+
+.expert-table-wrapper:hover {
+  @apply shadow-md;
+}
+
+.expert-table {
+  @apply w-full text-left;
+}
+
+.expert-table th {
+  @apply p-4 text-sm text-gray-500 border-b bg-gray-50;
+}
+
+.expert-table td {
+  @apply p-4 text-gray-700 border-b transition duration-200;
+}
+
+.expert-table tbody tr {
+  @apply transition duration-200;
+}
+
+.expert-table tbody tr:hover {
+  @apply bg-gray-50;
+}
+
+/* ================= expert-statUS BADGES ================= */
+
+.expert-status-badge {
+  @apply inline-flex items-center justify-center px-4 py-1.5 text-xs font-medium rounded-full whitespace-nowrap transition duration-300;
+}
+
+.expert-status-new {
+  @apply bg-blue-100 text-blue-600;
+}
+
+.expert-status-progress {
+  @apply bg-yellow-100 text-yellow-600;
+}
+
+.expert-status-resolved {
+  @apply bg-green-100 text-green-600;
+}
+
+.expert-status-default {
+  @apply bg-gray-100 text-gray-600;
+}
+
+/* ================= VIEW BUTTON ================= */
+
+.expert-view-btn {
+  @apply text-sm font-medium text-[#1E3A8A] transition duration-300;
+}
+
+.expert-view-btn:hover {
+  @apply text-[#D4AF37] underline;
+}
+
+/* ================= SIDE PANEL ================= */
+
+.expert-side-panel {
+  @apply mt-12 flex gap-6 justify-between flex-wrap;
+}
+
+.expert-side-card {
+  @apply flex-1 min-w-[280px] bg-gray-50 p-6 rounded-2xl border border-gray-100 transition duration-300;
+}
+
+.expert-side-card:hover {
+  @apply bg-white shadow-md -translate-y-1;
+}
+
+.expert-side-card h3 {
+  @apply text-lg font-semibold text-[#1E3A8A] mb-3 flex items-center gap-2;
+}
+
+.expert-side-card ul {
+  @apply space-y-2 text-sm text-gray-600;
+}
+
+.expert-side-card ul li {
+  @apply transition duration-200 cursor-pointer;
+}
+
+.expert-side-card ul li:hover {
+  @apply text-[#D4AF37];
+}
+
+.expert-profile-card p {
+  @apply text-sm text-gray-500 mb-4;
+}
+
+.expert-outline-btn {
+  @apply border border-[#1E3A8A] text-[#1E3A8A] px-6 py-3 rounded-xl text-sm font-medium transition duration-300;
+}
+
+.expert-outline-btn:hover {
+  @apply bg-[#1E3A8A] text-white shadow-sm;
+}
+
+.expert-outline-btn.small {
+  @apply px-4 py-2 text-xs;
+}
+
+/* ================= MOBILE RESPONSIVE ================= */
+
+@media (max-width: 1024px) {
+
+  .expert-dashboard-container {
+    @apply p-6;
+  }
+
+  .expert-expert-stats-grid {
+    @apply grid-cols-1;
+  }
+
+  .expert-side-panel {
+    @apply flex-col;
+  }
+
+  .expert-side-card {
+    @apply w-full;
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .expert-dashboard-wrapper {
+    @apply px-3 pt-28;
+  }
+
+  .expert-dashboard-container {
+    @apply p-5 rounded-xl;
+  }
+
+  .expert-dashboard-title {
+    @apply text-xl;
+  }
+
+  .expert-dashboard-subtext {
+    @apply text-xs;
+  }
+
+  .expert-table th,
+  .expert-table td {
+    @apply p-3 text-sm;
+  }
+
+}
+
+@media (max-width: 480px) {
+
+  .expert-dashboard-container {
+    @apply p-4;
+  }
+  
+  .expert-stat-card {
+    @apply p-4;
+  }
+
+  .expert-stat-card p {
+    @apply text-xl;
+  }
+
+}
