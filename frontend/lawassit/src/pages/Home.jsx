@@ -45,9 +45,9 @@ function Home() {
             </p>
 
             <div className="hero-buttons">
-              <button className="btn-primary">Submit a Query</button>
+              <button className="home-btn-primary">Submit a Query</button>
 
-              <button className="btn-outline">Explore Your Rights</button>
+              <button className="home-btn-outline">Explore Your Rights</button>
             </div>
           </div>
 
