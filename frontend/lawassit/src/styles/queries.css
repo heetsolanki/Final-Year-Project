@@ -1,0 +1,215 @@
+/* ================= Layout ================= */
+
+.queries-wrapper {
+  @apply min-h-screen bg-gray-50
+         pt-28 sm:pt-32 lg:pt-40
+         px-4 sm:px-6 lg:px-8
+         pb-20;
+}
+
+.queries-container {
+  @apply max-w-6xl mx-auto;
+}
+
+/* ================= Sticky Top Section ================= */
+
+.sticky-top-section {
+  @apply sticky top-20 sm:top-24
+         z-30
+         bg-gray-50
+         pb-4;
+}
+
+/* ================= Heading ================= */
+
+.queries-heading {
+  @apply text-center mb-6 px-2;
+}
+
+.queries-heading h1 {
+  @apply text-2xl sm:text-3xl lg:text-4xl
+         font-bold text-gray-800 mb-2;
+}
+
+.queries-heading p {
+  @apply text-sm sm:text-base text-gray-500;
+}
+
+/* ================= Ask Button ================= */
+
+.ask-btn-wrapper {
+  @apply flex justify-center mb-6;
+}
+
+/* ================= Tabs Container ================= */
+
+.tabs-container {
+  @apply bg-white
+         rounded-2xl
+         shadow-sm
+         p-3
+         flex
+         justify-between
+         flex-nowrap
+         overflow-x-auto
+         gap-3;
+}
+
+/* Hide Scrollbar */
+.tabs-container::-webkit-scrollbar {
+  display: none;
+}
+
+.tabs-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ================= Pill Tabs ================= */
+
+.tab-item {
+  @apply flex-shrink-0
+         px-5 py-2
+         rounded-full
+         bg-gray-100
+         text-gray-600
+         text-sm
+         font-medium
+         whitespace-nowrap
+         transition-all duration-200;
+}
+
+.tab-item:hover {
+  @apply bg-blue-50 text-blue-600;
+}
+
+.active-tab {
+  @apply bg-blue-600 text-white shadow-md;
+}
+
+/* ================= Cards ================= */
+
+.query-card {
+  @apply bg-white rounded-xl shadow-sm
+         p-5 sm:p-6 lg:p-8
+         mb-6
+         transition;
+}
+
+.hover-card:hover {
+  @apply shadow-md sm:shadow-lg;
+}
+
+/* ================= Form ================= */
+
+.form-header {
+  @apply flex justify-between items-center mb-3;
+}
+
+.close-btn {
+  @apply text-gray-400 hover:text-red-500
+         text-lg font-bold transition;
+}
+
+.form-title {
+  @apply text-lg sm:text-xl font-bold text-gray-800;
+}
+
+.form-subtitle {
+  @apply text-xs text-left pb-4 sm:text-sm text-gray-500 mb-4;
+}
+
+.query-form {
+  @apply space-y-4;
+}
+
+.form-input {
+  @apply w-full border border-gray-300
+         rounded-lg
+         px-3 py-2
+         text-sm
+         focus:ring-2 focus:ring-blue-500
+         outline-none;
+}
+
+.checkbox-row {
+  @apply flex items-start space-x-2
+         text-sm text-gray-600;
+}
+
+/* ================= Buttons ================= */
+
+.primary-btn {
+  @apply bg-blue-600 hover:bg-blue-700
+         text-white font-medium
+         w-full sm:w-auto
+         py-2.5 px-6
+         rounded-lg
+         transition;
+}
+
+.secondary-btn {
+  @apply bg-blue-50 hover:bg-blue-100
+         text-blue-600 font-medium
+         text-sm
+         py-2 px-4
+         rounded-lg
+         transition;
+}
+
+/* ================= Query List ================= */
+
+.queries-list {
+  @apply space-y-5 mt-6;
+}
+
+.query-header {
+  @apply flex flex-col gap-3;
+}
+
+@media (min-width: 640px) {
+  .query-header {
+    @apply flex-row justify-between items-center;
+  }
+}
+
+.query-header h3 {
+  @apply text-base sm:text-lg
+         font-semibold
+         text-gray-800
+         leading-snug;
+}
+
+.query-description {
+  @apply text-sm text-gray-600
+         leading-relaxed
+         mb-3;
+}
+
+.query-footer {
+  @apply flex flex-col gap-4
+         text-sm text-gray-500;
+}
+
+@media (min-width: 640px) {
+  .query-footer {
+    @apply flex-row justify-between items-center;
+  }
+}
+
+/* ================= Status Badges ================= */
+
+.status-badge {
+  @apply text-xs font-medium
+         px-3 py-1
+         rounded-full
+         w-fit;
+}
+
+.status-badge.open {
+  @apply bg-yellow-100 text-yellow-700;
+}
+
+.status-badge.answered {
+  @apply bg-green-100 text-green-700;
+}
