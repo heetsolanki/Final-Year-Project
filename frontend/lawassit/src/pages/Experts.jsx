@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Star, Briefcase, IndianRupee, ArrowUp } from "lucide-react";
+import { MapPin, Star, Briefcase, IndianRupee } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BackToTopButton from "../components/BackToTopButton";
