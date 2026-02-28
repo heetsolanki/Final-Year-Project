@@ -132,8 +132,8 @@ function Login() {
 
           {/* RIGHT SECTION */}
           <div className="auth-right">
-            <h2 className="form-title">Welcome Back</h2>
-            <p className="form-subtitle">Please login to your account</p>
+            <h2 className="auth-title">Welcome Back</h2>
+            <p className="auth-subtitle">Please login to your account</p>
 
             <form
               className="auth-form"

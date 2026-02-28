@@ -176,13 +176,13 @@ function Register() {
               </button>
             </div>
 
-            <h2 className="form-title">
+            <h2 className="auth-title">
               {role === "consumer"
                 ? "Create Consumer Account"
                 : "Join as Legal Expert"}
             </h2>
 
-            <p className="form-subtitle">
+            <p className="auth-subtitle">
               {role === "consumer"
                 ? "Register to get trusted legal support."
                 : "Register to provide legal consultation services."}

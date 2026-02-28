@@ -47,11 +47,11 @@
   @apply p-8 sm:p-10 md:p-14 flex flex-col justify-center;
 }
 
-.form-title {
+.auth-title {
   @apply text-2xl sm:text-3xl font-bold text-gray-800 mb-2 text-center;
 }
 
-.form-subtitle {
+.auth-subtitle {
   @apply text-gray-500 mb-8 text-center;
 }
 
