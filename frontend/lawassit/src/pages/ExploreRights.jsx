@@ -10,6 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import BackToTopButton from "../components/BackToTopButton";
 import "../styles/exploreRights.css";
 
 const ExploreRights = () => {
@@ -109,6 +110,7 @@ const ExploreRights = () => {
 
         </div>
       </div>
+      <BackToTopButton />
 
       <Footer />
     </>
