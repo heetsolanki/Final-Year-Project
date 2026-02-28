@@ -102,7 +102,7 @@ function Register() {
 
   const strengthPercent = (strengthScore / 5) * 100;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     let newErrors = {};
@@ -119,20 +119,51 @@ function Register() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      setShowSuccess(true);
-      setCountdown(3);
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/auth/register",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: form.fullName,
+              email: form.email,
+              password: form.password,
+              role: role === "consumer" ? "consumer" : "legalExpert",
+            }),
+          },
+        );
 
-      setForm({
-        fullName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-      });
+        const data = await response.json();
 
-      // Redirect after 3 seconds
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 3000);
+        if (!response.ok) {
+          setErrors({ email: data.message });
+          return;
+        }
+
+        // Optional: Auto login after registration
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+
+        setShowSuccess(true);
+        setCountdown(3);
+
+        setForm({
+          fullName: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        });
+
+        setTimeout(() => {
+          navigate("/login");
+        }, 3000);
+      } catch (error) {
+        console.error("Registration error:", error);
+      }
     }
   };
 

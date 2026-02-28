@@ -1,10 +1,48 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Scale, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import "../styles/navbar.css";
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem("token");
+
+      if (token) {
+        try {
+          const decoded = jwtDecode(token);
+          setIsLoggedIn(true);
+          setUserRole(decoded.role);
+        } catch (error) {
+          setIsLoggedIn(false);
+          setUserRole(null);
+        }
+      } else {
+        setIsLoggedIn(false);
+        setUserRole(null);
+      }
+    };
+
+    checkAuth();
+
+    window.addEventListener("storage", checkAuth);
+
+    return () => window.removeEventListener("storage", checkAuth);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    setUserRole(null);
+    navigate("/");
+  };
 
   return (
     <div className="nav-wrapper">
@@ -60,21 +98,35 @@ function Navbar() {
             About
           </Link>
 
-          <Link
-            to="/login"
-            className="nav-btn nav-login"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          >
-            Login
-          </Link>
+          {!isLoggedIn ? (
+            <>
+              <Link to="/login" className="nav-btn nav-login">
+                Login
+              </Link>
 
-          <Link
-            to="/register"
-            className="nav-btn nav-register"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          >
-            Register
-          </Link>
+              <Link to="/register" className="nav-btn nav-register">
+                Register
+              </Link>
+            </>
+          ) : (
+            <>
+              {userRole === "consumer" && (
+                <Link to="/user-dashboard" className="nav-btn nav-login">
+                  My Dashboard
+                </Link>
+              )}
+
+              {userRole === "legalExpert" && (
+                <Link to="/legal-expert-dashboard" className="nav-btn nav-login">
+                  Expert Dashboard
+                </Link>
+              )}
+
+              <button className="nav-btn nav-register" onClick={handleLogout}>
+                Logout
+              </button>
+            </>
+          )}
         </div>
 
         {/* HAMBURGER */}
@@ -136,27 +188,55 @@ function Navbar() {
           About
         </Link>
 
-        <Link
-          to="/login"
-          className="nav-btn nav-login w-full text-center"
-          onClick={() => {
-            setIsOpen(false);
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }}
-        >
-          Login
-        </Link>
+        {!isLoggedIn ? (
+          <>
+            <Link
+              to="/login"
+              className="nav-btn nav-login w-full text-center"
+              onClick={() => {
+                setIsOpen(false);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            >
+              Login
+            </Link>
 
-        <Link
-          to="/register"
-          className="nav-btn nav-register w-full text-center"
-          onClick={() => {
-            setIsOpen(false);
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }}
-        >
-          Register
-        </Link>
+            <Link
+              to="/register"
+              className="nav-btn nav-register w-full text-center"
+              onClick={() => {
+                setIsOpen(false);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            >
+              Register
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link
+              to={
+                userRole === "consumer"
+                  ? "/user-dashboard"
+                  : "/legal-expert-dashboard"
+              }
+              className="nav-login nav-btn w-full text-center"
+              onClick={() => setIsOpen(false)}
+            >
+              {userRole === "consumer" ? "My Dashboard" : "Expert Dashboard"}
+            </Link>
+
+            <button
+              className="nav-btn nav-register w-full"
+              onClick={() => {
+                handleLogout();
+                setIsOpen(false);
+              }}
+            >
+              Logout
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
