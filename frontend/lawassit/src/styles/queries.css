@@ -84,7 +84,7 @@
 }
 
 .active-tab {
-  @apply bg-blue-600 text-white shadow-md;
+  @apply bg-[#1E3A8A] text-white shadow-md;
 }
 
 /* ================= Cards ================= */
@@ -140,7 +140,7 @@
 /* ================= Buttons ================= */
 
 .primary-btn {
-  @apply bg-blue-600 hover:bg-blue-700
+  @apply bg-[#1E3A8A] hover:bg-blue-700
          text-white font-medium
          w-full sm:w-auto
          py-2.5 px-6
@@ -149,8 +149,8 @@
 }
 
 .secondary-btn {
-  @apply bg-blue-50 hover:bg-blue-100
-         text-blue-600 font-medium
+  @apply bg-[#1E3A8A] hover:bg-[#1E3A8A]/90
+         text-white font-medium
          text-sm
          py-2 px-4
          rounded-lg
