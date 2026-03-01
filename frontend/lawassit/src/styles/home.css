@@ -28,11 +28,11 @@
 }
 
 .home-btn-primary {
-  @apply bg-[#0A1F44] text-white px-7 py-3 rounded-lg hover:bg-[#123A6F] transition;
+  @apply bg-[#1e3a8a] text-white px-7 py-3 rounded-lg hover:bg-[#123A6F] transition;
 }
 
 .home-btn-outline {
-  @apply border border-[#0A1F44] text-[#0A1F44] px-7 py-3 rounded-lg hover:bg-[#0A1F44] hover:text-white transition;
+  @apply border border-[#1e3a8a] text-[#1e3a8a] px-7 py-3 rounded-lg hover:bg-[#1e3a8a] hover:text-white transition;
 }
 
 .hero-grid {
@@ -62,7 +62,7 @@
 }
 
 .how-number {
-  @apply w-16 h-16 bg-[#0A1F44] text-white rounded-full flex items-center justify-center mx-auto font-semibold;
+  @apply w-16 h-16 bg-[#1e3a8a] text-white rounded-full flex items-center justify-center mx-auto font-semibold;
 }
 
 .how-icon {
