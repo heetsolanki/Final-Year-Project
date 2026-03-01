@@ -9,6 +9,7 @@ import {
 import "../styles/legalExpertDashboard.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import BackToTopButton from "../components/BackToTopButton";
 
 const LegalExpertDashboard = () => {
   return (
@@ -156,7 +157,7 @@ const LegalExpertDashboard = () => {
 
         </div>
       </div>
-
+      <BackToTopButton />
       <Footer />
     </>
   );
