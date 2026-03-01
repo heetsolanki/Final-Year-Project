@@ -41,21 +41,6 @@ function Register() {
     }
   }, [form.password, form.confirmPassword]);
 
-  // useEffect(() => {
-  //   if (!showSuccess) return;
-
-  //   if (countdown === 0) {
-  //     navigate("/login");
-  //     return;
-  //   }
-
-  //   const timer = setTimeout(() => {
-  //     setCountdown((prev) => prev - 1);
-  //   }, 1000);
-
-  //   return () => clearTimeout(timer);
-  // }, [showSuccess, countdown, navigate]);
-
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -121,7 +106,7 @@ function Register() {
     if (Object.keys(newErrors).length === 0) {
       try {
         const response = await fetch(
-          "https://lawassist-wgvq.onrender.com/api/auth/register",
+          "https://law-assist.onrender.com/api/auth/register",
           {
             method: "POST",
             headers: {
@@ -367,6 +352,5 @@ function Register() {
     </>
   );
 }
-console.log("NEW BUILD ACTIVE");
 
 export default Register;

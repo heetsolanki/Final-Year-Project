@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   FolderOpen,
   FileText,
@@ -7,40 +8,43 @@ import {
   Plus,
   Bell,
   Search,
+  Eye,
 } from "lucide-react";
 import "../styles/userDashboard.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import AskQueryForm from "../components/AskQueryForm";
+import BackToTopButton from "../components/BackToTopButton";
 
 const UserDashboard = () => {
-  const userName = "Heet";
-
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
+  const [userName, setUserName] = useState("");
+  const [queries, setQueries] = useState([]);
+  const [showForm, setShowForm] = useState(false);
 
-  const queries = [
-    {
-      id: 1,
-      title: "Refund not received",
-      category: "E-commerce",
-      date: "20 Feb 2026",
-      status: "In Review",
-    },
-    {
-      id: 2,
-      title: "Defective mobile phone",
-      category: "Product Defect",
-      date: "18 Feb 2026",
-      status: "Assigned",
-    },
-    {
-      id: 3,
-      title: "Late delivery complaint",
-      category: "Delivery Issue",
-      date: "15 Feb 2026",
-      status: "Resolved",
-    },
-  ];
+  const fetchDashboard = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await axios.get(
+      "https://law-assist.onrender.com/api/dashboard",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setUserName(res.data.name || "");
+    setQueries(res.data.queries || []);
+  } catch (error) {
+    console.log(error);
+  }
+};
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
 
   const notifications = [
     "Your case 'Refund not received' is under review.",
@@ -54,7 +58,7 @@ const UserDashboard = () => {
     "Warranty Guidelines",
   ];
 
-  const filteredQueries = queries.filter((q) => {
+  const filteredQueries = queries?.filter((q) => {
     const matchesSearch = q.title
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -80,7 +84,6 @@ const UserDashboard = () => {
       <Navbar />
       <div className="user-dashboard-wrapper">
         <div className="user-dashboard-container">
-
           <div className="user-dashboard-header">
             <div className="user-user-info">
               <div className="user-avatar">
@@ -98,12 +101,19 @@ const UserDashboard = () => {
           </div>
 
           <div className="user-quick-actions">
-            <button className="user-primary-btn">
-              <Plus size={18} /> Submit New Query
-            </button>
+            {!showForm && (
+              <button
+                className="user-primary-btn"
+                onClick={() => setShowForm(true)}
+              >
+                <Plus size={18} /> Submit New Query
+              </button>
+            )}
             <button className="user-outline-btn">View Saved Topics</button>
             <button className="user-outline-btn">Track Ongoing Cases</button>
           </div>
+
+          {showForm && <AskQueryForm onClose={() => setShowForm(false)} onSuccess={fetchDashboard}/>}
 
           <div className="user-stats-grid">
             <div className="user-stat-card">
@@ -169,18 +179,20 @@ const UserDashboard = () => {
                   <tr key={query.id}>
                     <td>{query.title}</td>
                     <td>{query.category}</td>
-                    <td>{query.date}</td>
+                    <td>{new Date(query.createdAt).toLocaleDateString()}</td>
                     <td>
                       <span
                         className={`user-status-badge ${getStatusClass(
-                          query.status
+                          query.status,
                         )}`}
                       >
                         {query.status}
                       </span>
                     </td>
                     <td>
-                      <button className="user-view-btn">View</button>
+                      <button className="user-view-btn">
+                        <Eye size={18} />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -228,6 +240,7 @@ const UserDashboard = () => {
           <Plus size={22} />
         </button>
       </div>
+      <BackToTopButton />
       <Footer />
     </>
   );

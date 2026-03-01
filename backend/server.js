@@ -25,11 +25,12 @@ app.get("/", (req, res) => {
   res.json({ message: "LawAssist Backend Running 🚀" });
 });
 
-// 🔥 ADD THESE TWO LINES
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/user", require("./routes/userRoutes"));
+app.use("/api/dashboard", require("./routes/dashboardRoutes"));
+app.use("/api/queries", require("./routes/queryRoutes"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port https://law-assist.onrender.com`);
 });
