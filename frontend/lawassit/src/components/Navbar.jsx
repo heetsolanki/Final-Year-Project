@@ -100,24 +100,24 @@ function Navbar() {
 
           {!isLoggedIn ? (
             <>
-              <Link to="/login" className="nav-btn nav-login">
+              <Link to="/login" className="nav-btn nav-login" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
                 Login
               </Link>
 
-              <Link to="/register" className="nav-btn nav-register">
+              <Link to="/register" className="nav-btn nav-register" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
                 Register
               </Link>
             </>
           ) : (
             <>
               {userRole === "consumer" && (
-                <Link to="/user-dashboard" className="nav-btn nav-login">
+                <Link to="/user-dashboard" className="nav-btn nav-login" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
                   My Dashboard
                 </Link>
               )}
 
               {userRole === "legalExpert" && (
-                <Link to="/legal-expert-dashboard" className="nav-btn nav-login">
+                <Link to="/legal-expert-dashboard" className="nav-btn nav-login" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
                   Expert Dashboard
                 </Link>
               )}
@@ -221,7 +221,10 @@ function Navbar() {
                   : "/legal-expert-dashboard"
               }
               className="nav-login nav-btn w-full text-center"
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
             >
               {userRole === "consumer" ? "My Dashboard" : "Expert Dashboard"}
             </Link>
@@ -231,6 +234,7 @@ function Navbar() {
               onClick={() => {
                 handleLogout();
                 setIsOpen(false);
+                window.scrollTo({ top: 0, behavior: "smooth" });
               }}
             >
               Logout
