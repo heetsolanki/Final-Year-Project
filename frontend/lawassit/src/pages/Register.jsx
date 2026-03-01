@@ -41,20 +41,20 @@ function Register() {
     }
   }, [form.password, form.confirmPassword]);
 
-  useEffect(() => {
-    if (!showSuccess) return;
+  // useEffect(() => {
+  //   if (!showSuccess) return;
 
-    if (countdown === 0) {
-      navigate("/login");
-      return;
-    }
+  //   if (countdown === 0) {
+  //     navigate("/login");
+  //     return;
+  //   }
 
-    const timer = setTimeout(() => {
-      setCountdown((prev) => prev - 1);
-    }, 1000);
+  //   const timer = setTimeout(() => {
+  //     setCountdown((prev) => prev - 1);
+  //   }, 1000);
 
-    return () => clearTimeout(timer);
-  }, [showSuccess, countdown, navigate]);
+  //   return () => clearTimeout(timer);
+  // }, [showSuccess, countdown, navigate]);
 
   const handleChange = (e) => {
     setForm({
@@ -148,8 +148,22 @@ function Register() {
           localStorage.setItem("token", data.token);
         }
 
-        setShowSuccess(true);
+        // Show popup first
         setCountdown(3);
+        setShowSuccess(true);
+
+        // Start countdown manually
+        let counter = 3;
+
+        const interval = setInterval(() => {
+          counter -= 1;
+          setCountdown(counter);
+
+          if (counter === 0) {
+            clearInterval(interval);
+            navigate("/login");
+          }
+        }, 1000);
 
         setForm({
           fullName: "",
