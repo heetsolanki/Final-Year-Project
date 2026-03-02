@@ -267,3 +267,105 @@
 .success-btn {
   @apply px-5 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition;
 }
+
+/* ================= VIEW MODAL WITH TABS ================= */
+
+.view-overlay {
+  @apply fixed inset-0 bg-black/60 backdrop-blur-sm 
+  flex items-center justify-center 
+  z-50 px-4 sm:px-6;
+}
+
+.view-modal {
+  @apply relative w-full max-w-2xl 
+  bg-white rounded-3xl shadow-2xl 
+  p-6 sm:p-8 
+  animate-[fadeInScale_0.25s_ease];
+}
+
+/* Close Button */
+.view-close-btn {
+  @apply absolute top-4 right-4 
+  w-8 h-8 flex items-center justify-center 
+  rounded-full bg-gray-100 
+  text-gray-600 hover:bg-red-100 hover:text-red-600 
+  transition;
+}
+
+.view-title {
+  @apply text-xl sm:text-2xl font-bold 
+  text-center text-gray-800 mb-6;
+}
+
+/* Tabs */
+.view-tabs {
+  @apply flex border-b border-gray-200 mb-6;
+}
+
+.view-tab-btn {
+  @apply flex-1 text-sm sm:text-base 
+  py-2 font-medium text-gray-500 
+  hover:text-blue-600 transition;
+}
+
+.query-active-tab {
+  @apply bg-[#1E3A8A] rounded-lg text-white transition duration-300;
+} 
+
+.view-tab-content {
+  @apply max-h-[60vh] overflow-y-auto pr-1;
+}
+
+/* Query Details */
+.view-content {
+  @apply space-y-5 text-sm sm:text-base text-gray-700;
+}
+
+.view-item span {
+  @apply font-semibold block mb-1 text-gray-800;
+}
+
+.view-item p {
+  @apply bg-gray-100 text-gray-600 py-2 pl-4 rounded-lg font-medium leading-relaxed break-words;
+}
+
+.view-item-status {
+  @apply max-w-fit px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap transition duration-300;
+}
+
+/* Answers Section */
+.answers-section {
+  @apply space-y-4;
+}
+
+.answer-card {
+  @apply bg-gray-50 p-4 rounded-2xl shadow-sm border border-gray-100;
+}
+
+.expert-info h4 {
+  @apply font-semibold text-gray-800;
+}
+
+.expert-speciality {
+  @apply text-xs text-blue-600 mb-2;
+}
+
+.expert-answer {
+  @apply text-sm text-gray-700 leading-relaxed;
+}
+
+.no-answers-text {
+  @apply text-center text-gray-500 italic;
+}
+
+/* Animation */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
