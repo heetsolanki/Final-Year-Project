@@ -1,11 +1,11 @@
 /* ================= WRAPPER ================= */
 
 .user-dashboard-wrapper {
-  @apply min-h-screen bg-gray-50 py-14 px-4 pt-36;
+  @apply min-h-screen bg-gray-50 pt-28 sm:pt-32 md:pt-36 py-10 sm:py-12 md:py-14 px-4 sm:px-6;
 }
 
 .user-dashboard-container {
-  @apply max-w-6xl mx-auto bg-white rounded-2xl shadow-sm p-10 transition-all duration-300;
+  @apply max-w-6xl mx-auto bg-white rounded-2xl shadow-sm p-5 sm:p-8 md:p-10 transition-all duration-300;
 }
 
 .user-dashboard-container:hover {
@@ -23,15 +23,19 @@
 }
 
 .user-avatar {
-  @apply bg-[#1E3A8A] text-white w-11 h-11 rounded-full flex items-center justify-center shadow-md transition duration-300;
+  @apply relative bg-gradient-to-br from-[#1E3A8A] to-[#162f6a] text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-md transition-all duration-300 cursor-pointer;
 }
 
 .user-avatar:hover {
-  @apply shadow-lg scale-105;
+  box-shadow: 0 8px 20px rgba(30, 58, 138, 0.35);
+}
+
+.user-avatar:active {
+  @apply scale-95;
 }
 
 .user-dashboard-title {
-  @apply text-2xl font-bold text-[#1E3A8A];
+  @apply text-xl sm:text-2xl font-bold text-[#1E3A8A];
 }
 
 .user-dashboard-subtext {
@@ -41,15 +45,42 @@
 /* ================= QUICK ACTIONS ================= */
 
 .user-quick-actions {
-  @apply flex flex-wrap gap-4 mb-12;
+  @apply flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-8 sm:mb-12;
 }
 
 .user-primary-btn {
-  @apply flex items-center gap-2 bg-[#1E3A8A] text-white px-6 py-3 rounded-xl text-sm font-medium transition duration-300 shadow-sm;
+  @apply flex items-center justify-center gap-2 bg-gradient-to-r from-[#1E3A8A] to-[#162f6a] text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-semibold transition-all duration-300 shadow-md w-full sm:w-auto;
 }
 
 .user-primary-btn:hover {
-  @apply bg-[#162f6a] shadow-md -translate-y-0.5;
+  @apply -translate-y-1 shadow-lg;
+}
+
+.user-primary-btn:active {
+  @apply scale-95;
+}
+
+.user-primary-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.user-primary-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent);
+  transition: all 0.6s ease;
+}
+
+.user-primary-btn:hover::after {
+  left: 100%;
 }
 
 .user-outline-btn {
@@ -67,7 +98,7 @@
 /* ================= STATS ================= */
 
 .user-stats-grid {
-  @apply grid grid-cols-1 md:grid-cols-3 gap-6 mb-12;
+  @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12;
 }
 
 .user-stat-card {
@@ -103,7 +134,7 @@
 /* ================= FILTER BAR ================= */
 
 .user-filter-bar {
-  @apply flex flex-col md:flex-row md:items-center gap-4 mb-6;
+  @apply flex flex-col md:flex-row md:items-center gap-3 sm:gap-4 mb-6;
 }
 
 .user-search-box {
@@ -156,6 +187,11 @@
   @apply bg-gray-50;
 }
 
+.user-queries-table th,
+.user-queries-table td {
+  @apply text-xs sm:text-sm p-3 sm:p-4;
+}
+
 .user-status-badge {
   @apply inline-flex items-center justify-center px-4 py-1.5 text-xs font-medium rounded-full whitespace-nowrap transition duration-300;
 }
@@ -195,11 +231,11 @@
 /* ================= SIDE PANEL ================= */
 
 .user-side-panel {
-  @apply mt-12 flex gap-6 justify-between flex-wrap;
+  @apply mt-8 sm:mt-12 flex flex-col md:flex-row gap-4 sm:gap-6 justify-between;
 }
 
 .user-side-card {
-  @apply flex-1 min-w-[280px] bg-gray-50 p-6 rounded-2xl border border-gray-100 transition duration-300;
+  @apply flex-1 min-w-[280px] bg-gray-50 p-4 sm:p-6 rounded-2xl border border-gray-100 transition duration-300;
 }
 
 .user-side-card:hover {
@@ -238,4 +274,29 @@
 
 .user-dashboard-disclaimer:hover {
   @apply text-gray-500;
+}
+
+/* ================= PREMIUM VIEW MODAL ================= */
+
+.view-actions {
+  @apply mt-8 flex justify-end;
+}
+
+.view-delete-btn {
+  @apply bg-red-500 hover:bg-red-600 
+  text-white px-6 py-2.5 
+  rounded-xl shadow-md 
+  transition duration-200;
+}
+
+/* Smooth animation */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

@@ -24,6 +24,8 @@ const UserDashboard = () => {
   const [showForm, setShowForm] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedQueryId, setSelectedQueryId] = useState(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedQuery, setSelectedQuery] = useState(null);
 
   const fetchDashboard = async () => {
     try {
@@ -59,9 +61,10 @@ const UserDashboard = () => {
       );
 
       setShowDeleteModal(false);
+      setShowViewModal(false);
+      setSelectedQuery(null);
       setSelectedQueryId(null);
-
-      fetchDashboard(); // refresh
+      fetchDashboard();
     } catch (error) {
       console.log(error);
       alert("Failed to delete query");
@@ -222,7 +225,13 @@ const UserDashboard = () => {
                       </span>
                     </td>
                     <td>
-                      <button className="user-view-btn">
+                      <button
+                        className="user-view-btn"
+                        onClick={() => {
+                          setSelectedQuery(query);
+                          setShowViewModal(true);
+                        }}
+                      >
                         <Eye size={18} />
                       </button>
                     </td>
@@ -278,6 +287,72 @@ const UserDashboard = () => {
             support. It does not replace professional legal advice.
           </div>
         </div>
+
+        {showViewModal && selectedQuery && (
+          <div className="view-overlay">
+            <div className="view-modal">
+              {/* Close Icon - Top Right */}
+              <button
+                className="view-close-btn"
+                onClick={() => {
+                  setShowViewModal(false);
+                  setSelectedQuery(null);
+                }}
+              >
+                ✕
+              </button>
+
+              <h2 className="view-title">Query Details</h2>
+
+              <div className="view-content">
+                <div className="view-item">
+                  <span>Title</span>
+                  <p>{selectedQuery.title}</p>
+                </div>
+
+                <div className="view-item">
+                  <span>Category</span>
+                  <p>{selectedQuery.category}</p>
+                </div>
+
+                <div className="view-item">
+                  <span>Status</span>
+                  <span
+                    className={`user-status-badge view-item-status ${getStatusClass(
+                      selectedQuery.status,
+                    )}`}
+                  >
+                    {selectedQuery.status}
+                  </span>
+                </div>
+
+                <div className="view-item">
+                  <span>Date</span>
+                  <p>
+                    {new Date(selectedQuery.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+
+                <div className="view-item">
+                  <span>Description</span>
+                  <p>{selectedQuery.description}</p>
+                </div>
+              </div>
+
+              <div className="view-actions">
+                <button
+                  className="view-delete-btn"
+                  onClick={() => {
+                    setSelectedQueryId(selectedQuery._id);
+                    handleDelete();
+                  }}
+                >
+                  Delete Query
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {showDeleteModal && (
           <div className="delete-overlay">
