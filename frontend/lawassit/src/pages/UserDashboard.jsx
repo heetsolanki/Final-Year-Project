@@ -22,26 +22,52 @@ const UserDashboard = () => {
   const [userName, setUserName] = useState("");
   const [queries, setQueries] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedQueryId, setSelectedQueryId] = useState(null);
 
   const fetchDashboard = async () => {
-  try {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    const res = await axios.get(
-      "https://law-assist.onrender.com/api/dashboard",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const res = await axios.get(
+        "https://law-assist.onrender.com/api/dashboard",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      }
-    );
+      );
 
-    setUserName(res.data.name || "");
-    setQueries(res.data.queries || []);
-  } catch (error) {
-    console.log(error);
-  }
-};
+      setUserName(res.data.name || "");
+      setQueries(res.data.queries || []);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.delete(
+        `http://localhost:5000/api/queries/${selectedQueryId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setShowDeleteModal(false);
+      setSelectedQueryId(null);
+
+      fetchDashboard(); // refresh
+    } catch (error) {
+      console.log(error);
+      alert("Failed to delete query");
+    }
+  };
+
   useEffect(() => {
     fetchDashboard();
   }, []);
@@ -113,7 +139,12 @@ const UserDashboard = () => {
             <button className="user-outline-btn">Track Ongoing Cases</button>
           </div>
 
-          {showForm && <AskQueryForm onClose={() => setShowForm(false)} onSuccess={fetchDashboard}/>}
+          {showForm && (
+            <AskQueryForm
+              onClose={() => setShowForm(false)}
+              onSuccess={fetchDashboard}
+            />
+          )}
 
           <div className="user-stats-grid">
             <div className="user-stat-card">
@@ -172,6 +203,7 @@ const UserDashboard = () => {
                   <th>Date</th>
                   <th>Status</th>
                   <th></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -192,6 +224,17 @@ const UserDashboard = () => {
                     <td>
                       <button className="user-view-btn">
                         <Eye size={18} />
+                      </button>
+                    </td>
+                    <td>
+                      <button
+                        className="user-delete-btn"
+                        onClick={() => {
+                          setSelectedQueryId(query._id);
+                          setShowDeleteModal(true);
+                        }}
+                      >
+                        Delete
                       </button>
                     </td>
                   </tr>
@@ -236,9 +279,31 @@ const UserDashboard = () => {
           </div>
         </div>
 
-        <button className="user-floating-btn">
-          <Plus size={22} />
-        </button>
+        {showDeleteModal && (
+          <div className="delete-overlay">
+            <div className="delete-modal">
+              <h3 className="delete-title">Delete Query?</h3>
+
+              <p className="delete-text">
+                Are you sure you want to delete this query? This action cannot
+                be undone.
+              </p>
+
+              <div className="delete-actions">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="delete-cancel-btn"
+                >
+                  Cancel
+                </button>
+
+                <button onClick={handleDelete} className="delete-confirm-btn">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <BackToTopButton />
       <Footer />
