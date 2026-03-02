@@ -184,6 +184,14 @@
   @apply text-[#D4AF37] underline;
 }
 
+.user-delete-btn {
+  @apply text-sm font-medium text-red-500 transition duration-300;
+}
+
+.user-delete-btn:hover {
+  @apply text-red-700 underline;
+}
+
 /* ================= SIDE PANEL ================= */
 
 .user-side-panel {
