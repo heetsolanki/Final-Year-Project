@@ -90,7 +90,7 @@
 /* ================= Cards ================= */
 
 .query-card {
-  @apply bg-white rounded-xl shadow-sm
+  @apply bg-white relative rounded-xl shadow-sm
          p-5 sm:p-6 lg:p-8
          mb-6
          transition;
@@ -212,4 +212,58 @@
 
 .status-badge.answered {
   @apply bg-green-100 text-green-700;
+}
+
+/* ================= DELETE MODAL ================= */
+/* Delete Modal Styles */
+
+.delete-overlay {
+  @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50;
+}
+
+.delete-modal {
+  @apply bg-white rounded-xl shadow-2xl w-[380px] max-w-[90%] p-6 text-center;
+}
+
+.delete-title {
+  @apply text-lg font-semibold mb-2 text-gray-800;
+}
+
+.delete-text {
+  @apply text-sm text-gray-600 mb-6;
+}
+
+.delete-actions {
+  @apply flex justify-center gap-4;
+}
+
+.delete-cancel-btn {
+  @apply px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 transition;
+}
+
+.delete-confirm-btn {
+  @apply px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition;
+}
+
+/* ================= SUCCESS MODAL ================= */
+/* Success Modal */
+
+.success-overlay {
+  @apply absolute inset-0 bg-black/50 flex items-center justify-center z-50;
+}
+
+.success-modal {
+  @apply bg-white rounded-xl shadow-2xl w-[380px] max-w-[90%] p-6 text-center;
+}
+
+.success-title {
+  @apply text-lg font-semibold mb-2 text-green-700;
+}
+
+.success-text {
+  @apply text-sm text-gray-600 mb-6;
+}
+
+.success-btn {
+  @apply px-5 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition;
 }
