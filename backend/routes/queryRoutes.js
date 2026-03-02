@@ -25,12 +25,33 @@ router.post("/", protect, async (req, res) => {
   }
 });
 
-// ================= GET ALL PUBLIC QUERIES =================
 router.get("/public", async (req, res) => {
   try {
     const queries = await Query.find().sort({ createdAt: -1 });
     res.status(200).json(queries);
   } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.delete("/:id", protect, async (req, res) => {
+  try {
+    const query = await Query.findById(req.params.id);
+
+    if (!query) {
+      return res.status(404).json({ message: "Query not found" });
+    }
+
+    // Ensure user can only delete their own query
+    if (query.userId !== req.user.userId) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    await query.deleteOne();
+
+    res.status(200).json({ message: "Query deleted successfully" });
+  } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Server error" });
   }
 });
