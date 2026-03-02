@@ -22,6 +22,7 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -58,7 +59,7 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
         },
       );
 
-      alert("Query submitted successfully!");
+      setShowSuccessModal(true);
 
       // Reset form
       setFormData({
@@ -67,12 +68,6 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
         description: "",
         anonymous: false,
       });
-
-      // Close modal
-      if (onClose) onClose();
-
-      // Refresh parent if provided
-      if (onSuccess) onSuccess();
     } catch (error) {
       console.error(error);
       alert("Something went wrong.");
@@ -143,6 +138,29 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
           {loading ? "Posting..." : "Post Question"}
         </button>
       </form>
+      {showSuccessModal && (
+        <div className="success-overlay">
+          <div className="success-modal">
+            <h3 className="success-title">Query Submitted 🎉</h3>
+
+            <p className="success-text">
+              Your query has been successfully submitted. You can track its
+              progress from your dashboard.
+            </p>
+
+            <button
+              className="success-btn"
+              onClick={() => {
+                setShowSuccessModal(false);
+                if (onClose) onClose();
+                if (onSuccess) onSuccess();
+              }}
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
