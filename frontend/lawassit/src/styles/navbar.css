@@ -84,6 +84,33 @@
     @apply block;
   }
 
+  /* Improve logo alignment on mobile */
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  /* Remove bounce animation on mobile */
+  .nav-logo {
+    animation: none;
+  }
+
+  /* Perfect vertical alignment for icon */
+  .nav-logo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Slight spacing tweak for balance */
+  .nav-logo-text {
+    line-height: 1;
+  }
+
 }
 
 /* ================================= */
