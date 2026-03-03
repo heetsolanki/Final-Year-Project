@@ -75,10 +75,11 @@ function Navbar() {
         {/* LOGO */}
         <Link
           to="/"
-          className="text-[#0A1F44] hover:text-[#C9A227] transition cursor-pointer"
+          className="nav-logo text-[#0A1F44] hover:text-[#C9A227] transition cursor-pointer"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-          <Scale size={28} />
+          <Scale size={28} className="nav-logo-icon" />
+          <span className="nav-logo-text">LawAssist</span>
         </Link>
 
         {/* RIGHT LINKS */}
@@ -100,24 +101,44 @@ function Navbar() {
 
           {!isLoggedIn ? (
             <>
-              <Link to="/login" className="nav-btn nav-login" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+              <Link
+                to="/login"
+                className="nav-btn nav-login"
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              >
                 Login
               </Link>
 
-              <Link to="/register" className="nav-btn nav-register" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+              <Link
+                to="/register"
+                className="nav-btn nav-register"
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              >
                 Register
               </Link>
             </>
           ) : (
             <>
               {userRole === "consumer" && (
-                <Link to="/user-dashboard" className="nav-btn nav-login" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+                <Link
+                  to="/user-dashboard"
+                  className="nav-btn nav-login"
+                  onClick={() =>
+                    window.scrollTo({ top: 0, behavior: "smooth" })
+                  }
+                >
                   My Dashboard
                 </Link>
               )}
 
               {userRole === "legalExpert" && (
-                <Link to="/legal-expert-dashboard" className="nav-btn nav-login" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+                <Link
+                  to="/legal-expert-dashboard"
+                  className="nav-btn nav-login"
+                  onClick={() =>
+                    window.scrollTo({ top: 0, behavior: "smooth" })
+                  }
+                >
                   Expert Dashboard
                 </Link>
               )}
