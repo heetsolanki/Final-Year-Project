@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import ProfileHeader from "../components/ProfileHeader";
 import ProfileForm from "../components/ProfileForm";
@@ -11,16 +11,20 @@ const UserManageProfile = () => {
   const [user, setUser] = useState(null);
   const token = localStorage.getItem("token");
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
+  try {
     const res = await axios.get(`${API}/users/profile`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     setUser(res.data);
-  };
+  } catch (err) {
+    console.log(err);
+  }
+}, [token]);
 
   useEffect(() => {
     fetchProfile();
-  }, []);
+  }, [fetchProfile]);
 
   if (!user) return null;
 
