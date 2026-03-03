@@ -23,7 +23,10 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/user-dashboard" element={<UserDashboard />} />
-        <Route path="/legal-expert-dashboard" element={<LegalExpertDashboard />} />
+        <Route
+          path="/legal-expert-dashboard"
+          element={<LegalExpertDashboard />}
+        />
         <Route path="/experts" element={<Experts />} />
         <Route path="/expert-profile" element={<ExpertProfile />} />
         <Route path="/explore-rights" element={<ExploreRights />} />

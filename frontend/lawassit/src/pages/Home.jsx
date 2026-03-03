@@ -164,9 +164,9 @@ function Home() {
               rights with confidence.
             </p>
             <div className="hero-buttons">
-              <button className="home-btn-primary">Submit a Query</button>
+              <button className="home-btn-primary" onClick={() => window.location.href = '/queries'}>Submit a Query</button>
 
-              <button className="home-btn-outline">Explore Your Rights</button>
+              <button className="home-btn-outline" onClick={() => window.location.href = '/explore-rights'}>Explore Your Rights</button>
             </div>
           </div>
 

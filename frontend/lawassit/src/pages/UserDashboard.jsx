@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Outlet } from "react-router-dom";
 import {
   FolderOpen,
   FileText,
@@ -26,6 +27,7 @@ const UserDashboard = () => {
   const [selectedQueryId, setSelectedQueryId] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedQuery, setSelectedQuery] = useState(null);
+  // const navigate = useNavigate();
 
   const fetchDashboard = async () => {
     try {
@@ -48,6 +50,10 @@ const UserDashboard = () => {
   };
 
   const handleDelete = async () => {
+    if (!selectedQueryId || selectedQueryId === "null") {
+      console.log("Invalid ID — delete stopped");
+      return;
+    }
     try {
       const token = localStorage.getItem("token");
 
@@ -267,7 +273,8 @@ const UserDashboard = () => {
             <div className="user-profile-card user-side-card">
               <h3>My Profile</h3>
               <p>Manage account settings and security.</p>
-              <button className="user-outline-btn user-small-btn">
+              <button
+                className="user-outline-btn user-small-btn">
                 View Profile
               </button>
             </div>
@@ -379,6 +386,7 @@ const UserDashboard = () => {
             </div>
           </div>
         )}
+        <Outlet />
       </div>
       <BackToTopButton />
       <Footer />
