@@ -32,17 +32,18 @@ const userSchema = new mongoose.Schema(
       default: "consumer",
     },
 
-    specialization: {
-      type: String,
-    },
+    specialization: String,
+    experience: Number,
 
-    experience: {
-      type: Number,
-    },
+    phone: String,
+    gender: String,
+    dob: Date,
+    address: String,
+    city: String,
+    state: String,
+    pincode: String,
 
-    profileCompleted: {
-      type: Boolean,
-    },
+    profileCompleted: Boolean,
   },
   { timestamps: true },
 );

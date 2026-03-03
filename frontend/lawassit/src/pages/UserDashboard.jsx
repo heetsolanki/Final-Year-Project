@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   FolderOpen,
   FileText,
@@ -27,7 +27,9 @@ const UserDashboard = () => {
   const [selectedQueryId, setSelectedQueryId] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedQuery, setSelectedQuery] = useState(null);
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isProfilePage = location.pathname.includes("manage-profile");
 
   const fetchDashboard = async () => {
     try {
@@ -119,182 +121,195 @@ const UserDashboard = () => {
       <Navbar />
       <div className="user-dashboard-wrapper">
         <div className="user-dashboard-container">
-          <div className="user-dashboard-header">
-            <div className="user-user-info">
-              <div className="user-avatar">
-                <User size={20} />
+          {!isProfilePage && (
+            <>
+              <div className="user-dashboard-header">
+                <div className="user-user-info">
+                  <div className="user-avatar">
+                    <User size={20} />
+                  </div>
+                  <div>
+                    <h1 className="user-dashboard-title">
+                      Welcome back, {userName}
+                    </h1>
+                    <p className="user-dashboard-subtext">
+                      Manage your consumer legal queries and track their status.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h1 className="user-dashboard-title">
-                  Welcome back, {userName}
-                </h1>
-                <p className="user-dashboard-subtext">
-                  Manage your consumer legal queries and track their status.
-                </p>
+
+              <div className="user-quick-actions">
+                {!showForm && (
+                  <button
+                    className="user-primary-btn"
+                    onClick={() => setShowForm(true)}
+                  >
+                    <Plus size={18} /> Submit New Query
+                  </button>
+                )}
+                <button className="user-outline-btn">View Saved Topics</button>
+                <button className="user-outline-btn">
+                  Track Ongoing Cases
+                </button>
               </div>
-            </div>
-          </div>
 
-          <div className="user-quick-actions">
-            {!showForm && (
-              <button
-                className="user-primary-btn"
-                onClick={() => setShowForm(true)}
-              >
-                <Plus size={18} /> Submit New Query
-              </button>
-            )}
-            <button className="user-outline-btn">View Saved Topics</button>
-            <button className="user-outline-btn">Track Ongoing Cases</button>
-          </div>
+              {showForm && (
+                <AskQueryForm
+                  onClose={() => setShowForm(false)}
+                  onSuccess={fetchDashboard}
+                />
+              )}
 
-          {showForm && (
-            <AskQueryForm
-              onClose={() => setShowForm(false)}
-              onSuccess={fetchDashboard}
-            />
+              <div className="user-stats-grid">
+                <div className="user-stat-card">
+                  <FolderOpen size={25} color="rgba(37, 99, 235)" />
+                  <div>
+                    <h3>Total Cases</h3>
+                    <p>{queries.length}</p>
+                  </div>
+                </div>
+
+                <div className="user-stat-card">
+                  <FileText size={25} color="rgba(212, 175, 55)" />
+                  <div>
+                    <h3>Active Cases</h3>
+                    <p>
+                      {queries.filter((q) => q.status !== "Resolved").length}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="user-stat-card">
+                  <CheckCircle size={25} color="rgba(34, 197, 94)" />
+                  <div>
+                    <h3>Resolved</h3>
+                    <p>
+                      {queries.filter((q) => q.status === "Resolved").length}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="user-filter-bar">
+                <div className="user-search-box">
+                  <Search size={16} />
+                  <input
+                    type="text"
+                    placeholder="Search queries..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                >
+                  <option value="All">All</option>
+                  <option value="In Review">In Review</option>
+                  <option value="Assigned">Assigned</option>
+                  <option value="Resolved">Resolved</option>
+                </select>
+              </div>
+
+              <div className="user-table-wrapper">
+                <table className="user-queries-table">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Category</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredQueries.map((query) => (
+                      <tr key={query.id}>
+                        <td>{query.title}</td>
+                        <td>{query.category}</td>
+                        <td>
+                          {new Date(query.createdAt).toLocaleDateString()}
+                        </td>
+                        <td>
+                          <span
+                            className={`user-status-badge ${getStatusClass(
+                              query.status,
+                            )}`}
+                          >
+                            {query.status}
+                          </span>
+                        </td>
+                        <td>
+                          <button
+                            className="user-view-btn"
+                            onClick={() => {
+                              setSelectedQuery(query);
+                              setShowViewModal(true);
+                            }}
+                          >
+                            <Eye size={18} />
+                          </button>
+                        </td>
+                        <td>
+                          <button
+                            className="user-delete-btn"
+                            onClick={() => {
+                              setSelectedQueryId(query._id);
+                              setShowDeleteModal(true);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="user-side-panel">
+                <div className="user-side-card">
+                  <h3>
+                    <Bell size={16} /> Recent Activity
+                  </h3>
+                  <ul>
+                    {notifications.map((note, index) => (
+                      <li key={index}>{note}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="user-profile-card user-side-card">
+                  <h3>My Profile</h3>
+                  <p>Manage account settings and security.</p>
+                  <button
+                    className="user-outline-btn user-small-btn"
+                    onClick={() => navigate("manage-profile")}
+                  >
+                    View Profile
+                  </button>
+                </div>
+
+                <div className="user-profile-card user-side-card">
+                  <h3>Saved Topics</h3>
+                  <ul>
+                    {savedTopics.map((topic, index) => (
+                      <li key={index}>{topic}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="user-dashboard-disclaimer">
+                ⚖️ LawAssist provides legal information and query management
+                support. It does not replace professional legal advice.
+              </div>
+            </>
           )}
-
-          <div className="user-stats-grid">
-            <div className="user-stat-card">
-              <FolderOpen size={25} color="rgba(37, 99, 235)" />
-              <div>
-                <h3>Total Cases</h3>
-                <p>{queries.length}</p>
-              </div>
-            </div>
-
-            <div className="user-stat-card">
-              <FileText size={25} color="rgba(212, 175, 55)" />
-              <div>
-                <h3>Active Cases</h3>
-                <p>{queries.filter((q) => q.status !== "Resolved").length}</p>
-              </div>
-            </div>
-
-            <div className="user-stat-card">
-              <CheckCircle size={25} color="rgba(34, 197, 94)" />
-              <div>
-                <h3>Resolved</h3>
-                <p>{queries.filter((q) => q.status === "Resolved").length}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="user-filter-bar">
-            <div className="user-search-box">
-              <Search size={16} />
-              <input
-                type="text"
-                placeholder="Search queries..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="All">All</option>
-              <option value="In Review">In Review</option>
-              <option value="Assigned">Assigned</option>
-              <option value="Resolved">Resolved</option>
-            </select>
-          </div>
-
-          <div className="user-table-wrapper">
-            <table className="user-queries-table">
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Category</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th></th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredQueries.map((query) => (
-                  <tr key={query.id}>
-                    <td>{query.title}</td>
-                    <td>{query.category}</td>
-                    <td>{new Date(query.createdAt).toLocaleDateString()}</td>
-                    <td>
-                      <span
-                        className={`user-status-badge ${getStatusClass(
-                          query.status,
-                        )}`}
-                      >
-                        {query.status}
-                      </span>
-                    </td>
-                    <td>
-                      <button
-                        className="user-view-btn"
-                        onClick={() => {
-                          setSelectedQuery(query);
-                          setShowViewModal(true);
-                        }}
-                      >
-                        <Eye size={18} />
-                      </button>
-                    </td>
-                    <td>
-                      <button
-                        className="user-delete-btn"
-                        onClick={() => {
-                          setSelectedQueryId(query._id);
-                          setShowDeleteModal(true);
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="user-side-panel">
-            <div className="user-side-card">
-              <h3>
-                <Bell size={16} /> Recent Activity
-              </h3>
-              <ul>
-                {notifications.map((note, index) => (
-                  <li key={index}>{note}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="user-profile-card user-side-card">
-              <h3>My Profile</h3>
-              <p>Manage account settings and security.</p>
-              <button
-                className="user-outline-btn user-small-btn">
-                View Profile
-              </button>
-            </div>
-
-            <div className="user-profile-card user-side-card">
-              <h3>Saved Topics</h3>
-              <ul>
-                {savedTopics.map((topic, index) => (
-                  <li key={index}>{topic}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <div className="user-dashboard-disclaimer">
-            ⚖️ LawAssist provides legal information and query management
-            support. It does not replace professional legal advice.
-          </div>
         </div>
-
         {showViewModal && selectedQuery && (
           <div className="view-overlay">
             <div className="view-modal">

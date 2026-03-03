@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== PAGE ===== */
+.profile-page {
+    @apply min-h-screen bg-gray-50 pt-24 md:pt-32 px-4 md:px-6 pb-16;
+}
+
+.profile-container {
+    @apply max-w-6xl mx-auto bg-white rounded-2xl shadow-sm p-5 md:p-8 transition-all duration-300;
+}
+
+.profile-container:hover {
+    @apply shadow-xl;
+}
+
+.profile-title {
+    @apply text-2xl font-semibold text-gray-800;
+}
+
+.profile-subtitle {
+    @apply text-gray-500 text-sm mt-1;
+}
+
+/* ===== SUMMARY CARD ===== */
+.profile-summary {
+    @apply flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gray-50 p-5 md:p-6 rounded-xl mt-6 md:mt-8;
+}
+
+.profile-avatar {
+    @apply w-16 h-16 md:w-20 md:h-20 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl md:text-2xl font-bold;
+}
+
+.profile-badge {
+    @apply mt-2 inline-block px-3 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full;
+}
+
+/* ===== SECTION ===== */
+.profile-section {
+    @apply mt-10;
+}
+
+.profile-section-title {
+    @apply text-lg font-semibold text-gray-800 mb-6;
+}
+
+.profile-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5;
+}
+
+.profile-input {
+    @apply w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition;
+}
+
+.profile-btn {
+    @apply bg-blue-600 hover:bg-blue-700 text-white px-5 md:px-6 py-2 text-sm md:text-base rounded-lg transition;
+}
+
+/* ===== MODAL ===== */
+.profile-modal-overlay {
+    @apply fixed inset-0 bg-black/40 flex justify-center items-center z-50;
+}
+
+.profile-modal-box {
+    @apply bg-white w-full max-w-md mx-4 md:mx-0 p-6 md:p-8 rounded-2xl relative shadow-xl;
+}
+
+.profile-modal-close {
+    @apply absolute top-3 right-4 text-gray-500 hover:text-black cursor-pointer;
+}
+
+.profile-danger-btn {
+    @apply bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition;
+}
+
+.profile-success-icon {
+    @apply text-4xl text-green-500 mb-4;
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

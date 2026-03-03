@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import UserDashboard from "./pages/UserDashboard";
+import UserManageProfile from "./pages/UserManageProfile";
 import LegalExpertDashboard from "./pages/LegalExpertDashboard";
 import Experts from "./pages/Experts";
 import ExpertProfile from "./pages/ExpertProfile";
@@ -22,7 +23,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/user-dashboard" element={<UserDashboard />} />
+        <Route path="/user-dashboard" element={<UserDashboard />}>
+          <Route path="manage-profile" element={<UserManageProfile />} />
+        </Route>
         <Route
           path="/legal-expert-dashboard"
           element={<LegalExpertDashboard />}
