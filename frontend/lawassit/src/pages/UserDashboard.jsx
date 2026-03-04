@@ -16,6 +16,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import AskQueryForm from "../components/AskQueryForm";
 import BackToTopButton from "../components/BackToTopButton";
+import QueryDetailsModal from "../components/QueryDetailsModal";
 
 const UserDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,7 +61,7 @@ const UserDashboard = () => {
       const token = localStorage.getItem("token");
 
       await axios.delete(
-        `http://localhost:5000/api/queries/${selectedQueryId}`,
+        `https://law-assist.onrender.com/api/queries/${selectedQueryId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -105,10 +106,12 @@ const UserDashboard = () => {
 
   const getStatusClass = (status) => {
     switch (status) {
-      case "In Review":
-        return "user-status-review";
-      case "Assigned":
-        return "user-status-assigned";
+      case "Pending":
+        return "user-status-pending";
+      case "Answered":
+        return "user-status-answered";
+      case "Consultation Requested":
+        return "user-status-consult";
       case "Resolved":
         return "user-status-resolved";
       default:
@@ -311,69 +314,14 @@ const UserDashboard = () => {
           )}
         </div>
         {showViewModal && selectedQuery && (
-          <div className="view-overlay">
-            <div className="view-modal">
-              {/* Close Icon - Top Right */}
-              <button
-                className="view-close-btn"
-                onClick={() => {
-                  setShowViewModal(false);
-                  setSelectedQuery(null);
-                }}
-              >
-                ✕
-              </button>
-
-              <h2 className="view-title">Query Details</h2>
-
-              <div className="view-content">
-                <div className="view-item">
-                  <span>Title</span>
-                  <p>{selectedQuery.title}</p>
-                </div>
-
-                <div className="view-item">
-                  <span>Category</span>
-                  <p>{selectedQuery.category}</p>
-                </div>
-
-                <div className="view-item">
-                  <span>Status</span>
-                  <span
-                    className={`user-status-badge view-item-status ${getStatusClass(
-                      selectedQuery.status,
-                    )}`}
-                  >
-                    {selectedQuery.status}
-                  </span>
-                </div>
-
-                <div className="view-item">
-                  <span>Date</span>
-                  <p>
-                    {new Date(selectedQuery.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-
-                <div className="view-item">
-                  <span>Description</span>
-                  <p>{selectedQuery.description}</p>
-                </div>
-              </div>
-
-              <div className="view-actions">
-                <button
-                  className="view-delete-btn"
-                  onClick={() => {
-                    setSelectedQueryId(selectedQuery._id);
-                    handleDelete();
-                  }}
-                >
-                  Delete Query
-                </button>
-              </div>
-            </div>
-          </div>
+          <QueryDetailsModal
+            query={selectedQuery}
+            onClose={() => {
+              setShowViewModal(false);
+              setSelectedQuery(null);
+            }}
+            refreshQueries={fetchDashboard}
+          />
         )}
 
         {showDeleteModal && (

@@ -18,7 +18,6 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
     title: "",
     category: "",
     description: "",
-    anonymous: false,
   });
 
   const [loading, setLoading] = useState(false);
@@ -26,10 +25,11 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
+
+    setFormData((prev) => ({
+      ...prev,
       [name]: type === "checkbox" ? checked : value,
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -51,6 +51,10 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
           title: formData.title,
           category: formData.category,
           description: formData.description,
+
+          // NEW FIELDS FOR QUERY FLOW
+          status: "Pending",
+          consultRequested: false,
         },
         {
           headers: {
@@ -66,7 +70,6 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
         title: "",
         category: "",
         description: "",
-        anonymous: false,
       });
     } catch (error) {
       console.error(error);
@@ -124,20 +127,11 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
           required
         />
 
-        <div className="checkbox-row">
-          <input
-            type="checkbox"
-            name="anonymous"
-            checked={formData.anonymous}
-            onChange={handleChange}
-          />
-          <label>Post this question anonymously</label>
-        </div>
-
         <button type="submit" className="primary-btn" disabled={loading}>
           {loading ? "Posting..." : "Post Question"}
         </button>
       </form>
+
       {showSuccessModal && (
         <div className="success-overlay">
           <div className="success-modal">

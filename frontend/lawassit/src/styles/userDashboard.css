@@ -196,16 +196,30 @@
   @apply inline-flex items-center justify-center px-4 py-1.5 text-xs font-medium rounded-full whitespace-nowrap transition duration-300;
 }
 
+/* ================= QUERY STATUS COLORS ================= */
+
+.user-status-pending {
+  @apply bg-yellow-100 text-yellow-700;
+}
+
+.user-status-answered {
+  @apply bg-blue-100 text-blue-700;
+}
+
+.user-status-consult {
+  @apply bg-purple-100 text-purple-700;
+}
+
+.user-status-resolved {
+  @apply bg-green-100 text-green-700;
+}
+
 .user-status-review {
   @apply bg-yellow-100 text-yellow-600;
 }
 
 .user-status-assigned {
   @apply bg-blue-100 text-blue-600;
-}
-
-.user-status-resolved {
-  @apply bg-green-100 text-green-600;
 }
 
 .user-status-default {
@@ -299,4 +313,90 @@
     opacity: 1;
     transform: scale(1);
   }
+}
+
+/* ================= NEW STATUS TYPES ================= */
+
+.user-status-pending {
+  @apply bg-yellow-100 text-yellow-700;
+}
+
+.user-status-answered {
+  @apply bg-green-100 text-green-700;
+}
+
+.user-status-consult {
+  @apply bg-purple-100 text-purple-700;
+}
+
+/* ================= VIEW MODAL ================= */
+
+.view-overlay {
+  @apply fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4;
+}
+
+.view-modal {
+  @apply bg-white w-full max-w-lg rounded-2xl p-6 sm:p-8 shadow-xl relative;
+  animation: fadeInScale 0.25s ease;
+}
+
+.view-close-btn {
+  @apply absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-lg;
+}
+
+.view-title {
+  @apply text-lg sm:text-xl font-bold text-[#1E3A8A] mb-6;
+}
+
+.view-content {
+  @apply space-y-4;
+}
+
+.view-item span {
+  @apply text-xs text-gray-500 block mb-1;
+}
+
+.view-item p {
+  @apply text-sm text-gray-700 leading-relaxed;
+}
+
+.view-item-status {
+  @apply inline-flex mt-1;
+}
+
+/* ================= EXPERT ANSWER ================= */
+
+.view-answer {
+  @apply border-t pt-4 mt-4;
+}
+
+.view-answer small {
+  @apply text-xs text-gray-400 mt-1 block;
+}
+
+/* ================= ACTION BUTTONS ================= */
+
+.view-actions {
+  @apply mt-8 flex flex-wrap gap-3 justify-end;
+}
+
+.view-resolve-btn {
+  @apply bg-green-600 hover:bg-green-700 
+  text-white px-5 py-2.5 
+  rounded-xl shadow-md 
+  transition duration-200;
+}
+
+.view-consult-btn {
+  @apply bg-indigo-600 hover:bg-indigo-700 
+  text-white px-5 py-2.5 
+  rounded-xl shadow-md 
+  transition duration-200;
+}
+
+.view-delete-btn {
+  @apply bg-red-500 hover:bg-red-600 
+  text-white px-5 py-2.5 
+  rounded-xl shadow-md 
+  transition duration-200;
 }
