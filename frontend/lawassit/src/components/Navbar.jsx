@@ -75,11 +75,10 @@ function Navbar() {
         {/* LOGO */}
         <Link
           to="/"
-          className="nav-logo text-[#0A1F44] hover:text-[#C9A227] transition cursor-pointer"
+          className="text-[#0A1F44] hover:text-[#C9A227] transition cursor-pointer"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-          <Scale size={28} className="nav-logo-icon" />
-          <span className="nav-logo-text">LawAssist</span>
+          <Scale size={28} />
         </Link>
 
         {/* RIGHT LINKS */}
