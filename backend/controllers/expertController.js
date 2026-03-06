@@ -1,4 +1,76 @@
 const Query = require("../models/Query");
+const User = require("../models/User");
+
+exports.completeExpertProfile = async (req, res) => {
+  try {
+    const expertId = req.user.userId;
+
+    const {
+      barCouncilId,
+      specialization,
+      experience,
+      consultationCharges,
+      city,
+      languages,
+      expertiseAreas,
+      bio,
+    } = req.body;
+
+    const user = await User.findOne({ userId: expertId });
+
+    if (!user) {
+      return res.status(404).json({ message: "Expert not found" });
+    }
+
+    if (user.role !== "legalExpert") {
+      return res
+        .status(403)
+        .json({ message: "Only experts can complete profile" });
+    }
+
+    user.barCouncilId = barCouncilId;
+    user.specialization = specialization;
+    user.experience = experience;
+    user.consultationCharges = consultationCharges;
+    user.city = city;
+    user.languages = languages;
+    user.expertiseAreas = expertiseAreas;
+    user.bio = bio;
+
+    const completion = calculateProfileCompletion(user);
+
+    user.profileCompletion = completion;
+
+    user.verificationStatus = completion === 100 ? "verified" : "pending";
+
+    await user.save();
+
+    res.json({
+      message: "Profile updated successfully",
+      profileCompletion: completion,
+      verificationStatus: user.verificationStatus,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error updating profile" });
+  }
+};
+
+exports.getExpertProfile = async (req, res) => {
+  try {
+    const user = await User.findOne({ userId: req.user.userId }).select(
+      "-password",
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching profile" });
+  }
+};
 
 exports.getExpertStats = async (req, res) => {
   try {
@@ -6,16 +78,13 @@ exports.getExpertStats = async (req, res) => {
 
     const assignedQueries = await Query.countDocuments({
       expertId: expertId,
-      status: { $in: ["Assigned", "Resolved"] }
+      status: { $in: ["Assigned", "Resolved"] },
     });
 
     const pendingQueries = await Query.countDocuments({
       expertId: expertId,
       status: "Assigned",
-      $or: [
-        { answer: "" },
-        { answer: null }
-      ]
+      $or: [{ answer: "" }, { answer: null }],
     });
 
     const resolvedQueries = await Query.countDocuments({
@@ -28,7 +97,6 @@ exports.getExpertStats = async (req, res) => {
       pendingQueries,
       resolvedQueries,
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error fetching stats" });
@@ -52,6 +120,14 @@ exports.getAllQueries = async (req, res) => {
 
 exports.acceptCase = async (req, res) => {
   try {
+    if (
+      req.user.role === "legalExpert" &&
+      req.user.verificationStatus !== "verified"
+    ) {
+      return res.status(403).json({
+        message: "Complete and verify your profile before accepting cases",
+      });
+    }
     const { id } = req.params;
 
     const query = await Query.findOneAndUpdate(
@@ -85,6 +161,11 @@ exports.acceptCase = async (req, res) => {
 
 exports.answerQuery = async (req, res) => {
   try {
+    if (req.user.verificationStatus !== "verified") {
+      return res.status(403).json({
+        message: "Only verified experts can answer queries",
+      });
+    }
     const { id } = req.params;
     const { answer } = req.body;
 
@@ -138,4 +219,26 @@ exports.resolveQuery = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error resolving query" });
   }
+};
+
+const calculateProfileCompletion = (user) => {
+  const fields = [
+    user.barCouncilId,
+    user.specialization,
+    user.experience,
+    user.city,
+    user.languages,
+    user.expertiseAreas,
+    user.bio,
+  ];
+
+  const filled = fields.filter(
+    (field) =>
+      field !== undefined &&
+      field !== null &&
+      field !== "" &&
+      !(Array.isArray(field) && field.length === 0),
+  );
+
+  return Math.round((filled.length / fields.length) * 100);
 };

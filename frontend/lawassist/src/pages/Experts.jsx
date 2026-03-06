@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { MapPin, Star, Briefcase, IndianRupee } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -89,9 +88,9 @@ const Experts = () => {
                 </div>
 
                 <div className="expert-buttons">
-                  <Link to="/expert-profile" className="btn-outline">
+                  <button className="btn-outline">
                     View Profile
-                  </Link>
+                  </button>
                   <button className="btn-primary">Send Query</button>
                 </div>
               </div>

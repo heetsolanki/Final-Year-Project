@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
-import { FolderOpen, Clock, CheckCircle, Bell, User } from "lucide-react";
+import { FolderOpen, Clock, CheckCircle, Bell, User, BadgeCheck } from "lucide-react";
 import "../styles/legalExpertDashboard.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import QueryDetailsModal from "../components/QueryDetailsModal";
 import BackToTopButton from "../components/BackToTopButton";
 
-const API = "https://law-assist.onrender.com/api";
+const API = "http://localhost:5000/api";
 
 const LegalExpertDashboard = () => {
   const [expert, setExpert] = useState({});
@@ -16,6 +17,7 @@ const LegalExpertDashboard = () => {
   const [queries, setQueries] = useState([]);
   const [selectedQuery, setSelectedQuery] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
+  const navigate = useNavigate();
 
   const fetchExpertProfile = async () => {
     try {
@@ -23,7 +25,7 @@ const LegalExpertDashboard = () => {
 
       const decoded = jwtDecode(token);
 
-      const res = await axios.get(`${API}/dashboard`, {
+      const res = await axios.get(`${API}/expert/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -32,6 +34,8 @@ const LegalExpertDashboard = () => {
       setExpert({
         ...res.data,
         userId: decoded.userId,
+        verificationStatus: res.data.verificationStatus,
+        profileCompletion: res.data.profileCompletion,
       });
     } catch (error) {
       console.log(error);
@@ -89,6 +93,48 @@ const LegalExpertDashboard = () => {
 
       <div className="expert-dashboard-wrapper">
         <div className="expert-dashboard-container">
+          {expert.role === "legalExpert" &&
+            expert.verificationStatus !== "verified" && (
+              <div className="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-4 shadow-sm">
+                {expert.verificationStatus === "incomplete" && (
+                  <>
+                    <p className="text-sm font-medium text-yellow-800">
+                      ⚠ Complete your expert profile to start accepting and
+                      answering cases.
+                    </p>
+
+                    <p className="mt-1 text-sm text-gray-700">
+                      Profile Completion:{" "}
+                      <span className="font-semibold">
+                        {expert.profileCompletion || 0}%
+                      </span>
+                    </p>
+
+                    <button
+                      className="mt-3 rounded-md bg-[#C9A227] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#b8921f]"
+                      onClick={() => (window.location.href = "/expert-profile")}
+                    >
+                      Complete Profile
+                    </button>
+                  </>
+                )}
+
+                {expert.verificationStatus === "pending" && (
+                  <>
+                    <p className="text-sm font-medium text-yellow-800">
+                      ⏳ Your expert profile is currently under verification.
+                    </p>
+
+                    <p className="mt-1 text-sm text-gray-700">
+                      Profile Completion:{" "}
+                      <span className="font-semibold">
+                        {expert.profileCompletion || 0}%
+                      </span>
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
           <div className="expert-dashboard-header">
             <h1 className="expert-dashboard-title">
               Welcome back, {expert.name || "Advocate"}
@@ -178,7 +224,12 @@ ${
 
                       <td>
                         <button
-                          className="expert-view-btn"
+                          className={`expert-view-btn ${
+                            expert.verificationStatus !== "verified"
+                              ? "cursor-not-allowed opacity-50"
+                              : ""
+                          }`}
+                          disabled={expert.verificationStatus !== "verified"}
                           onClick={() => {
                             setSelectedQuery(query);
                             setShowViewModal(true);
@@ -207,9 +258,32 @@ ${
                 <strong>Email:</strong> {expert.email || "Loading..."}
               </p>
               <p>
-                <strong>Role:</strong> Legal Expert
+                <strong>Specialization:</strong> {expert.specialization || "N/A"}
               </p>
-              <button className="expert-outline-btn small">Edit Profile</button>
+              <p className="mt-2 text-sm">
+                <strong>Verification:</strong>{" "}
+                {expert.verificationStatus === "verified" ? (
+                  <span className="font-semibold text-green-600">
+                    <BadgeCheck size={16} className="inline mr-1" />
+                    Verified
+                  </span>
+                ) : expert.verificationStatus === "pending" ? (
+                  <span className="font-semibold text-yellow-600">Pending</span>
+                ) : (
+                  <span className="font-semibold text-red-500">Incomplete</span>
+                )}
+              </p>
+
+              <p className="text-sm text-gray-700">
+                <strong>Profile Completion:</strong>{" "}
+                {expert.profileCompletion || 0}%
+              </p>
+              <div className="mt-3 h-2 w-full rounded-full bg-gray-200">
+                <div
+                  className="h-2 rounded-full bg-[#C9A227] transition-all duration-300"
+                  style={{ width: `${expert.profileCompletion || 0}%` }}
+                ></div>
+              </div>
             </div>
 
             {/* Notifications */}

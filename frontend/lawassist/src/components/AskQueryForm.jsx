@@ -2,19 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AlertPopup from "./AlertPopup";
 import axios from "axios";
+import { categories } from "../data";
 
 const AskQueryForm = ({ onClose, onSuccess }) => {
-  const categories = [
-    "Banking",
-    "E-Commerce",
-    "Insurance",
-    "Real Estate",
-    "Telecom",
-    "Travel",
-    "Education",
-    "Medical",
-    "Others",
-  ];
 
   const [formData, setFormData] = useState({
     title: "",
@@ -141,29 +131,16 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
         </button>
       </form>
 
-      {showSuccessModal && (
-        <div className="success-overlay">
-          <div className="success-modal">
-            <h3 className="success-title">Query Submitted 🎉</h3>
-
-            <p className="success-text">
-              Your query has been successfully submitted. You can track its
-              progress from your dashboard.
-            </p>
-
-            <button
-              className="success-btn"
-              onClick={() => {
-                setShowSuccessModal(false);
-                if (onClose) onClose();
-                if (onSuccess) onSuccess();
-              }}
-            >
-              Continue
-            </button>
-          </div>
-        </div>
-      )}
+      <AlertPopup
+        show={showSuccessModal}
+        title="Query Submitted 🎉"
+        message="Your query has been successfully submitted. You can track its progress from your dashboard."
+        onClose={() => {
+          setShowSuccessModal(false);
+          if (onClose) onClose();
+          if (onSuccess) onSuccess();
+        }}
+      />
       <AlertPopup
         show={showLoginPopup}
         title="Please Login"

@@ -7,21 +7,9 @@ import AskQueryForm from "../components/AskQueryForm";
 import BackToTopButton from "../components/BackToTopButton";
 import AlertPopup from "../components/AlertPopup";
 import "../styles/queries.css";
+import { categories } from "../data";
 
-const API = "https://law-assist.onrender.com/api";
-
-const categories = [
-  "All",
-  "Banking",
-  "E-Commerce",
-  "Insurance",
-  "Real Estate",
-  "Telecom",
-  "Travel",
-  "Education",
-  "Medical",
-  "Others",
-];
+const API = "http://localhost:5000/api";
 
 const Queries = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -31,6 +19,7 @@ const Queries = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedQuery, setSelectedQuery] = useState(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [expert, setExpert] = useState(null);
   const token = localStorage.getItem("token");
 
   let userRole = null;
@@ -62,7 +51,28 @@ const Queries = () => {
     }
   };
 
+  const fetchExpertProfile = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get(`${API}/expert/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setExpert(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleAcceptCase = async (id) => {
+    if (expert?.verificationStatus !== "verified") {
+      alert("Complete your expert profile before accepting cases.");
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
 
@@ -87,6 +97,10 @@ const Queries = () => {
 
   useEffect(() => {
     fetchQueries();
+
+    if (userRole === "legalExpert") {
+      fetchExpertProfile();
+    }
 
     const interval = setInterval(() => {
       fetchQueries();
@@ -300,12 +314,23 @@ const Queries = () => {
               )}
               {selectedQuery.status === "In Review" &&
                 userRole === "legalExpert" && (
-                  <button
-                    className="mt-4 px-4 py-2 text-sm font-medium rounded-lg transition bg-emerald-600 text-white hover:bg-emerald-700"
-                    onClick={() => handleAcceptCase(selectedQuery._id)}
-                  >
-                    Accept Case
-                  </button>
+                  <>
+                    <p className="text-sm text-red-500 mt-3" hidden={expert?.verificationStatus === "verified"}>
+                      Complete your expert profile to accept cases.
+                    </p>
+                    <button
+                      disabled={expert?.verificationStatus !== "verified"}
+                      className={`mt-4 px-4 py-2 text-sm font-medium rounded-lg transition 
+  ${
+    expert?.verificationStatus !== "verified"
+      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+      : "bg-emerald-600 text-white hover:bg-emerald-700"
+  }`}
+                      onClick={() => handleAcceptCase(selectedQuery._id)}
+                    >
+                      Accept Case
+                    </button>
+                  </>
                 )}
               <AlertPopup
                 show={showSuccessPopup}

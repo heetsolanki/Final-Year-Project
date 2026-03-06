@@ -35,6 +35,12 @@ const userSchema = new mongoose.Schema(
     specialization: String,
     experience: Number,
 
+    barCouncilId: String,
+    consultationCharges: Number,
+    languages: [String],
+    expertiseAreas: [String],
+    bio: String,
+
     phone: String,
     gender: String,
     dob: Date,
@@ -44,6 +50,16 @@ const userSchema = new mongoose.Schema(
     pincode: String,
 
     profileCompleted: Boolean,
+    verificationStatus: {
+      type: String,
+      enum: ["incomplete", "pending", "verified"],
+      default: "incomplete",
+    },
+
+    profileCompletion: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true },
 );
