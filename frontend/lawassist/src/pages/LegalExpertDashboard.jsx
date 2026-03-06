@@ -21,7 +21,7 @@ const LegalExpertDashboard = () => {
 
       const decoded = jwtDecode(token);
 
-      const res = await axios.get("http://localhost:5000/api/dashboard", {
+      const res = await axios.get("https://law-assist.onrender.com/api/dashboard", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -40,7 +40,7 @@ const LegalExpertDashboard = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get("http://localhost:5000/api/expert/stats", {
+      const res = await axios.get("https://law-assist.onrender.com/api/expert/stats", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -56,7 +56,7 @@ const LegalExpertDashboard = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get("http://localhost:5000/api/expert/queries", {
+      const res = await axios.get("https://law-assist.onrender.com/api/expert/queries", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

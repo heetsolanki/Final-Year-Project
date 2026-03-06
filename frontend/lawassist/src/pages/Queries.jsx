@@ -65,7 +65,7 @@ const Queries = () => {
       const token = localStorage.getItem("token");
 
       await axios.patch(
-        `http://localhost:5000/api/expert/accept/${id}`,
+        `https://law-assist.onrender.com/api/expert/accept/${id}`,
         {},
         {
           headers: {

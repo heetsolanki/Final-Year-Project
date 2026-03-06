@@ -15,7 +15,7 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const handleResolve = async () => {
     try {
       await axios.patch(
-        `http://localhost:5000/api/expert/resolve/${query._id}`,
+        `https://law-assist.onrender.com/api/expert/resolve/${query._id}`,
         {},
         {
           headers: {
@@ -35,7 +35,7 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   // const handleConsult = async () => {
   //   try {
   //     await axios.patch(
-  //       `http://localhost:5000/api/queries/${query._id}/consult`,
+  //       `https://law-assist.onrender.com/api/queries/${query._id}/consult`,
   //       {},
   //       {
   //         headers: {
@@ -54,7 +54,7 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/queries/${query._id}`, {
+      await axios.delete(`https://law-assist.onrender.com/api/queries/${query._id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
