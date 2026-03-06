@@ -15,6 +15,7 @@ router.get("/", protect, async (req, res) => {
 
     res.json({
       name: req.user.name,
+      email: req.user.email,
       totalQueries: total,
       pendingQueries: pending,
       resolvedQueries: resolved,

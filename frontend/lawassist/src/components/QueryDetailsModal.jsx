@@ -1,10 +1,16 @@
 import React from "react";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const token = localStorage.getItem("token");
 
-  console.log("Query Status:", query.status);
+  let userRole = null;
+
+  if (token) {
+    const decoded = jwtDecode(token);
+    userRole = decoded.role;
+  }
 
   const handleResolve = async () => {
     try {
@@ -23,28 +29,6 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
     } catch (error) {
       console.log(error);
       alert("Failed to mark query as resolved.");
-    }
-  };
-
-  const handleAcceptCase = async () => {
-    try {
-      await axios.patch(
-        `http://localhost:5000/api/expert/accept/${query._id}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      alert("Case accepted successfully");
-
-      refreshQueries();
-      onClose();
-    } catch (error) {
-      console.log(error);
-      alert("Case already accepted by another expert.");
     }
   };
 
@@ -70,14 +54,11 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(
-        `http://localhost:5000/api/queries/${query._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      await axios.delete(`http://localhost:5000/api/queries/${query._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       refreshQueries();
       onClose();
@@ -169,21 +150,17 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
 
         {/* ACTION BUTTONS */}
         <div className="view-actions">
-          {query.status === "In Review" && (
-            <button className="view-consult-btn" onClick={handleAcceptCase}>
-              Accept Case
-            </button>
-          )}
-
-          {query.status === "Assigned" && (
+          {userRole === "legalExpert" && query.status === "Assigned" && (
             <button className="view-resolve-btn" onClick={handleResolve}>
               Mark as Resolved
             </button>
           )}
 
-          <button className="view-delete-btn" onClick={handleDelete}>
-            Delete Query
-          </button>
+          {userRole === "consumer" && query.status === "In Review" && (
+            <button className="view-delete-btn" onClick={handleDelete}>
+              Delete Query
+            </button>
+          )}
         </div>
       </div>
     </div>

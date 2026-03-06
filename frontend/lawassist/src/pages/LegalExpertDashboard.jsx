@@ -72,6 +72,13 @@ const LegalExpertDashboard = () => {
     fetchExpertProfile();
     fetchStats();
     fetchQueries();
+
+    const interval = setInterval(() => {
+      fetchStats();
+      fetchQueries();
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -195,7 +202,7 @@ ${
                 <strong>Name:</strong> {expert.name || "Loading..."}
               </p>
               <p>
-                <strong>Email:</strong> {expert.email}
+                <strong>Email:</strong> {expert.email || "Loading..."}
               </p>
               <p>
                 <strong>Role:</strong> Legal Expert

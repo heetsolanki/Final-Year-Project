@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import AskQueryForm from "../components/AskQueryForm";
@@ -26,6 +27,14 @@ const Queries = () => {
   const [activeTab, setActiveTab] = useState("details");
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedQuery, setSelectedQuery] = useState(null);
+  const token = localStorage.getItem("token");
+
+  let userRole = null;
+
+  if (token) {
+    const decoded = jwtDecode(token);
+    userRole = decoded.role;
+  }
 
   const getStatusClass = (status) => {
     switch (status) {
@@ -67,7 +76,7 @@ const Queries = () => {
 
       alert("Case accepted successfully");
 
-      fetchQueries(); // refresh forum list
+      fetchQueries();
     } catch (error) {
       console.log(error);
       alert("Case already taken by another expert");
@@ -270,20 +279,15 @@ const Queries = () => {
                   )}
                 </div>
               )}
-              {selectedQuery.status === "In Review" && (
-                <button
-                  disabled={selectedQuery.status !== "In Review"}
-                  className={`mt-4 px-4 py-2 text-sm font-medium rounded-lg transition
-  ${
-    selectedQuery.status === "In Review"
-      ? "bg-emerald-600 text-white hover:bg-emerald-700"
-      : "bg-gray-300 text-gray-600 cursor-not-allowed"
-  }`}
-                  onClick={() => handleAcceptCase(selectedQuery._id)}
-                >
-                  Accept Case
-                </button>
-              )}
+              {selectedQuery.status === "In Review" &&
+                userRole === "legalExpert" && (
+                  <button
+                    className="mt-4 px-4 py-2 text-sm font-medium rounded-lg transition bg-emerald-600 text-white hover:bg-emerald-700"
+                    onClick={() => handleAcceptCase(selectedQuery._id)}
+                  >
+                    Accept Case
+                  </button>
+                )}
             </div>
           </div>
         </div>
