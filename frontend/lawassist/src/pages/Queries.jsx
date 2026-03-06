@@ -51,9 +51,7 @@ const Queries = () => {
 
   const fetchQueries = async () => {
     try {
-      const res = await axios.get(
-        "https://law-assist.onrender.com/api/queries/public",
-      );
+      const res = await axios.get("http://localhost:5000/api/queries/public");
       setQueries(res.data || []);
     } catch (error) {
       console.log(error);
@@ -65,7 +63,7 @@ const Queries = () => {
       const token = localStorage.getItem("token");
 
       await axios.patch(
-        `https://law-assist.onrender.com/api/expert/accept/${id}`,
+        `http://localhost:5000/api/expert/accept/${id}`,
         {},
         {
           headers: {
@@ -258,22 +256,34 @@ const Queries = () => {
 
               {/* ANSWERS TAB */}
               {activeTab === "answers" && (
-                <div className="answers-section">
-                  {selectedQuery.answers && selectedQuery.answers.length > 0 ? (
-                    selectedQuery.answers.map((answer, index) => (
-                      <div key={index} className="answer-card">
-                        <div className="expert-info">
-                          <h4>{answer.expertName}</h4>
-                          <p className="expert-speciality">
-                            {answer.speciality}
+                <div className="mt-5">
+                  {selectedQuery.answer ? (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-5">
+                      {/* Expert Header */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h4 className="text-base font-semibold text-gray-900">
+                            {selectedQuery.answeredBy?.name || "Legal Expert"}
+                          </h4>
+
+                          <p className="text-sm text-gray-500">
+                            {selectedQuery.answeredBy?.specialization ||
+                              "Consumer Law"}
                           </p>
                         </div>
 
-                        <div className="expert-answer">{answer.response}</div>
+                        <span className="text-xs font-medium px-3 py-1 rounded-full bg-emerald-100 text-emerald-700">
+                          Verified Expert
+                        </span>
                       </div>
-                    ))
+
+                      {/* Answer Text */}
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        {selectedQuery.answer}
+                      </p>
+                    </div>
                   ) : (
-                    <p className="no-answers-text">
+                    <p className="text-center text-gray-400 text-sm py-6">
                       No expert has responded yet.
                     </p>
                   )}

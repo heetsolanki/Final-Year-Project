@@ -7,6 +7,11 @@ const querySchema = new mongoose.Schema(
       required: true,
     },
 
+    expertId: {
+      type: String,
+      default: null,
+    },
+
     title: {
       type: String,
       required: true,
@@ -27,9 +32,9 @@ const querySchema = new mongoose.Schema(
       default: "",
     },
 
-    expertId: {
-      type: String,
-      default: null,
+    answeredBy: {
+      name: String,
+      specialization: String,
     },
 
     status: {
@@ -38,7 +43,7 @@ const querySchema = new mongoose.Schema(
       default: "In Review",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Query", querySchema);

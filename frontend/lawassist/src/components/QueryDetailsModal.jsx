@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
+  const [answerText, setAnswerText] = useState("");
   const token = localStorage.getItem("token");
 
   let userRole = null;
@@ -15,7 +16,7 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const handleResolve = async () => {
     try {
       await axios.patch(
-        `https://law-assist.onrender.com/api/expert/resolve/${query._id}`,
+        `http://localhost:5000/api/expert/resolve/${query._id}`,
         {},
         {
           headers: {
@@ -32,33 +33,38 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
     }
   };
 
-  // const handleConsult = async () => {
-  //   try {
-  //     await axios.patch(
-  //       `https://law-assist.onrender.com/api/queries/${query._id}/consult`,
-  //       {},
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       },
-  //     );
+  const handleSubmitAnswer = async () => {
+    try {
+      await axios.post(
+        `http://localhost:5000/api/expert/answer/${query._id}`,
+        { answer: answerText },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
-  //     refreshQueries();
-  //     onClose();
-  //   } catch (error) {
-  //     console.log(error);
-  //     alert("Failed to request consultation.");
-  //   }
-  // };
+      alert("Answer submitted successfully");
+
+      refreshQueries();
+      onClose();
+    } catch (error) {
+      console.log(error);
+      alert("Failed to submit answer");
+    }
+  };
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`https://law-assist.onrender.com/api/queries/${query._id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      await axios.delete(
+        `http://localhost:5000/api/queries/${query._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       refreshQueries();
       onClose();
@@ -162,6 +168,24 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
             </button>
           )}
         </div>
+        {query.status === "Assigned" && userRole === "legalExpert" && (
+            <div className="mt-4">
+              <textarea
+                placeholder="Write your legal answer..."
+                value={answerText}
+                onChange={(e) => setAnswerText(e.target.value)}
+                className="w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows="4"
+              />
+
+              <button
+                onClick={handleSubmitAnswer}
+                className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                Submit Answer
+              </button>
+            </div>
+          )}
       </div>
     </div>
   );
