@@ -50,6 +50,14 @@
   @apply bg-[#0A1F44] text-white hover:bg-[#123A6F];
 }
 
+.nav-logo {
+  @apply flex items-center gap-2 whitespace-nowrap;
+}
+
+.nav-logo-text {
+  @apply hidden font-semibold text-[18px] leading-none;
+}
+
 /* MOBILE NAVBAR */
 
 .nav-hamburger {
@@ -73,7 +81,7 @@
   }
 
   .navbar {
-    @apply px-6 py-5 rounded-2xl;
+    @apply relative px-6 py-5 rounded-2xl;
   }
 
   .nav-links {
@@ -82,5 +90,17 @@
 
   .nav-hamburger {
     @apply block;
+  }
+
+  .nav-logo {
+    @apply flex items-center justify-center gap-[10px] font-semibold text-[18px];
+    animation: none;
+  }
+
+  .nav-logo-icon {
+    @apply flex items-center justify-center;
+  }
+  .nav-logo-text {
+    @apply inline-block leading-none;
   }
 }
