@@ -48,25 +48,25 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
     }
   };
 
-  const handleConsult = async () => {
-    try {
-      await axios.patch(
-        `http://localhost:5000/api/queries/${query._id}/consult`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+  // const handleConsult = async () => {
+  //   try {
+  //     await axios.patch(
+  //       `http://localhost:5000/api/queries/${query._id}/consult`,
+  //       {},
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       },
+  //     );
 
-      refreshQueries();
-      onClose();
-    } catch (error) {
-      console.log(error);
-      alert("Failed to request consultation.");
-    }
-  };
+  //     refreshQueries();
+  //     onClose();
+  //   } catch (error) {
+  //     console.log(error);
+  //     alert("Failed to request consultation.");
+  //   }
+  // };
 
   const handleDelete = async () => {
     try {
