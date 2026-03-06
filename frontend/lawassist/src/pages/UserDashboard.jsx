@@ -312,6 +312,7 @@ const UserDashboard = () => {
               </div>
             </>
           )}
+          <Outlet />
         </div>
         {showViewModal && selectedQuery && (
           <QueryDetailsModal
@@ -349,7 +350,6 @@ const UserDashboard = () => {
             </div>
           </div>
         )}
-        <Outlet />
       </div>
       <BackToTopButton />
       <Footer />

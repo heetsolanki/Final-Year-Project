@@ -51,6 +51,29 @@ const Queries = () => {
     }
   };
 
+  const handleAcceptCase = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.patch(
+        `http://localhost:5000/api/expert/accept/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      alert("Case accepted successfully");
+
+      fetchQueries(); // refresh forum list
+    } catch (error) {
+      console.log(error);
+      alert("Case already taken by another expert");
+    }
+  };
+
   useEffect(() => {
     fetchQueries();
 
@@ -246,6 +269,20 @@ const Queries = () => {
                     </p>
                   )}
                 </div>
+              )}
+              {selectedQuery.status === "In Review" && (
+                <button
+                  disabled={selectedQuery.status !== "In Review"}
+                  className={`mt-4 px-4 py-2 text-sm font-medium rounded-lg transition
+  ${
+    selectedQuery.status === "In Review"
+      ? "bg-emerald-600 text-white hover:bg-emerald-700"
+      : "bg-gray-300 text-gray-600 cursor-not-allowed"
+  }`}
+                  onClick={() => handleAcceptCase(selectedQuery._id)}
+                >
+                  Accept Case
+                </button>
               )}
             </div>
           </div>

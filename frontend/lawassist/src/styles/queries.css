@@ -358,6 +358,26 @@
   @apply text-center text-gray-500 italic;
 }
 
+.accept-case-btn {
+  margin-top: 16px;
+  padding: 10px 16px;
+  background: #2563eb;
+  color: white;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.accept-case-btn:hover {
+  background: #1d4ed8;
+}
+
+.accept-case-btn.disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
 /* Animation */
 @keyframes fadeInScale {
   from {

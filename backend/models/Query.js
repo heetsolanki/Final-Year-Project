@@ -21,7 +21,17 @@ const querySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    
+
+    answer: {
+      type: String,
+      default: "",
+    },
+
+    expertId: {
+      type: String,
+      default: null,
+    },
+
     status: {
       type: String,
       enum: ["In Review", "Assigned", "Resolved"],

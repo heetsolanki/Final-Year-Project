@@ -4,16 +4,18 @@ import axios from "axios";
 const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const token = localStorage.getItem("token");
 
+  console.log("Query Status:", query.status);
+
   const handleResolve = async () => {
     try {
       await axios.patch(
-        `https://law-assist.onrender.com/api/queries/${query._id}/resolve`,
+        `http://localhost:5000/api/expert/resolve/${query._id}`,
         {},
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       refreshQueries();
@@ -24,16 +26,38 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
     }
   };
 
-  const handleConsult = async () => {
+  const handleAcceptCase = async () => {
     try {
       await axios.patch(
-        `https://law-assist.onrender.com/api/queries/${query._id}/consult`,
+        `http://localhost:5000/api/expert/accept/${query._id}`,
         {},
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
+      );
+
+      alert("Case accepted successfully");
+
+      refreshQueries();
+      onClose();
+    } catch (error) {
+      console.log(error);
+      alert("Case already accepted by another expert.");
+    }
+  };
+
+  const handleConsult = async () => {
+    try {
+      await axios.patch(
+        `http://localhost:5000/api/queries/${query._id}/consult`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
 
       refreshQueries();
@@ -47,12 +71,12 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const handleDelete = async () => {
     try {
       await axios.delete(
-        `https://law-assist.onrender.com/api/queries/${query._id}`,
+        `http://localhost:5000/api/queries/${query._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       refreshQueries();
@@ -103,7 +127,7 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
             <span>Status</span>
             <span
               className={`user-status-badge view-item-status ${getStatusClass(
-                query.status
+                query.status,
               )}`}
             >
               {query.status}
@@ -145,16 +169,16 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
 
         {/* ACTION BUTTONS */}
         <div className="view-actions">
-          {query.status === "Answered" && (
-            <>
-              <button className="view-resolve-btn" onClick={handleResolve}>
-                Mark as Resolved
-              </button>
+          {query.status === "In Review" && (
+            <button className="view-consult-btn" onClick={handleAcceptCase}>
+              Accept Case
+            </button>
+          )}
 
-              <button className="view-consult-btn" onClick={handleConsult}>
-                Consult Legal Expert
-              </button>
-            </>
+          {query.status === "Assigned" && (
+            <button className="view-resolve-btn" onClick={handleResolve}>
+              Mark as Resolved
+            </button>
           )}
 
           <button className="view-delete-btn" onClick={handleDelete}>
