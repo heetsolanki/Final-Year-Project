@@ -9,7 +9,7 @@ import AlertPopup from "../components/AlertPopup";
 import "../styles/queries.css";
 import { categories } from "../data";
 
-const API = "http://localhost:5000/api";
+const API = "https://law-assist.onrender.com/api";
 
 const Queries = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");

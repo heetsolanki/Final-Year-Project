@@ -19,7 +19,7 @@ import {
   expertiseOptions,
 } from "../data";
 
-const API = "http://localhost:5000/api";
+const API = "https://law-assist.onrender.com/api";
 
 const ExpertProfile = () => {
   const navigate = useNavigate();
