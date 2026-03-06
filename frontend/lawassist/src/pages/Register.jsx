@@ -6,6 +6,7 @@ import AuthInput from "../components/AuthInput";
 import AuthButton from "../components/AuthButton";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { consumerPoints, expertPoints } from "../data";
 import "../styles/auth.css";
 
 const API = "https://law-assist.onrender.com/api";
@@ -163,20 +164,6 @@ function Register() {
       }
     }
   };
-
-  const consumerPoints = [
-    "Access verified consumer rights guidance.",
-    "Track and manage your legal queries.",
-    "Connect with trusted legal professionals.",
-    "Stay updated with consumer law resources.",
-  ];
-
-  const expertPoints = [
-    "Expand your professional visibility.",
-    "Receive verified legal consultation requests.",
-    "Build credibility through verified profile.",
-    "Manage client queries efficiently.",
-  ];
 
   return (
     <>

@@ -1,149 +1,10 @@
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "../styles/home.css";
-import {
-  Scale,
-  Shield,
-  FileText,
-  Users,
-  MessageSquare,
-  Search,
-  LayoutDashboard,
-  ClipboardList,
-  UserPlus,
-  Upload,
-  Gavel,
-  ShoppingCart,
-  Landmark,
-  Package,
-  ShieldCheck,
-  Building,
-} from "lucide-react";
 
 import useScrollReveal from "../hooks/useScrollReveal";
 import BackToTopButton from "../components/BackToTopButton";
-
-const miniCards = [
-  {
-    id: 1,
-    icon: <Scale size={30} />,
-    title: "Justice",
-  },
-  {
-    id: 2,
-    icon: <Shield size={30} />,
-    title: "Protection",
-  },
-  {
-    id: 3,
-    icon: <FileText size={30} />,
-    title: "Documents",
-  },
-  {
-    id: 4,
-    icon: <Users size={30} />,
-    title: "Experts",
-  },
-];
-
-const features = [
-  {
-    id: 1,
-    icon: <MessageSquare size={22} />,
-    title: "Submit Legal Query",
-    text: "Easily submit your consumer complaints and legal questions through our streamlined form.",
-  },
-  {
-    id: 2,
-    icon: <Upload size={22} />,
-    title: "Upload Documents",
-    text: "Easily upload and manage your legal documents securely.",
-  },
-  {
-    id: 3,
-    icon: <ShieldCheck size={22} />,
-    title: "Secure Storage",
-    text: "All your documents are securely stored and protected.",
-  },
-  {
-    id: 4,
-    icon: <Search size={22} />,
-    title: "Search Legal Resources",
-    text: "Find relevant legal resources and information quickly.",
-  },
-  {
-    id: 5,
-    icon: <LayoutDashboard size={22} />,
-    title: "Dashboard Overview",
-    text: "View your legal queries and documents in one centralized dashboard.",
-  },
-  {
-    id: 6,
-    icon: <ClipboardList size={22} />,
-    title: "Track Legal Progress",
-    text: "Monitor the status of your legal queries and documents.",
-  },
-];
-
-const steps = [
-  {
-    id: 1,
-    icon: <UserPlus size={22} />,
-    title: "Register / Login",
-    text: "Create your secure account to get started with LawAssist.",
-  },
-  {
-    id: 2,
-    icon: <FileText size={22} />,
-    title: "Submit Complaint",
-    text: "Describe your consumer issue using our guided query form.",
-  },
-  {
-    id: 3,
-    icon: <Upload size={22} />,
-    title: "Upload Documents",
-    text: "Attach supporting evidence like receipts and contracts.",
-  },
-  {
-    id: 4,
-    icon: <Gavel size={22} />,
-    title: "Get Expert Guidance",
-    text: "Receive personalized legal advice from verified experts.",
-  },
-];
-
-const categories = [
-  {
-    id: 1,
-    icon: <ShoppingCart size={22} />,
-    title: "E-commerce & Online Shopping",
-    text: "Disputes with online purchases, refunds, and delivery issues.",
-  },
-  {
-    id: 2,
-    icon: <Landmark size={22} />,
-    title: "Banking & Financial Issues",
-    text: "Unfair charges, loan disputes, and financial fraud complaints.",
-  },
-  {
-    id: 3,
-    icon: <Package size={22} />,
-    title: "Product Defects",
-    text: "Manufacturing defects, warranty claims, and faulty goods.",
-  },
-  {
-    id: 4,
-    icon: <ShieldCheck size={22} />,
-    title: "Insurance Complaints",
-    text: "Claim rejections, delays, and unfair policy practices.",
-  },
-  {
-    id: 5,
-    icon: <Building size={22} />,
-    title: "Real Estate Issues",
-    text: "Property disputes, builder defaults, and tenant rights.",
-  },
-];
+import { miniCards, features, steps, homeCategories } from "../data";
 
 function Home() {
   useScrollReveal();
@@ -249,7 +110,7 @@ function Home() {
           </div>
           {/* Grid */}
           <div className="features-grid">
-            {categories.map((category) => (
+            {homeCategories.map((category) => (
               <div key={category.id} className="feature-card">
                 <div className="feature-icon">{category.icon}</div>
                 <h3 className="feature-title">{category.title}</h3>
