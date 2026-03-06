@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { FolderOpen, Clock, CheckCircle, Bell, User, BadgeCheck } from "lucide-react";
@@ -17,7 +16,6 @@ const LegalExpertDashboard = () => {
   const [queries, setQueries] = useState([]);
   const [selectedQuery, setSelectedQuery] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
-  const navigate = useNavigate();
 
   const fetchExpertProfile = async () => {
     try {

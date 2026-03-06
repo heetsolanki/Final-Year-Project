@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -42,7 +42,7 @@ const ExpertProfile = () => {
   const [profileCompletion, setProfileCompletion] = useState(0);
   const [verificationStatus, setVerificationStatus] = useState("");
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const res = await axios.get(`${API}/expert/profile`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -53,11 +53,11 @@ const ExpertProfile = () => {
     } catch (err) {
       console.log(err);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     fetchProfile();
-  }, []);
+  }, [fetchProfile]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

@@ -107,7 +107,7 @@ const Queries = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [userRole]);
 
   const filteredQueries =
     selectedCategory === "All"
