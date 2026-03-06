@@ -8,6 +8,8 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "../styles/auth.css";
 
+const API = "https://law-assist.onrender.com/api";
+
 function Register() {
   const [role, setRole] = useState("consumer");
   const [showPassword, setShowPassword] = useState(false);
@@ -106,7 +108,7 @@ function Register() {
     if (Object.keys(newErrors).length === 0) {
       try {
         const response = await fetch(
-          "https://law-assist.onrender.com/api/auth/register",
+          `${API}/auth/register`,
           {
             method: "POST",
             headers: {

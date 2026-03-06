@@ -8,6 +8,8 @@ import Footer from "../components/Footer";
 import QueryDetailsModal from "../components/QueryDetailsModal";
 import BackToTopButton from "../components/BackToTopButton";
 
+const API = "https://law-assist.onrender.com/api";
+
 const LegalExpertDashboard = () => {
   const [expert, setExpert] = useState({});
   const [stats, setStats] = useState({});
@@ -21,7 +23,7 @@ const LegalExpertDashboard = () => {
 
       const decoded = jwtDecode(token);
 
-      const res = await axios.get("http://localhost:5000/api/dashboard", {
+      const res = await axios.get(`${API}/dashboard`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -40,7 +42,7 @@ const LegalExpertDashboard = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get("http://localhost:5000/api/expert/stats", {
+      const res = await axios.get(`${API}/expert/stats`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -56,7 +58,7 @@ const LegalExpertDashboard = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get("http://localhost:5000/api/expert/queries", {
+      const res = await axios.get(`${API}/expert/queries`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

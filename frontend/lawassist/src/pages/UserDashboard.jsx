@@ -18,6 +18,8 @@ import AskQueryForm from "../components/AskQueryForm";
 import BackToTopButton from "../components/BackToTopButton";
 import QueryDetailsModal from "../components/QueryDetailsModal";
 
+const API = "https://law-assist.onrender.com/api";
+
 const UserDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
@@ -37,7 +39,7 @@ const UserDashboard = () => {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        "https://law-assist.onrender.com/api/dashboard",
+        `${API}/dashboard`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -61,7 +63,7 @@ const UserDashboard = () => {
       const token = localStorage.getItem("token");
 
       await axios.delete(
-        `https://law-assist.onrender.com/api/queries/${selectedQueryId}`,
+        `${API}/queries/${selectedQueryId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

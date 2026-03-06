@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
+const API = "https://law-assist.onrender.com/api";
+
 const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const [answerText, setAnswerText] = useState("");
   const token = localStorage.getItem("token");
@@ -16,7 +18,7 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const handleResolve = async () => {
     try {
       await axios.patch(
-        `http://localhost:5000/api/expert/resolve/${query._id}`,
+        `${API}/expert/resolve/${query._id}`,
         {},
         {
           headers: {
@@ -36,7 +38,7 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const handleSubmitAnswer = async () => {
     try {
       await axios.post(
-        `http://localhost:5000/api/expert/answer/${query._id}`,
+        `${API}/expert/answer/${query._id}`,
         { answer: answerText },
         {
           headers: {
@@ -58,7 +60,7 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const handleDelete = async () => {
     try {
       await axios.delete(
-        `http://localhost:5000/api/queries/${query._id}`,
+        `${API}/queries/${query._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

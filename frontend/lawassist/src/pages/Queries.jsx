@@ -7,6 +7,8 @@ import AskQueryForm from "../components/AskQueryForm";
 import BackToTopButton from "../components/BackToTopButton";
 import "../styles/queries.css";
 
+const API = "https://law-assist.onrender.com/api";
+
 const categories = [
   "All",
   "Banking",
@@ -51,7 +53,7 @@ const Queries = () => {
 
   const fetchQueries = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/queries/public");
+      const res = await axios.get(`${API}/queries/public`);
       setQueries(res.data || []);
     } catch (error) {
       console.log(error);
@@ -63,7 +65,7 @@ const Queries = () => {
       const token = localStorage.getItem("token");
 
       await axios.patch(
-        `http://localhost:5000/api/expert/accept/${id}`,
+        `${API}/expert/accept/${id}`,
         {},
         {
           headers: {
