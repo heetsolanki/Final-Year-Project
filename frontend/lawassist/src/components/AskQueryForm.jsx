@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import AlertPopup from "./AlertPopup";
 import axios from "axios";
 
 const AskQueryForm = ({ onClose, onSuccess }) => {
@@ -22,6 +24,8 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
 
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -41,7 +45,7 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        alert("Please login first.");
+        setShowLoginPopup(true);
         return;
       }
 
@@ -77,6 +81,11 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLoginRedirect = () => {
+    setShowLoginPopup(false);
+    navigate("/login");
   };
 
   return (
@@ -155,6 +164,12 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
           </div>
         </div>
       )}
+      <AlertPopup
+        show={showLoginPopup}
+        title="Please Login"
+        message="You need to be logged in to submit a query."
+        onClose={handleLoginRedirect}
+      />
     </div>
   );
 };

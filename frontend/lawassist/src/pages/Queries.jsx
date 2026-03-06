@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import AskQueryForm from "../components/AskQueryForm";
 import BackToTopButton from "../components/BackToTopButton";
+import AlertPopup from "../components/AlertPopup";
 import "../styles/queries.css";
 
 const API = "https://law-assist.onrender.com/api";
@@ -29,6 +30,7 @@ const Queries = () => {
   const [activeTab, setActiveTab] = useState("details");
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedQuery, setSelectedQuery] = useState(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const token = localStorage.getItem("token");
 
   let userRole = null;
@@ -74,7 +76,7 @@ const Queries = () => {
         },
       );
 
-      alert("Case accepted successfully");
+      setShowSuccessPopup(true);
 
       fetchQueries();
     } catch (error) {
@@ -116,8 +118,11 @@ const Queries = () => {
           {/* Ask Button */}
           {!showForm && (
             <div className="ask-btn-wrapper">
-              {userRole === "consumer" && (
-                <button className="primary-btn" onClick={() => setShowForm(true)}>
+              {userRole !== "legalExpert" && (
+                <button
+                  className="primary-btn"
+                  onClick={() => setShowForm(true)}
+                >
                   + Ask a Question
                 </button>
               )}
@@ -302,6 +307,12 @@ const Queries = () => {
                     Accept Case
                   </button>
                 )}
+              <AlertPopup
+                show={showSuccessPopup}
+                title="Success"
+                message="Case accepted successfully!"
+                onClose={() => setShowSuccessPopup(false)}
+              />
             </div>
           </div>
         </div>

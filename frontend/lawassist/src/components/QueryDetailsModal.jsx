@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import AlertPopup from "./AlertPopup";
 
 const API = "https://law-assist.onrender.com/api";
 
 const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const [answerText, setAnswerText] = useState("");
   const token = localStorage.getItem("token");
+  const [showAnswerPopup, setShowAnswerPopup] = useState(false);
 
   let userRole = null;
 
@@ -47,10 +49,9 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
         },
       );
 
-      alert("Answer submitted successfully");
+      setShowAnswerPopup(true);
 
       refreshQueries();
-      onClose();
     } catch (error) {
       console.log(error);
       alert("Failed to submit answer");
@@ -59,14 +60,11 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(
-        `${API}/queries/${query._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      await axios.delete(`${API}/queries/${query._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       refreshQueries();
       onClose();
@@ -89,6 +87,11 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
       default:
         return "user-status-default";
     }
+  };
+
+  const handleAnswerPopupClose = () => {
+    setShowAnswerPopup(false);
+    onClose(); // close modal AFTER popup
   };
 
   return (
@@ -171,23 +174,29 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
           )}
         </div>
         {query.status === "Assigned" && userRole === "legalExpert" && (
-            <div className="mt-4">
-              <textarea
-                placeholder="Write your legal answer..."
-                value={answerText}
-                onChange={(e) => setAnswerText(e.target.value)}
-                className="w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows="4"
-              />
+          <div className="mt-4">
+            <textarea
+              placeholder="Write your legal answer..."
+              value={answerText}
+              onChange={(e) => setAnswerText(e.target.value)}
+              className="w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows="4"
+            />
 
-              <button
-                onClick={handleSubmitAnswer}
-                className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-              >
-                Submit Answer
-              </button>
-            </div>
-          )}
+            <button
+              onClick={handleSubmitAnswer}
+              className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            >
+              Submit Answer
+            </button>
+          </div>
+        )}
+        <AlertPopup
+          show={showAnswerPopup}
+          title="Success"
+          message="Answer submitted successfully!"
+          onClose={handleAnswerPopupClose}
+        />
       </div>
     </div>
   );
