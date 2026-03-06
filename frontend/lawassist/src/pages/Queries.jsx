@@ -116,9 +116,11 @@ const Queries = () => {
           {/* Ask Button */}
           {!showForm && (
             <div className="ask-btn-wrapper">
-              <button className="primary-btn" onClick={() => setShowForm(true)}>
-                + Ask a Question
-              </button>
+              {userRole === "consumer" && (
+                <button className="primary-btn" onClick={() => setShowForm(true)}>
+                  + Ask a Question
+                </button>
+              )}
             </div>
           )}
 
