@@ -9,7 +9,9 @@ const {
   resolveQuery,
   acceptCase,
   completeExpertProfile,
-  getExpertProfile
+  getExpertProfile,
+  getAllExperts,
+  getExpertById
 } = require("../controllers/expertController");
 
 router.get("/stats", authMiddleware, getExpertStats);
@@ -19,5 +21,7 @@ router.post("/answer/:id", authMiddleware, answerQuery);
 router.patch("/resolve/:id", authMiddleware, resolveQuery);
 router.post("/complete-profile", authMiddleware, completeExpertProfile);
 router.get("/profile", authMiddleware, getExpertProfile);
+router.get("/all", getAllExperts);
+router.get("/:id", getExpertById);
 
 module.exports = router;

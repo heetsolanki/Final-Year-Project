@@ -11,6 +11,7 @@ import UserManageProfile from "./pages/UserManageProfile";
 import LegalExpertDashboard from "./pages/LegalExpertDashboard";
 import Experts from "./pages/Experts";
 import ExpertProfile from "./pages/ExpertProfile";
+import ViewExpert from "./pages/ViewExpert";
 import ExploreRights from "./pages/ExploreRights";
 import Queries from "./pages/Queries";
 
@@ -31,6 +32,7 @@ function App() {
           element={<LegalExpertDashboard />}
         />
         <Route path="/experts" element={<Experts />} />
+        <Route path="/experts/:id" element={<ViewExpert />} />
         <Route path="/expert-profile" element={<ExpertProfile />} />
         <Route path="/explore-rights" element={<ExploreRights />} />
         <Route path="/queries" element={<Queries />} />

@@ -11,6 +11,7 @@ exports.completeExpertProfile = async (req, res) => {
       experience,
       consultationCharges,
       city,
+      state,
       languages,
       expertiseAreas,
       bio,
@@ -32,6 +33,7 @@ exports.completeExpertProfile = async (req, res) => {
     user.specialization = specialization;
     user.experience = experience;
     user.consultationCharges = consultationCharges;
+    user.state = state;
     user.city = city;
     user.languages = languages;
     user.expertiseAreas = expertiseAreas;
@@ -241,4 +243,34 @@ const calculateProfileCompletion = (user) => {
   );
 
   return Math.round((filled.length / fields.length) * 100);
+};
+
+exports.getAllExperts = async (req, res) => {
+  try {
+    const experts = await User.find({
+      role: "legalExpert",
+      verificationStatus: "verified",
+    }).select(
+      "name specialization experience city state consultationCharges expertiseAreas bio"
+    );
+
+    res.json(experts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching experts" });
+  }
+};
+
+exports.getExpertById = async (req, res) => {
+  try {
+    const expert = await User.findById(req.params.id).select("-password");
+
+    if (!expert) {
+      return res.status(404).json({ message: "Expert not found" });
+    }
+
+    res.json(expert);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching expert" });
+  }
 };
