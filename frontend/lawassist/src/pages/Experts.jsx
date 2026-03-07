@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { MapPin, Star, Briefcase, IndianRupee } from "lucide-react";
+import { MapPin, Briefcase, IndianRupee } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BackToTopButton from "../components/BackToTopButton";
