@@ -78,7 +78,7 @@ exports.getExpertStats = async (req, res) => {
 
     const assignedQueries = await Query.countDocuments({
       expertId: expertId,
-      status: { $in: ["Assigned", "Resolved"] },
+      status: "Assigned",
     });
 
     const pendingQueries = await Query.countDocuments({
