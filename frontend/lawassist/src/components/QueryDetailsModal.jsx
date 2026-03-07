@@ -3,7 +3,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import AlertPopup from "./AlertPopup";
 
-const API = "https://law-assist.onrender.com/api";
+const API = "http://localhost:5000/api";
 
 const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const [answerText, setAnswerText] = useState("");
@@ -131,7 +131,7 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
 
         {/* ACTION BUTTONS */}
         <div className="view-actions">
-          {userRole === "legalExpert" && query.status === "Assigned" && (
+          {userRole === "consumer" && query.status === "Assigned" && (
             <button
               className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl shadow-md transition duration-200"
               onClick={handleResolve}

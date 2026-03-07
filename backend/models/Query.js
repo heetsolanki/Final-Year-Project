@@ -39,7 +39,7 @@ const querySchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["In Review", "Assigned", "Resolved"],
+      enum: ["In Review", "Assigned", "Resolved", "Answered"],
       default: "In Review",
     },
   },

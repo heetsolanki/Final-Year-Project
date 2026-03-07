@@ -6,9 +6,9 @@ import Footer from "../components/Footer";
 import AskQueryForm from "../components/AskQueryForm";
 import BackToTopButton from "../components/BackToTopButton";
 import AlertPopup from "../components/AlertPopup";
-import { categories } from "../data";
+import { categories, getStatusClass } from "../data";
 
-const API = "https://law-assist.onrender.com/api";
+const API = "http://localhost:5000/api";
 
 const Queries = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -27,19 +27,6 @@ const Queries = () => {
     const decoded = jwtDecode(token);
     userRole = decoded.role;
   }
-
-  const getStatusClass = (status) => {
-    switch (status) {
-      case "In Review":
-        return "user-status-review";
-      case "Assigned":
-        return "user-status-assigned";
-      case "Resolved":
-        return "user-status-resolved";
-      default:
-        return "user-status-default";
-    }
-  };
 
   const fetchQueries = async () => {
     try {
@@ -182,9 +169,7 @@ const Queries = () => {
                       {query.title}
                     </h3>
                     <span
-                      className={`status-badge view-item-status ${
-                        query.status === "Resolved" ? "answered" : "open"
-                      }`}
+                      className={`user-status-badge ${getStatusClass(query.status)}`}
                     >
                       {query.status || "Open"}
                     </span>

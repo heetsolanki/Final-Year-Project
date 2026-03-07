@@ -13,8 +13,9 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import QueryDetailsModal from "../components/QueryDetailsModal";
 import BackToTopButton from "../components/BackToTopButton";
+import { getStatusClass } from "../data";
 
-const API = "https://law-assist.onrender.com/api";
+const API = "http://localhost:5000/api";
 
 const LegalExpertDashboard = () => {
   const [expert, setExpert] = useState({});
@@ -230,11 +231,7 @@ const LegalExpertDashboard = () => {
                       </td>
                       <td className="p-4 max-md:p-3 text-sm max-md:text-sm text-gray-700 border-b transition duration-200">
                         <span
-                          className={`expert-status-badge ${
-                            query.status === "Assigned"
-                              ? "expert-status-progress"
-                              : "expert-status-resolved"
-                          }`}
+                          className={`expert-status-badge ${getStatusClass(query.status)}`}
                         >
                           {query.status}
                         </span>

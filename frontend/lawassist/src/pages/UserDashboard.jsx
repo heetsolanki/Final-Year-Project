@@ -16,8 +16,9 @@ import Footer from "../components/Footer";
 import AskQueryForm from "../components/AskQueryForm";
 import BackToTopButton from "../components/BackToTopButton";
 import QueryDetailsModal from "../components/QueryDetailsModal";
+import { getStatusClass } from "../data";
 
-const API = "https://law-assist.onrender.com/api";
+const API = "http://localhost:5000/api";
 
 const UserDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -94,22 +95,7 @@ const UserDashboard = () => {
     const matchesFilter = filterStatus === "All" || q.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
-
-  const getStatusClass = (status) => {
-    switch (status) {
-      case "Pending":
-        return "user-status-pending";
-      case "Answered":
-        return "user-status-answered";
-      case "Consultation Requested":
-        return "user-status-consult";
-      case "Resolved":
-        return "user-status-resolved";
-      default:
-        return "user-status-default";
-    }
-  };
-
+  
   return (
     <>
       <Navbar />

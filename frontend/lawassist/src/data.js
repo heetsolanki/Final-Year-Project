@@ -558,3 +558,18 @@ export const offers = [
     text: "Search consumer laws, acts, and legal precedents instantly.",
   },
 ];
+
+export const getStatusClass = (status) => {
+    switch (status) {
+      case "In Review":
+        return "user-status-pending";
+      case "Answered":
+        return "user-status-answered";
+      case "Assigned":
+        return "user-status-consult";
+      case "Resolved":
+        return "user-status-resolved";
+      default:
+        return "user-status-default";
+    }
+  };

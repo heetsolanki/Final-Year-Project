@@ -190,7 +190,7 @@ exports.answerQuery = async (req, res) => {
       specialization: req.user.specialization || "Legal Expert",
     };
 
-    query.status = "Assigned";
+    query.status = "Answered";
 
     await query.save();
 
