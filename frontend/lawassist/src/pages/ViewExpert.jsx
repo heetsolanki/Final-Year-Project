@@ -100,7 +100,7 @@ const ExpertProfile = () => {
           {/* EXPERTISE SECTION */}
 
           <div className="section-card">
-            <h2 className="section-title">Areas of Expertise</h2>
+            <h2 className="expert-profile-title">Areas of Expertise</h2>
 
             <div className="expertise-grid">
               {expert.expertiseAreas && expert.expertiseAreas.length > 0 ? (
@@ -116,7 +116,7 @@ const ExpertProfile = () => {
           </div>
 
           <div className="section-card">
-            <h2 className="section-title">Languages Spoken</h2>
+            <h2 className="expert-profile-title">Languages Spoken</h2>
 
             <div className="expertise-grid">
               {expert.languages && expert.languages.length > 0 ? (
@@ -134,7 +134,7 @@ const ExpertProfile = () => {
           {/* PROFESSIONAL DETAILS */}
 
           <div className="section-card">
-            <h2 className="section-title">Professional Details</h2>
+            <h2 className="expert-profile-title">Professional Details</h2>
 
             <div className="details-grid">
               <div>
@@ -152,7 +152,7 @@ const ExpertProfile = () => {
           {/* REVIEWS SECTION (Static for now) */}
 
           <div className="section-card">
-            <h2 className="section-title">Client Reviews</h2>
+            <h2 className="expert-profile-title">Client Reviews</h2>
 
             <div className="reviews-grid">
               <div className="review-card">
