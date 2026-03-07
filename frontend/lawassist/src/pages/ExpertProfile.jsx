@@ -120,8 +120,8 @@ const ExpertProfile = () => {
     <>
       <Navbar />
 
-      <div className="min-h-screen bg-gray-50 pt-28 pb-16">
-        <div className="mx-auto max-w-4xl rounded-xl bg-white p-10 shadow-lg">
+      <div className="min-h-screen bg-gray-50 pt-24 sm:pt-28 pb-12 sm:pb-16 px-4">
+        <div className="mx-auto w-full max-w-4xl rounded-xl bg-white p-5 sm:p-8 md:p-10 shadow-lg">
           <div className="mb-6">
             <button
               onClick={() => navigate("/legal-expert-dashboard")}
@@ -130,7 +130,7 @@ const ExpertProfile = () => {
               <ArrowLeft size={16} /> Back to Dashboard
             </button>
           </div>
-          <div className="mb-8 flex items-center gap-3">
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
             <Scale className="text-[#1E3A8A]" />
             <h1 className="text-2xl font-semibold">
               Complete Legal Expert Profile
@@ -167,7 +167,7 @@ const ExpertProfile = () => {
 
           <form
             onSubmit={handleSubmit}
-            className="grid grid-cols-1 gap-6 md:grid-cols-2"
+            className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2"
           >
             {/* Bar Council ID */}
             <div>
@@ -179,7 +179,7 @@ const ExpertProfile = () => {
                 placeholder="MH/1234/2020"
                 value={formData.barCouncilId}
                 onChange={handleChange}
-                className="mt-1 w-full rounded border p-2"
+                className="mt-1 w-full rounded border p-2 text-sm sm:text-base"
                 required
               />
             </div>
@@ -192,7 +192,7 @@ const ExpertProfile = () => {
                 name="experience"
                 value={formData.experience}
                 onChange={handleChange}
-                className="mt-1 w-full rounded border p-2"
+                className="mt-1 w-full rounded border p-2 text-sm sm:text-base"
                 required
               />
             </div>
@@ -205,7 +205,7 @@ const ExpertProfile = () => {
                 name="specialization"
                 value={formData.specialization}
                 onChange={handleChange}
-                className="mt-1 w-full rounded border p-2"
+                className="mt-1 w-full rounded border p-2 text-sm sm:text-base"
                 required
               >
                 <option value="">Select Specialization</option>
@@ -235,7 +235,7 @@ const ExpertProfile = () => {
                 name="state"
                 value={formData.state}
                 onChange={handleChange}
-                className="mt-1 w-full rounded border p-2"
+                className="mt-1 w-full rounded border p-2 text-sm sm:text-base"
                 required
               >
                 <option value="">Select State</option>
@@ -253,7 +253,7 @@ const ExpertProfile = () => {
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
-                className="mt-1 w-full rounded border p-2"
+                className="mt-1 w-full rounded border p-2 text-sm sm:text-base"
                 required
               >
                 <option value="">Select City</option>
@@ -274,7 +274,7 @@ const ExpertProfile = () => {
                 name="consultationCharges"
                 value={formData.consultationCharges}
                 onChange={handleChange}
-                className="mt-1 w-full rounded border p-2"
+                className="mt-1 w-full rounded border p-2 text-sm sm:text-base"
               />
             </div>
 
@@ -284,13 +284,13 @@ const ExpertProfile = () => {
                 <Languages size={16} /> Languages
               </label>
 
-              <div className="mt-2 flex flex-wrap gap-3">
+              <div className="mt-2 flex flex-wrap gap-2 sm:gap-3">
                 {indianLanguages.map((lang) => (
                   <button
                     type="button"
                     key={lang}
                     onClick={() => handleMultiSelect("languages", lang)}
-                    className={`rounded border px-3 py-1 text-sm ${
+                    className={`rounded border px-2 sm:px-3 py-1 text-xs sm:text-sm ${
                       formData.languages.includes(lang)
                         ? "bg-[#1E3A8A] text-white"
                         : "bg-gray-100"
@@ -306,13 +306,13 @@ const ExpertProfile = () => {
             <div className="md:col-span-2">
               <label className="text-sm font-medium">Areas of Expertise</label>
 
-              <div className="mt-2 flex flex-wrap gap-3">
+              <div className="mt-2 flex flex-wrap gap-2 sm:gap-3">
                 {expertiseOptions.map((area) => (
                   <button
                     type="button"
                     key={area}
                     onClick={() => handleMultiSelect("expertiseAreas", area)}
-                    className={`rounded border px-3 py-1 text-sm ${
+                    className={`rounded border px-2 sm:px-3 py-1 text-xs sm:text-sm ${
                       formData.expertiseAreas.includes(area)
                         ? "bg-[#1E3A8A] text-white"
                         : "bg-gray-100"
@@ -333,7 +333,7 @@ const ExpertProfile = () => {
                 rows="4"
                 value={formData.bio}
                 onChange={handleChange}
-                className="mt-1 w-full rounded border p-2"
+                className="mt-1 w-full rounded border p-2 text-sm sm:text-base"
               />
             </div>
 
@@ -341,7 +341,7 @@ const ExpertProfile = () => {
             <div className="md:col-span-2">
               <button
                 type="submit"
-                className="w-full rounded-lg bg-[#1E3A8A] py-3 font-medium text-white hover:bg-[#b8921f]"
+                className="w-full rounded-lg bg-[#1E3A8A] py-3 text-sm sm:text-base font-medium text-white hover:bg-[#162e6d] transition"
               >
                 Save Profile
               </button>
