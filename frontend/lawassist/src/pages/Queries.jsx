@@ -6,7 +6,6 @@ import Footer from "../components/Footer";
 import AskQueryForm from "../components/AskQueryForm";
 import BackToTopButton from "../components/BackToTopButton";
 import AlertPopup from "../components/AlertPopup";
-import "../styles/queries.css";
 import { categories } from "../data";
 
 const API = "https://law-assist.onrender.com/api";
@@ -118,10 +117,10 @@ const Queries = () => {
     <>
       <Navbar />
 
-      <div className="queries-wrapper">
-        <div className="queries-container">
+      <div className="min-h-screen bg-gray-50 pt-28 sm:pt-32 lg:pt-40 px-4 sm:px-6 lg:px-8 pb-20">
+        <div className="max-w-6xl mx-auto">
           {/* Heading */}
-          <div className="queries-heading">
+          <div className="text-center mb-6 px-2">
             <h1 className="section-title">Consumer Legal Forum</h1>
             <div className="section-underline"></div>
             <p className="section-subtitle">
@@ -131,10 +130,10 @@ const Queries = () => {
 
           {/* Ask Button */}
           {!showForm && (
-            <div className="ask-btn-wrapper">
+            <div className="flex justify-center mb-6">
               {userRole !== "legalExpert" && (
                 <button
-                  className="primary-btn"
+                  className="bg-[#1E3A8A] hover:bg-blue-700 text-white font-medium w-full sm:w-auto py-2.5 px-6 rounded-lg transition"
                   onClick={() => setShowForm(true)}
                 >
                   + Ask a Question
@@ -147,7 +146,7 @@ const Queries = () => {
           {showForm && (
             <AskQueryForm
               onClose={() => setShowForm(false)}
-              onSuccess={fetchQueries} // 🔥 auto refresh
+              onSuccess={fetchQueries}
             />
           )}
 
@@ -167,16 +166,21 @@ const Queries = () => {
           </div>
 
           {/* Queries List */}
-          <div className="queries-list">
+          <div className="space-y-5 mt-6">
             {filteredQueries.length === 0 ? (
               <p style={{ textAlign: "center", marginTop: "20px" }}>
                 No queries found.
               </p>
             ) : (
               filteredQueries.map((query) => (
-                <div key={query._id} className="query-card hover-card">
-                  <div className="query-header">
-                    <h3>{query.title}</h3>
+                <div
+                  key={query._id}
+                  className="bg-white relative rounded-xl shadow-sm p-5 sm:p-6 lg:p-8 mb-6 transition hover:shadow-md sm:hover:shadow-lg"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-800 leading-snug">
+                      {query.title}
+                    </h3>
                     <span
                       className={`status-badge view-item-status ${
                         query.status === "Resolved" ? "answered" : "open"
@@ -186,12 +190,14 @@ const Queries = () => {
                     </span>
                   </div>
 
-                  <p className="query-description">{query.description}</p>
+                  <p className="text-sm text-gray-600 leading-relaxed mb-3">
+                    {query.description}
+                  </p>
 
-                  <div className="query-footer">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center text-sm text-gray-500">
                     <span>0 Answers</span>
                     <button
-                      className="secondary-btn"
+                      className="bg-[#1E3A8A] hover:bg-[#1E3A8A]/90 text-white font-medium text-sm py-2 px-4 rounded-lg transition"
                       onClick={() => {
                         setSelectedQuery(query);
                         setShowViewModal(true);
@@ -206,12 +212,13 @@ const Queries = () => {
           </div>
         </div>
       </div>
+
       {showViewModal && selectedQuery && (
-        <div className="view-overlay">
-          <div className="view-modal">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4 sm:px-6">
+          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl p-6 sm:p-8 animate-[fadeInScale_0.25s_ease]">
             {/* Close Button */}
             <button
-              className="view-close-btn"
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-600 transition"
               onClick={() => {
                 setShowViewModal(false);
                 setSelectedQuery(null);
@@ -221,13 +228,17 @@ const Queries = () => {
               ✕
             </button>
 
-            <h2 className="view-title">Query Overview</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-800 mb-6">
+              Query Overview
+            </h2>
 
             {/* Tabs */}
-            <div className="view-tabs">
+            <div className="flex border-b border-gray-200 mb-6">
               <button
-                className={`view-tab-btn ${
-                  activeTab === "details" ? "query-active-tab" : ""
+                className={`flex-1 text-sm sm:text-base py-2 font-medium text-gray-500 hover:text-blue-600 transition ${
+                  activeTab === "details"
+                    ? "bg-[#1E3A8A] rounded-lg text-white transition duration-300"
+                    : ""
                 }`}
                 onClick={() => setActiveTab("details")}
               >
@@ -235,8 +246,10 @@ const Queries = () => {
               </button>
 
               <button
-                className={`view-tab-btn ${
-                  activeTab === "answers" ? "query-active-tab" : ""
+                className={`flex-1 text-sm sm:text-base py-2 font-medium text-gray-500 hover:text-blue-600 transition ${
+                  activeTab === "answers"
+                    ? "bg-[#1E3A8A] rounded-lg text-white transition duration-300"
+                    : ""
                 }`}
                 onClick={() => setActiveTab("answers")}
               >
@@ -245,10 +258,10 @@ const Queries = () => {
             </div>
 
             {/* Tab Content */}
-            <div className="view-tab-content">
+            <div className="max-h-[60vh] overflow-y-auto pr-1">
               {/* QUERY DETAILS TAB */}
               {activeTab === "details" && (
-                <div className="view-content">
+                <div className="space-y-5 text-sm sm:text-base text-gray-700">
                   <div className="view-item">
                     <span>Title</span>
                     <p>{selectedQuery.title}</p>
@@ -315,7 +328,10 @@ const Queries = () => {
               {selectedQuery.status === "In Review" &&
                 userRole === "legalExpert" && (
                   <>
-                    <p className="text-sm text-red-500 mt-3" hidden={expert?.verificationStatus === "verified"}>
+                    <p
+                      className="text-sm text-red-500 mt-3"
+                      hidden={expert?.verificationStatus === "verified"}
+                    >
                       Complete your expert profile to accept cases.
                     </p>
                     <button

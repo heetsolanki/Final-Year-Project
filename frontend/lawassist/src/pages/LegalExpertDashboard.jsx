@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
-import { FolderOpen, Clock, CheckCircle, Bell, User, BadgeCheck } from "lucide-react";
-import "../styles/legalExpertDashboard.css";
+import {
+  FolderOpen,
+  Clock,
+  CheckCircle,
+  Bell,
+  User,
+  BadgeCheck,
+} from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import QueryDetailsModal from "../components/QueryDetailsModal";
@@ -20,15 +26,10 @@ const LegalExpertDashboard = () => {
   const fetchExpertProfile = async () => {
     try {
       const token = localStorage.getItem("token");
-
       const decoded = jwtDecode(token);
-
       const res = await axios.get(`${API}/expert/profile`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       setExpert({
         ...res.data,
         userId: decoded.userId,
@@ -43,13 +44,9 @@ const LegalExpertDashboard = () => {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem("token");
-
       const res = await axios.get(`${API}/expert/stats`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       setStats(res.data);
     } catch (error) {
       console.log(error);
@@ -59,13 +56,9 @@ const LegalExpertDashboard = () => {
   const fetchQueries = async () => {
     try {
       const token = localStorage.getItem("token");
-
       const res = await axios.get(`${API}/expert/queries`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       setQueries(res.data);
     } catch (error) {
       console.log(error);
@@ -89,7 +82,7 @@ const LegalExpertDashboard = () => {
     <>
       <Navbar />
 
-      <div className="expert-dashboard-wrapper">
+      <div className="min-h-screen bg-gray-50 py-14 px-4 pt-36 max-md:px-3 max-md:pt-28">
         <div className="expert-dashboard-container">
           {expert.role === "legalExpert" &&
             expert.verificationStatus !== "verified" && (
@@ -100,14 +93,12 @@ const LegalExpertDashboard = () => {
                       ⚠ Complete your expert profile to start accepting and
                       answering cases.
                     </p>
-
                     <p className="mt-1 text-sm text-gray-700">
                       Profile Completion:{" "}
                       <span className="font-semibold">
                         {expert.profileCompletion || 0}%
                       </span>
                     </p>
-
                     <button
                       className="mt-3 rounded-md bg-[#C9A227] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#b8921f]"
                       onClick={() => (window.location.href = "/expert-profile")}
@@ -122,7 +113,6 @@ const LegalExpertDashboard = () => {
                     <p className="text-sm font-medium text-yellow-800">
                       ⏳ Your expert profile is currently under verification.
                     </p>
-
                     <p className="mt-1 text-sm text-gray-700">
                       Profile Completion:{" "}
                       <span className="font-semibold">
@@ -133,45 +123,54 @@ const LegalExpertDashboard = () => {
                 )}
               </div>
             )}
-          <div className="expert-dashboard-header">
-            <h1 className="expert-dashboard-title">
+
+          {/* HEADER */}
+          <div className="mb-12">
+            <h1 className="text-2xl max-md:text-xl font-bold text-[#1E3A8A]">
               Welcome back, {expert.name || "Advocate"}
             </h1>
-            <p className="expert-dashboard-subtext">
+            <p className="text-gray-500 text-sm max-md:text-xs mt-1">
               Manage and respond to assigned consumer complaints efficiently.
             </p>
           </div>
 
-          <div className="expert-stats-grid">
-            <div className="expert-stat-card">
+          {/* STATS */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+            <div className="expert-stat-card expert-stat-card-1">
               <FolderOpen className="text-blue-600" />
               <div>
-                <h3>Assigned Cases</h3>
-                <p>{stats.assignedQueries || 0}</p>
+                <h3 className="text-sm text-gray-500">Assigned Cases</h3>
+                <p className="text-2xl max-[480px]:text-xl font-bold text-[#1E3A8A]">
+                  {stats.assignedQueries || 0}
+                </p>
               </div>
             </div>
 
-            <div className="expert-stat-card">
+            <div className="expert-stat-card expert-stat-card-2">
               <Clock className="text-yellow-500" />
               <div>
-                <h3>Pending Replies</h3>
-                <p>{stats.pendingQueries || 0}</p>
+                <h3 className="text-sm text-gray-500">Pending Replies</h3>
+                <p className="text-2xl max-[480px]:text-xl font-bold text-[#1E3A8A]">
+                  {stats.pendingQueries || 0}
+                </p>
               </div>
             </div>
 
-            <div className="expert-stat-card">
+            <div className="expert-stat-card expert-stat-card-3">
               <CheckCircle className="text-green-600" />
               <div>
-                <h3>Resolved Cases</h3>
-                <p>{stats.resolvedQueries || 0}</p>
+                <h3 className="text-sm text-gray-500">Resolved Cases</h3>
+                <p className="text-2xl max-[480px]:text-xl font-bold text-[#1E3A8A]">
+                  {stats.resolvedQueries || 0}
+                </p>
               </div>
             </div>
 
-            <div className="expert-stat-card">
+            <div className="expert-stat-card expert-stat-card-4">
               <Bell className="text-red-500" />
               <div>
-                <h3>New Queries Today</h3>
-                <p>
+                <h3 className="text-sm text-gray-500">New Queries Today</h3>
+                <p className="text-2xl max-[480px]:text-xl font-bold text-[#1E3A8A]">
                   {
                     queries.filter(
                       (q) =>
@@ -184,45 +183,65 @@ const LegalExpertDashboard = () => {
             </div>
           </div>
 
-          <div className="expert-table-wrapper">
-            <table className="expert-table">
+          {/* TABLE */}
+          <div className="overflow-x-auto rounded-2xl border border-gray-100 transition duration-300 hover:shadow-md">
+            <table className="w-full text-left">
               <thead>
                 <tr>
-                  <th>Case ID</th>
-                  <th>Consumer</th>
-                  <th>Category</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Action</th>
+                  <th className="p-4 max-md:p-3 text-sm max-md:text-sm text-gray-500 border-b bg-gray-50">
+                    Case ID
+                  </th>
+                  <th className="p-4 max-md:p-3 text-sm max-md:text-sm text-gray-500 border-b bg-gray-50">
+                    Consumer
+                  </th>
+                  <th className="p-4 max-md:p-3 text-sm max-md:text-sm text-gray-500 border-b bg-gray-50">
+                    Category
+                  </th>
+                  <th className="p-4 max-md:p-3 text-sm max-md:text-sm text-gray-500 border-b bg-gray-50">
+                    Date
+                  </th>
+                  <th className="p-4 max-md:p-3 text-sm max-md:text-sm text-gray-500 border-b bg-gray-50">
+                    Status
+                  </th>
+                  <th className="p-4 max-md:p-3 text-sm max-md:text-sm text-gray-500 border-b bg-gray-50">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {queries
                   .filter((query) => query.expertId === expert.userId)
                   .map((query) => (
-                    <tr key={query._id}>
-                      <td>{query._id.slice(-5)}</td>
-                      <td>{query.userId}</td>
-                      <td>{query.category}</td>
-
-                      <td>{new Date(query.createdAt).toLocaleDateString()}</td>
-
-                      <td>
+                    <tr
+                      key={query._id}
+                      className="transition duration-200 hover:bg-gray-50"
+                    >
+                      <td className="p-4 max-md:p-3 text-sm max-md:text-sm text-gray-700 border-b transition duration-200">
+                        {query._id.slice(-5)}
+                      </td>
+                      <td className="p-4 max-md:p-3 text-sm max-md:text-sm text-gray-700 border-b transition duration-200">
+                        {query.userId}
+                      </td>
+                      <td className="p-4 max-md:p-3 text-sm max-md:text-sm text-gray-700 border-b transition duration-200">
+                        {query.category}
+                      </td>
+                      <td className="p-4 max-md:p-3 text-sm max-md:text-sm text-gray-700 border-b transition duration-200">
+                        {new Date(query.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="p-4 max-md:p-3 text-sm max-md:text-sm text-gray-700 border-b transition duration-200">
                         <span
-                          className={`expert-status-badge 
-${
-  query.status === "Assigned"
-    ? "expert-status-progress"
-    : "expert-status-resolved"
-}`}
+                          className={`expert-status-badge ${
+                            query.status === "Assigned"
+                              ? "expert-status-progress"
+                              : "expert-status-resolved"
+                          }`}
                         >
                           {query.status}
                         </span>
                       </td>
-
-                      <td>
+                      <td className="p-4 max-md:p-3 text-sm max-md:text-sm text-gray-700 border-b transition duration-200">
                         <button
-                          className={`expert-view-btn ${
+                          className={`text-sm font-medium text-[#1E3A8A] transition duration-300 hover:text-[#D4AF37] hover:underline ${
                             expert.verificationStatus !== "verified"
                               ? "cursor-not-allowed opacity-50"
                               : ""
@@ -242,23 +261,24 @@ ${
             </table>
           </div>
 
-          {/* ================= SIDE PANEL ================= */}
-          <div className="expert-side-panel">
+          {/* SIDE PANEL */}
+          <div className="mt-12 flex gap-6 justify-between flex-wrap max-lg:flex-col">
             {/* Profile Card */}
-            <div className="expert-side-card expert-profile-card">
-              <h3>
+            <div className="expert-side-card">
+              <h3 className="text-lg font-semibold text-[#1E3A8A] mb-3 flex items-center gap-2">
                 <User size={18} /> Advocate Profile
               </h3>
-              <p>
+              <p className="text-sm text-gray-500 mb-4">
                 <strong>Name:</strong> {expert.name || "Loading..."}
               </p>
-              <p>
+              <p className="text-sm text-gray-500 mb-4">
                 <strong>Email:</strong> {expert.email || "Loading..."}
               </p>
-              <p>
-                <strong>Specialization:</strong> {expert.specialization || "N/A"}
+              <p className="text-sm text-gray-500 mb-4">
+                <strong>Specialization:</strong>{" "}
+                {expert.specialization || "N/A"}
               </p>
-              <p className="mt-2 text-sm">
+              <p className="mt-2 text-sm text-gray-500 mb-4">
                 <strong>Verification:</strong>{" "}
                 {expert.verificationStatus === "verified" ? (
                   <span className="font-semibold text-green-600">
@@ -271,7 +291,6 @@ ${
                   <span className="font-semibold text-red-500">Incomplete</span>
                 )}
               </p>
-
               <p className="text-sm text-gray-700">
                 <strong>Profile Completion:</strong>{" "}
                 {expert.profileCompletion || 0}%
@@ -286,16 +305,25 @@ ${
 
             {/* Notifications */}
             <div className="expert-side-card">
-              <h3>Recent Notifications</h3>
-              <ul>
-                <li>New case assigned (2 hours ago)</li>
-                <li>Consumer replied to Case #1023</li>
-                <li>Case #1018 marked resolved</li>
+              <h3 className="text-lg font-semibold text-[#1E3A8A] mb-3 flex items-center gap-2">
+                Recent Notifications
+              </h3>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li className="transition duration-200 cursor-pointer hover:text-[#D4AF37]">
+                  New case assigned (2 hours ago)
+                </li>
+                <li className="transition duration-200 cursor-pointer hover:text-[#D4AF37]">
+                  Consumer replied to Case #1023
+                </li>
+                <li className="transition duration-200 cursor-pointer hover:text-[#D4AF37]">
+                  Case #1018 marked resolved
+                </li>
               </ul>
             </div>
           </div>
         </div>
       </div>
+
       {showViewModal && selectedQuery && (
         <QueryDetailsModal
           query={selectedQuery}

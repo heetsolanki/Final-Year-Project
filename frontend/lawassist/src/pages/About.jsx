@@ -1,91 +1,16 @@
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BackToTopButton from "../components/BackToTopButton";
-import "../styles/about.css";
 import {
   Scale,
   Shield,
   ShieldCheck,
-  Lightbulb,
-  Eye,
-  ClipboardList,
-  Lock,
-  MessageSquare,
-  Upload,
-  Activity,
-  Users,
-  Search,
   Code2,
   User,
   Linkedin,
   Github,
 } from "lucide-react";
-
-const missions = [
-  {
-    id: 1,
-    icon: <Lightbulb />,
-    title: "Simplify Legal Access",
-    text: "Break down complex legal processes into simple, actionable steps for every consumer.",
-  },
-  {
-    id: 2,
-    icon: <Eye />,
-    title: "Increase Consumer Awareness",
-    text: "Educate users about their fundamental rights through accessible resources and guidance.",
-  },
-  {
-    id: 3,
-    icon: <ClipboardList />,
-    title: "Structured Query Management",
-    text: "Provide an organized system to submit, track, and resolve legal queries efficiently.",
-  },
-  {
-    id: 4,
-    icon: <Lock />,
-    title: "Secure Document Handling",
-    text: "Ensure all uploaded documents and personal data are handled with industry-grade security.",
-  },
-];
-
-const offers = [
-  {
-    id: 1,
-    icon: <Shield />,
-    title: "Secure User Accounts",
-    text: "Protected sign-up and login with encrypted credentials.",
-  },
-  {
-    id: 2,
-    icon: <MessageSquare />,
-    title: "Submit Legal Queries",
-    text: "Easy-to-use form to describe your consumer complaint.",
-  },
-  {
-    id: 3,
-    icon: <Upload />,
-    title: "Upload Supporting Documents",
-    text: "Attach invoices, receipts, and evidence securely.",
-  },
-  {
-    id: 4,
-    icon: <Activity />,
-    title: "Track Query Status",
-    text: "Real-time updates on the progress of your complaint.",
-  },
-  {
-    id: 5,
-    icon: <Users />,
-    title: "Expert Panel Access",
-    text: "Connect with verified legal professionals for guidance.",
-  },
-  {
-    id: 6,
-    icon: <Search />,
-    title: "Smart Legal Search",
-    text: "Search consumer laws, acts, and legal precedents instantly.",
-  },
-];
+import { missions, offers } from "../data";
 
 function About() {
   return (
@@ -94,18 +19,25 @@ function About() {
 
       <main className="pt-40">
         {/* HERO SECTION */}
-        <section className="about-hero">
-          <div className="about-hero-layout">
+        <section
+          className="pt-24 max-md:pt-16 pb-24 max-md:pb-16 relative overflow-hidden"
+          style={{
+            backgroundColor: "#f9fafc",
+            backgroundImage:
+              "repeating-linear-gradient(135deg, rgba(10,31,68,0.03) 0px, rgba(10,31,68,0.03) 1px, transparent 1px, transparent 14px)",
+          }}
+        >
+          <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center justify-between gap-16 max-md:gap-10 max-md:text-center relative z-10">
             {/* LEFT CONTENT */}
             <div>
-              <h1 className="about-hero-title">
+              <h1 className="text-6xl max-md:text-3xl font-bold text-[#0A1F44] leading-tight max-md:leading-snug max-md:text-center">
                 Making Consumer <br />
                 Rights Simple <br />& Accessible
               </h1>
 
-              <div className="about-hero-underline"></div>
+              <div className="w-16 h-1 bg-[#C9A227] my-8 max-md:my-6 rounded-full max-md:mx-auto"></div>
 
-              <p className="about-hero-text">
+              <p className="text-lg max-md:text-base text-gray-600 max-w-lg leading-relaxed max-md:text-center max-md:mx-auto">
                 A structured digital platform designed to simplify consumer
                 legal guidance. Know your rights, take action, and get the help
                 you deserve.
@@ -113,15 +45,27 @@ function About() {
             </div>
 
             {/* RIGHT GRAPHIC */}
-            <div className="about-hero-graphic">
-              <div className="hero-ring-1"></div>
-              <div className="hero-ring-2"></div>
-              <div className="hero-ring-3"></div>
+            <div className="relative flex items-center justify-center">
+              <div
+                className="absolute rounded-full max-md:w-[220px] max-md:h-[220px] w-[340px] h-[340px]"
+                style={{ background: "rgba(10,31,68,0.05)" }}
+              ></div>
+              <div
+                className="absolute rounded-full max-md:w-[180px] max-md:h-[180px] w-[280px] h-[280px]"
+                style={{ background: "rgba(10,31,68,0.08)" }}
+              ></div>
+              <div
+                className="absolute rounded-full max-md:w-[140px] max-md:h-[140px] w-[220px] h-[220px]"
+                style={{ background: "rgba(10,31,68,0.12)" }}
+              ></div>
 
-              <div className="hero-circle-main">
-                <Scale />
-                <div className="hero-circle-badge">
-                  <Shield />
+              <div className="w-[180px] h-[180px] max-md:w-[120px] max-md:h-[120px] bg-[#0A1F44] rounded-full flex items-center justify-center relative z-10">
+                <Scale className="w-16 h-16 max-md:w-10 max-md:h-10 text-[#C9A227]" />
+                <div
+                  className="absolute top-0 right-0 w-14 h-14 max-md:w-10 max-md:h-10 bg-[#C9A227] rounded-full flex items-center justify-center shadow-xl z-20"
+                  style={{ transform: "translate(30%, -30%)" }}
+                >
+                  <Shield className="w-6 h-6 max-md:w-6 max-md:h-6 text-[#0A1F44]" />
                 </div>
               </div>
             </div>
@@ -129,19 +73,19 @@ function About() {
         </section>
 
         {/* WHO WE ARE */}
-        <section className="who-section">
-          <div className="who-layout">
+        <section className="bg-[#f4f6f9] py-24">
+          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20 max-md:gap-12 items-center max-md:text-center">
             {/* LEFT CONTENT */}
             <div>
               <h2 className="section-title">Who We Are</h2>
-              <div className="who-underline"></div>
-              <p className="who-text">
+              <div className="w-16 h-1 bg-[#C9A227] my-6 rounded-full max-md:mx-auto"></div>
+              <p className="text-gray-600 leading-relaxed mb-6 max-w-xl">
                 LawAssist is a consumer-rights-focused legal help platform that
                 allows users to submit legal queries, upload documents, and
                 track responses in an organized system. We bridge the gap
                 between consumers and the legal support they need.
               </p>
-              <p className="who-text">
+              <p className="text-gray-600 leading-relaxed mb-6 max-w-xl">
                 Our platform is designed with simplicity in mind, ensuring that
                 anyone can navigate the complexities of consumer law without
                 needing prior legal knowledge.
@@ -149,12 +93,17 @@ function About() {
             </div>
 
             {/* RIGHT CARD */}
-            <div className="who-card">
-              <div className="who-card-icon">
-                <ShieldCheck />
+            <div
+              className="bg-white rounded-2xl shadow-lg p-10 max-md:p-6 relative w-full h-full"
+              style={{ borderTop: "4px solid #C9A227" }}
+            >
+              <div className="w-16 h-16 bg-[#0A1F44] rounded-xl flex items-center justify-center mb-6">
+                <ShieldCheck className="w-8 h-8 text-[#C9A227]" />
               </div>
-              <h3 className="who-card-title">Focused on Consumer Protection</h3>
-              <p className="who-card-text">
+              <h3 className="text-xl font-semibold text-[#0A1F44] mb-4">
+                Focused on Consumer Protection
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
                 Every feature we build is centered around empowering consumers
                 to understand and exercise their legal rights with confidence
                 and clarity.
@@ -164,22 +113,36 @@ function About() {
         </section>
 
         {/* MISSION */}
-        <section className="mission-section">
-          <div className="container-custom">
-            <h2 className="mission-title">Our Mission</h2>
-            <div className="mission-underline"></div>
+        <section className="bg-[#0A1F44] py-24 text-center">
+          <div className="max-w-7xl mx-auto px-6">
+            <h2 className="text-4xl max-md:text-2xl font-bold text-white">
+              Our Mission
+            </h2>
+            <div className="w-16 h-1 bg-[#C9A227] mx-auto my-6 rounded-full"></div>
 
-            <p className="mission-subtitle">
+            <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
               We are committed to making legal support transparent, accessible,
               and structured for every consumer.
             </p>
 
-            <div className="mission-grid">
+            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-10 max-md:gap-6 mt-20 max-md:mt-12">
               {missions.map((mission) => (
-                <div key={mission.id} className="mission-card">
-                  <div className="mission-icon-box">{mission.icon}</div>
-                  <h3 className="mission-card-title">{mission.title}</h3>
-                  <p className="mission-card-text">{mission.text}</p>
+                <div
+                  key={mission.id}
+                  className="bg-[#f3f4f6] rounded-2xl p-10 max-md:p-6 text-left shadow-lg relative"
+                  style={{ borderTop: "4px solid #C9A227" }}
+                >
+                  <div className="w-14 h-14 bg-[#e9e3d2] rounded-xl flex items-center justify-center mb-6">
+                    <span className="[&>svg]:w-6 [&>svg]:h-6 [&>svg]:text-[#C9A227]">
+                      {mission.icon}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-[#0A1F44] mb-4">
+                    {mission.title}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed text-sm">
+                    {mission.text}
+                  </p>
                 </div>
               ))}
             </div>
@@ -187,8 +150,8 @@ function About() {
         </section>
 
         {/* WHAT WE OFFER */}
-        <section className="offer-section">
-          <div className="container-custom">
+        <section className="bg-[#f4f6f9] py-24 text-center">
+          <div className="max-w-7xl mx-auto px-6">
             <h2 className="section-title">What We Offer</h2>
             <div className="section-underline"></div>
 
@@ -197,7 +160,7 @@ function About() {
               consumer rights with ease.
             </p>
 
-            <div className="offer-grid">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 max-md:gap-6 mt-20 max-md:mt-12 text-left">
               {offers.map((offer) => (
                 <div key={offer.id} className="feature-card">
                   <div className="feature-icon">{offer.icon}</div>
@@ -210,20 +173,22 @@ function About() {
         </section>
 
         {/* DEVELOPER SECTION */}
-        <section className="dev-section">
+        <section className="bg-white py-24 text-center">
           <h2 className="section-title">About the Developers</h2>
           <div className="section-underline"></div>
 
-          <div className="dev-layout">
+          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20 max-md:gap-12 items-center mt-20 max-md:mt-12 text-left">
             {/* LEFT SIDE */}
             <div>
-              <div className="dev-icon-box">
-                <Code2 />
+              <div className="w-16 h-16 bg-[#0A1F44] rounded-2xl flex items-center justify-center mb-6">
+                <Code2 className="w-8 h-8 text-[#C9A227]" />
               </div>
 
-              <h3 className="dev-left-title">Built as a BCA Major Project</h3>
+              <h3 className="text-2xl font-semibold text-[#0A1F44] mb-6">
+                Built as a BCA Major Project
+              </h3>
 
-              <p className="dev-left-text">
+              <p className="text-gray-600 leading-relaxed mb-6">
                 This project was developed as a BCA Major Project with the aim
                 of solving real-world consumer legal problems through
                 technology. Built using the MERN Stack (MongoDB, Express.js,
@@ -231,43 +196,56 @@ function About() {
                 skills applied to a practical legal-tech use case.
               </p>
 
-              <p className="dev-left-text">
+              <p className="text-gray-600 leading-relaxed mb-6">
                 The focus throughout development has been on practical
                 usability, structured system design, and delivering a platform
                 that consumers can rely on for organized legal guidance.
               </p>
 
-              <div className="dev-badges">
-                <span className="dev-badge">MongoDB</span>
-                <span className="dev-badge">Express.js</span>
-                <span className="dev-badge">React.js</span>
-                <span className="dev-badge">Node.js</span>
-                <span className="dev-badge">JWT</span>
-                <span className="dev-badge">REST API</span>
+              <div className="flex flex-wrap gap-4 mt-8">
+                {[
+                  "MongoDB",
+                  "Express.js",
+                  "React.js",
+                  "Node.js",
+                  "JWT",
+                  "REST API",
+                ].map((badge) => (
+                  <span
+                    key={badge}
+                    className="px-5 py-2 rounded-full bg-white border border-gray-300 text-sm text-[#0A1F44]"
+                  >
+                    {badge}
+                  </span>
+                ))}
               </div>
             </div>
 
             {/* RIGHT SIDE CARD */}
-            <div className="dev-card">
-              <div className="dev-profile">
-                <div className="dev-avatar">
-                  <User />
+            <div className="bg-white rounded-2xl shadow-xl p-10">
+              <div className="flex items-start gap-6 max-md:flex-col max-md:items-center max-md:text-center">
+                <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center max-md:mx-auto">
+                  <User className="w-10 h-10 text-gray-500" />
                 </div>
 
                 <div>
-                  <h4 className="dev-name">Heet Solanki</h4>
-                  <p className="dev-role">Full Stack Developer</p>
+                  <h4 className="text-xl font-semibold text-[#0A1F44]">
+                    Heet Solanki
+                  </h4>
+                  <p className="text-[#C9A227] font-medium mt-1">
+                    Full Stack Developer
+                  </p>
 
-                  <p className="dev-description">
+                  <p className="text-gray-600 mt-4 leading-relaxed">
                     Passionate about computer and related stuff.
                   </p>
 
-                  <div className="dev-socials">
+                  <div className="flex gap-4 mt-6 max-md:justify-center">
                     <a
                       href="https://www.linkedin.com/in/heetsolanki"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="dev-social-icon"
+                      className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center cursor-pointer transition hover:bg-[#0A1F44] hover:text-white"
                     >
                       <Linkedin size={18} />
                     </a>
@@ -276,7 +254,7 @@ function About() {
                       href="https://github.com/heetsolanki"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="dev-social-icon"
+                      className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center cursor-pointer transition hover:bg-[#0A1F44] hover:text-white"
                     >
                       <Github size={18} />
                     </a>

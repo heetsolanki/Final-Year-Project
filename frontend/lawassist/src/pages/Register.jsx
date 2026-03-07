@@ -6,8 +6,8 @@ import AuthInput from "../components/AuthInput";
 import AuthButton from "../components/AuthButton";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import AlertPopup from "../components/AlertPopup";
 import { consumerPoints, expertPoints } from "../data";
-import "../styles/auth.css";
 
 const API = "https://law-assist.onrender.com/api";
 
@@ -27,8 +27,6 @@ function Register() {
 
   const [errors, setErrors] = useState({});
   const passwordsMatch = form.password === form.confirmPassword;
-
-  // ===== VALIDATIONS =====
 
   useEffect(() => {
     if (form.confirmPassword && form.password !== form.confirmPassword) {
@@ -108,21 +106,18 @@ function Register() {
 
     if (Object.keys(newErrors).length === 0) {
       try {
-        const response = await fetch(
-          `${API}/auth/register`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              name: form.fullName,
-              email: form.email,
-              password: form.password,
-              role: role === "consumer" ? "consumer" : "legalExpert",
-            }),
+        const response = await fetch(`${API}/auth/register`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        );
+          body: JSON.stringify({
+            name: form.fullName,
+            email: form.email,
+            password: form.password,
+            role: role === "consumer" ? "consumer" : "legalExpert",
+          }),
+        });
 
         const data = await response.json();
 
@@ -131,16 +126,13 @@ function Register() {
           return;
         }
 
-        // Optional: Auto login after registration
         if (data.token) {
           localStorage.setItem("token", data.token);
         }
 
-        // Show popup first
         setCountdown(3);
         setShowSuccess(true);
 
-        // Start countdown manually
         let counter = 3;
 
         const interval = setInterval(() => {
@@ -168,14 +160,16 @@ function Register() {
   return (
     <>
       <Navbar />
-      <div className="auth-wrapper pt-32">
+      <div className="auth-wrapper">
         <div className="auth-container">
           {/* LEFT SECTION — FORM */}
           <div className="auth-right">
             {/* ROLE SWITCH */}
-            <div className="role-switch">
+            <div className="flex mb-6 bg-gray-100 rounded-xl p-1">
               <button
-                className={`role-btn ${role === "consumer" ? "active-role" : ""}`}
+                className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${
+                  role === "consumer" ? "bg-blue-900 text-white shadow" : ""
+                }`}
                 onClick={() => setRole("consumer")}
                 type="button"
               >
@@ -183,7 +177,9 @@ function Register() {
               </button>
 
               <button
-                className={`role-btn ${role === "legalExpert" ? "active-role" : ""}`}
+                className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${
+                  role === "legalExpert" ? "bg-blue-900 text-white shadow" : ""
+                }`}
                 onClick={() => setRole("legalExpert")}
                 type="button"
               >
@@ -224,10 +220,10 @@ function Register() {
                 placeholder="Enter your email"
               />
 
-              <div className="password-wrapper">
+              <div className="relative">
                 <AuthInput
                   label="Password"
-                  placeholder={"Enter your password"}
+                  placeholder="Enter your password"
                   type={showPassword ? "text" : "password"}
                   name="password"
                   value={form.password}
@@ -243,21 +239,21 @@ function Register() {
                   </button>
                 </AuthInput>
               </div>
-              {/* ===== PASSWORD CHECKLIST ===== */}
+
+              {/* PASSWORD CHECKLIST */}
               {form.password && (
-                <div className="password-checklist">
+                <div className="mt-2 space-y-1">
                   {Object.entries(passwordChecks)
-                    .filter(([_, valid]) => !valid) // only invalid rules
+                    .filter(([_, valid]) => !valid)
                     .map(([key]) => (
-                      <div key={key} className="check-item invalid">
+                      <div key={key} className="flex items-center gap-2 text-xs text-red-500">
                         <XCircle size={16} />
                         <span>
                           {key === "length" && "Minimum 8 characters"}
                           {key === "upper" && "At least one uppercase"}
                           {key === "lower" && "At least one lowercase"}
                           {key === "number" && "At least one number"}
-                          {key === "special" &&
-                            "At least one special character"}
+                          {key === "special" && "At least one special character"}
                         </span>
                       </div>
                     ))}
@@ -273,9 +269,11 @@ function Register() {
                 error={errors.confirmPassword}
                 placeholder="Confirm your password"
               />
-              <div className="strength-wrapper">
+
+              {/* STRENGTH BAR */}
+              <div className="w-full h-2 bg-gray-200 rounded mt-2 overflow-hidden">
                 <div
-                  className="strength-bar"
+                  className="h-full bg-green-500 transition-all duration-300"
                   style={{ width: `${strengthPercent}%` }}
                 ></div>
               </div>
@@ -301,8 +299,8 @@ function Register() {
 
           {/* RIGHT SECTION — DYNAMIC BENEFITS */}
           <div
-            className={`auth-left ${
-              role === "consumer" ? "consumer-bg" : "expert-bg"
+            className={`auth-left transition-all duration-300 ${
+              role === "consumer" ? "bg-blue-900" : "bg-indigo-900"
             }`}
           >
             <div className="auth-brand">
@@ -324,15 +322,16 @@ function Register() {
                 ),
               )}
             </div>
-            {showSuccess && (
-              <div className="popup-overlay">
-                <div className="popup-card">
-                  <CheckCircle size={50} className="popup-icon" />
-                  <p className="popup-text">Registration Successful!</p>
 
-                  <p className="redirect-text">Redirecting in {countdown}...</p>
-                </div>
-              </div>
+            {showSuccess && (
+              <AlertPopup
+                show={showSuccess}
+                title="Registration Successful!"
+                message={`Redirecting in ${countdown} seconds...`}
+                showButton={false}
+                buttonText="OK"
+                onClose={() => setShowSuccess(false)}
+              />
             )}
           </div>
         </div>

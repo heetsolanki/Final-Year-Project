@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Scale, CheckCircle, Eye, EyeOff } from "lucide-react";
+import { Scale, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import AuthInput from "../components/AuthInput";
 import AuthButton from "../components/AuthButton";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import "../styles/auth.css";
+import AlertPopup from "../components/AlertPopup";
 
 const API = "https://law-assist.onrender.com/api";
 
@@ -116,7 +116,6 @@ function Login() {
           return;
         }
 
-        // ✅ Store JWT token
         localStorage.setItem("token", data.token);
 
         setShowSuccess(true);
@@ -127,7 +126,6 @@ function Login() {
           password: "",
         });
 
-        // ✅ Role-based redirect
         setTimeout(() => {
           if (data.role === "consumer") {
             navigate("/user-dashboard");
@@ -153,11 +151,11 @@ function Login() {
               <h1>LawAssist</h1>
             </div>
 
-            <h2 className="auth-heading">
+            <h2 className="text-3xl font-semibold leading-snug mb-4">
               Empowering Consumer Rights with Smart Legal Support
             </h2>
 
-            <p className="auth-description">
+            <p className="text-gray-200">
               Access your dashboard, manage legal queries, and connect with
               verified legal professionals.
             </p>
@@ -217,7 +215,7 @@ function Login() {
               <AuthButton text="Login" disabled={!formValid} />
 
               <p className="auth-switch">
-                Don’t have an account?
+                Don't have an account?
                 <Link
                   to="/register"
                   className="auth-link"
@@ -229,16 +227,14 @@ function Login() {
                 </Link>
               </p>
             </form>
-            {showSuccess && (
-              <div className="popup-overlay">
-                <div className="popup-card">
-                  <CheckCircle size={50} className="popup-icon" />
-                  <p className="popup-text">Login Successful!</p>
-
-                  <p className="redirect-text">Redirecting in {countdown}...</p>
-                </div>
-              </div>
-            )}
+            <AlertPopup
+              show={showSuccess}
+              title="Login Successful!"
+              message={`Redirecting in ${countdown} seconds...`}
+              showButton={false}
+              buttonText="OK"
+              onClose={() => setShowSuccess(false)}
+            />
           </div>
         </div>
       </div>

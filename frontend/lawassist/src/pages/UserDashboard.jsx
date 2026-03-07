@@ -11,7 +11,6 @@ import {
   Search,
   Eye,
 } from "lucide-react";
-import "../styles/userDashboard.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import AskQueryForm from "../components/AskQueryForm";
@@ -37,16 +36,9 @@ const UserDashboard = () => {
   const fetchDashboard = async () => {
     try {
       const token = localStorage.getItem("token");
-
-      const res = await axios.get(
-        `${API}/dashboard`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
+      const res = await axios.get(`${API}/dashboard`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setUserName(res.data.name || "");
       setQueries(res.data.queries || []);
     } catch (error) {
@@ -61,16 +53,9 @@ const UserDashboard = () => {
     }
     try {
       const token = localStorage.getItem("token");
-
-      await axios.delete(
-        `${API}/queries/${selectedQueryId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
+      await axios.delete(`${API}/queries/${selectedQueryId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setShowDeleteModal(false);
       setShowViewModal(false);
       setSelectedQuery(null);
@@ -84,11 +69,9 @@ const UserDashboard = () => {
 
   useEffect(() => {
     fetchDashboard();
-
     const interval = setInterval(() => {
       fetchDashboard();
     }, 5000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -134,8 +117,9 @@ const UserDashboard = () => {
         <div className="user-dashboard-container">
           {!isProfilePage && (
             <>
-              <div className="user-dashboard-header">
-                <div className="user-user-info">
+              {/* HEADER */}
+              <div className="mb-12">
+                <div className="flex items-center gap-4">
                   <div className="user-avatar">
                     <User size={20} />
                   </div>
@@ -150,6 +134,7 @@ const UserDashboard = () => {
                 </div>
               </div>
 
+              {/* QUICK ACTIONS */}
               <div className="user-quick-actions">
                 {!showForm && (
                   <button
@@ -172,6 +157,7 @@ const UserDashboard = () => {
                 />
               )}
 
+              {/* STATS */}
               <div className="user-stats-grid">
                 <div className="user-stat-card">
                   <FolderOpen size={25} color="rgba(37, 99, 235)" />
@@ -202,6 +188,7 @@ const UserDashboard = () => {
                 </div>
               </div>
 
+              {/* FILTER BAR */}
               <div className="user-filter-bar">
                 <div className="user-search-box">
                   <Search size={16} />
@@ -212,7 +199,6 @@ const UserDashboard = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
@@ -224,6 +210,7 @@ const UserDashboard = () => {
                 </select>
               </div>
 
+              {/* TABLE */}
               <div className="user-table-wrapper">
                 <table className="user-queries-table">
                   <thead>
@@ -246,9 +233,7 @@ const UserDashboard = () => {
                         </td>
                         <td>
                           <span
-                            className={`user-status-badge ${getStatusClass(
-                              query.status,
-                            )}`}
+                            className={`user-status-badge ${getStatusClass(query.status)}`}
                           >
                             {query.status}
                           </span>
@@ -281,6 +266,7 @@ const UserDashboard = () => {
                 </table>
               </div>
 
+              {/* SIDE PANEL */}
               <div className="user-side-panel">
                 <div className="user-side-card">
                   <h3>
@@ -297,7 +283,7 @@ const UserDashboard = () => {
                   <h3>My Profile</h3>
                   <p>Manage account settings and security.</p>
                   <button
-                    className="user-outline-btn user-small-btn"
+                    className="user-outline-btn small mt-2"
                     onClick={() => navigate("manage-profile")}
                   >
                     View Profile
@@ -314,6 +300,7 @@ const UserDashboard = () => {
                 </div>
               </div>
 
+              {/* DISCLAIMER */}
               <div className="user-dashboard-disclaimer">
                 ⚖️ LawAssist provides legal information and query management
                 support. It does not replace professional legal advice.
@@ -322,6 +309,7 @@ const UserDashboard = () => {
           )}
           <Outlet />
         </div>
+
         {showViewModal && selectedQuery && (
           <QueryDetailsModal
             query={selectedQuery}
@@ -337,12 +325,10 @@ const UserDashboard = () => {
           <div className="delete-overlay">
             <div className="delete-modal">
               <h3 className="delete-title">Delete Query?</h3>
-
               <p className="delete-text">
                 Are you sure you want to delete this query? This action cannot
                 be undone.
               </p>
-
               <div className="delete-actions">
                 <button
                   onClick={() => setShowDeleteModal(false)}
@@ -350,7 +336,6 @@ const UserDashboard = () => {
                 >
                   Cancel
                 </button>
-
                 <button onClick={handleDelete} className="delete-confirm-btn">
                   Delete
                 </button>

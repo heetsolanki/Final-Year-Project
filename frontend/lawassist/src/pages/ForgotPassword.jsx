@@ -6,7 +6,6 @@ import AuthInput from "../components/AuthInput";
 import AuthButton from "../components/AuthButton";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import "../styles/auth.css";
 
 function ForgotPassword() {
   const [showPopup, setShowPopup] = useState(false);
@@ -28,19 +27,23 @@ function ForgotPassword() {
       <div className="auth-wrapper">
         <div className="auth-container">
           {/* LEFT SECTION */}
-          <div className="auth-left consumer-bg">
-            <h2 className="auth-heading">Forgot Your Password?</h2>
-            <p className="auth-description">
-              Enter your registered email address and we’ll send you a password
+          <div className="auth-left bg-blue-900 transition-all duration-300">
+            <h2 className="text-3xl font-semibold leading-snug mb-4">
+              Forgot Your Password?
+            </h2>
+            <p className="text-gray-200">
+              Enter your registered email address and we'll send you a password
               reset link.
             </p>
           </div>
 
           {/* RIGHT SECTION */}
           <div className="auth-right">
-            <h2 className="form-title">Reset Password</h2>
-            <p className="form-subtitle">
-              We’ll send a reset link to your email.
+            <h2 className="text-lg sm:text-xl font-bold text-gray-800 text-center mb-1">
+              Reset Password
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-500 text-center mb-6">
+              We'll send a reset link to your email.
             </p>
 
             <form className="auth-form" onSubmit={handleSubmit}>
@@ -69,7 +72,10 @@ function ForgotPassword() {
                 Password reset link sent successfully!
               </p>
 
-              <button className="popup-btn" onClick={handleClose}>
+              <button
+                className="bg-blue-900 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition"
+                onClick={handleClose}
+              >
                 OK
               </button>
             </div>

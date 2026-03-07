@@ -1,11 +1,10 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AlertPopup from "./AlertPopup";
-import axios from "axios";
 import { categories } from "../data";
 
 const AskQueryForm = ({ onClose, onSuccess }) => {
-
   const [formData, setFormData] = useState({
     title: "",
     category: "",
@@ -19,7 +18,6 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -28,43 +26,26 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       setLoading(true);
-
       const token = localStorage.getItem("token");
-
       if (!token) {
         setShowLoginPopup(true);
         return;
       }
-
       await axios.post(
         "https://law-assist.onrender.com/api/queries",
         {
           title: formData.title,
           category: formData.category,
           description: formData.description,
-
-          // NEW FIELDS FOR QUERY FLOW
           status: "Pending",
           consultRequested: false,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-
       setShowSuccessModal(true);
-
-      // Reset form
-      setFormData({
-        title: "",
-        category: "",
-        description: "",
-      });
+      setFormData({ title: "", category: "", description: "" });
     } catch (error) {
       console.error(error);
       alert("Something went wrong.");

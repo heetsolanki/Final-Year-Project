@@ -15,6 +15,10 @@ import {
   Package,
   ShieldCheck,
   Building,
+  Lightbulb,
+  Eye,
+  Lock,
+  Activity,
 } from "lucide-react";
 
 // Expert Profile Data
@@ -337,6 +341,7 @@ export const states = {
 // Query Categories
 
 export const categories = [
+  "All",
   "Banking",
   "E-Commerce",
   "Insurance",
@@ -486,4 +491,70 @@ export const expertPoints = [
   "Receive verified legal consultation requests.",
   "Build credibility through verified profile.",
   "Manage client queries efficiently.",
+];
+
+export const missions = [
+  {
+    id: 1,
+    icon: <Lightbulb />,
+    title: "Simplify Legal Access",
+    text: "Break down complex legal processes into simple, actionable steps for every consumer.",
+  },
+  {
+    id: 2,
+    icon: <Eye />,
+    title: "Increase Consumer Awareness",
+    text: "Educate users about their fundamental rights through accessible resources and guidance.",
+  },
+  {
+    id: 3,
+    icon: <ClipboardList />,
+    title: "Structured Query Management",
+    text: "Provide an organized system to submit, track, and resolve legal queries efficiently.",
+  },
+  {
+    id: 4,
+    icon: <Lock />,
+    title: "Secure Document Handling",
+    text: "Ensure all uploaded documents and personal data are handled with industry-grade security.",
+  },
+];
+
+export const offers = [
+  {
+    id: 1,
+    icon: <Shield />,
+    title: "Secure User Accounts",
+    text: "Protected sign-up and login with encrypted credentials.",
+  },
+  {
+    id: 2,
+    icon: <MessageSquare />,
+    title: "Submit Legal Queries",
+    text: "Easy-to-use form to describe your consumer complaint.",
+  },
+  {
+    id: 3,
+    icon: <Upload />,
+    title: "Upload Supporting Documents",
+    text: "Attach invoices, receipts, and evidence securely.",
+  },
+  {
+    id: 4,
+    icon: <Activity />,
+    title: "Track Query Status",
+    text: "Real-time updates on the progress of your complaint.",
+  },
+  {
+    id: 5,
+    icon: <Users />,
+    title: "Expert Panel Access",
+    text: "Connect with verified legal professionals for guidance.",
+  },
+  {
+    id: 6,
+    icon: <Search />,
+    title: "Smart Legal Search",
+    text: "Search consumer laws, acts, and legal precedents instantly.",
+  },
 ];

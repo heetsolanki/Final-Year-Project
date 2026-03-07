@@ -11,7 +11,6 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const [showAnswerPopup, setShowAnswerPopup] = useState(false);
 
   let userRole = null;
-
   if (token) {
     const decoded = jwtDecode(token);
     userRole = decoded.role;
@@ -22,13 +21,8 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
       await axios.patch(
         `${API}/expert/resolve/${query._id}`,
         {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-
       refreshQueries();
       onClose();
     } catch (error) {
@@ -42,15 +36,9 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
       await axios.post(
         `${API}/expert/answer/${query._id}`,
         { answer: answerText },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-
       setShowAnswerPopup(true);
-
       refreshQueries();
     } catch (error) {
       console.log(error);
@@ -61,11 +49,8 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const handleDelete = async () => {
     try {
       await axios.delete(`${API}/queries/${query._id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       refreshQueries();
       onClose();
     } catch (error) {
@@ -76,31 +61,23 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
 
   const getStatusClass = (status) => {
     switch (status) {
-      case "Pending":
-        return "user-status-pending";
-      case "Answered":
-        return "user-status-answered";
-      case "Consultation Requested":
-        return "user-status-consult";
-      case "Resolved":
-        return "user-status-resolved";
-      default:
-        return "user-status-default";
+      case "Pending": return "user-status-pending";
+      case "Answered": return "user-status-answered";
+      case "Consultation Requested": return "user-status-consult";
+      case "Resolved": return "user-status-resolved";
+      default: return "user-status-default";
     }
   };
 
   const handleAnswerPopupClose = () => {
     setShowAnswerPopup(false);
-    onClose(); // close modal AFTER popup
+    onClose();
   };
 
   return (
     <div className="view-overlay">
       <div className="view-modal">
-        {/* Close button */}
-        <button className="view-close-btn" onClick={onClose}>
-          ✕
-        </button>
+        <button className="view-close-btn" onClick={onClose}>✕</button>
 
         <h2 className="view-title">Query Details</h2>
 
@@ -117,11 +94,7 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
 
           <div className="view-item">
             <span>Status</span>
-            <span
-              className={`user-status-badge view-item-status ${getStatusClass(
-                query.status,
-              )}`}
-            >
+            <span className={`user-status-badge view-item-status ${getStatusClass(query.status)}`}>
               {query.status}
             </span>
           </div>
@@ -139,15 +112,12 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
           {/* EXPERT ANSWER SECTION */}
           <div className="view-item view-answer">
             <span>Expert Answer</span>
-
             {query.answer ? (
               <>
                 <p>{query.answer}</p>
-
                 {query.answeredBy && (
                   <small>
-                    Answered by: {query.answeredBy.name} (
-                    {query.answeredBy.specialization})
+                    Answered by: {query.answeredBy.name} ({query.answeredBy.specialization})
                   </small>
                 )}
               </>
@@ -162,17 +132,24 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
         {/* ACTION BUTTONS */}
         <div className="view-actions">
           {userRole === "legalExpert" && query.status === "Assigned" && (
-            <button className="view-resolve-btn" onClick={handleResolve}>
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl shadow-md transition duration-200"
+              onClick={handleResolve}
+            >
               Mark as Resolved
             </button>
           )}
 
           {userRole === "consumer" && query.status === "In Review" && (
-            <button className="view-delete-btn" onClick={handleDelete}>
+            <button
+              className="bg-red-500 hover:bg-red-600 text-white px-5 py-2.5 rounded-xl shadow-md transition duration-200"
+              onClick={handleDelete}
+            >
               Delete Query
             </button>
           )}
         </div>
+
         {query.status === "Assigned" && userRole === "legalExpert" && (
           <div className="mt-4">
             <textarea
@@ -182,7 +159,6 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
               className="w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows="4"
             />
-
             <button
               onClick={handleSubmitAnswer}
               className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
@@ -191,6 +167,7 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
             </button>
           </div>
         )}
+
         <AlertPopup
           show={showAnswerPopup}
           title="Success"

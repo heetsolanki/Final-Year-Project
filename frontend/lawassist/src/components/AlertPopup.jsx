@@ -1,6 +1,6 @@
 import { CheckCircle } from "lucide-react";
 
-function AlertPopup({ show, title, message, buttonText = "OK", onClose }) {
+function AlertPopup({ show, title, message, buttonText = "OK", onClose, showButton = true }) {
   if (!show) return null;
 
   return (
@@ -23,13 +23,15 @@ function AlertPopup({ show, title, message, buttonText = "OK", onClose }) {
           {message}
         </p>
 
-        {/* Button */}
-        <button
-          onClick={onClose}
-          className="w-full sm:w-auto bg-[#C9A227] text-white px-6 py-2.5 rounded-lg font-medium hover:scale-105 transition-all duration-200"
-        >
-          {buttonText}
-        </button>
+        {/* Optional Button */}
+        {showButton && (
+          <button
+            onClick={onClose}
+            className="w-full sm:w-auto bg-[#C9A227] text-white px-6 py-2.5 rounded-lg font-medium hover:scale-105 transition-all duration-200"
+          >
+            {buttonText}
+          </button>
+        )}
       </div>
     </div>
   );

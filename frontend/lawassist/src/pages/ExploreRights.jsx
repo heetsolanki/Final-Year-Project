@@ -11,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BackToTopButton from "../components/BackToTopButton";
-import "../styles/exploreRights.css";
 
 const ExploreRights = () => {
   const navigate = useNavigate();
@@ -65,11 +64,11 @@ const ExploreRights = () => {
     <>
       <Navbar />
 
-      <div className="explore-rights-wrapper">
-        <div className="explore-rights-container">
+      <div className="min-h-screen bg-gray-50 py-14 pt-40">
+        <div className="max-w-7xl mx-auto px-6">
 
           {/* Header Section */}
-          <div className="explore-rights-header">
+          <div className="text-center mb-14">
             <h2 className="section-title">Explore Your Consumer Rights</h2>
             <div className="section-underline"></div>
             <p className="section-subtitle">
@@ -93,7 +92,7 @@ const ExploreRights = () => {
                 <h3 className="feature-title">{right.title}</h3>
                 <p className="feature-description">{right.description}</p>
 
-                <button className="learn-more-btn">
+                <button className="mt-6 bg-[#0A1F44] text-white text-sm py-2 px-4 rounded-lg hover:bg-[#162f6a] transition">
                   Learn More
                 </button>
               </div>
@@ -101,8 +100,8 @@ const ExploreRights = () => {
           </div>
 
           {/* Info Strip */}
-          <div className="info-strip">
-            <p>
+          <div className="mt-12 bg-blue-50 rounded-2xl p-6 text-center">
+            <p className="text-gray-700 max-w-3xl mx-auto">
               Each right includes detailed explanations, real-life examples,
               and the option to ask a legal query or consult an expert.
             </p>

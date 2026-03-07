@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Scale, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import "../styles/navbar.css";
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,9 +30,7 @@ function Navbar() {
     };
 
     checkAuth();
-
     window.addEventListener("storage", checkAuth);
-
     return () => window.removeEventListener("storage", checkAuth);
   }, []);
 
@@ -78,7 +75,7 @@ function Navbar() {
           className="flex items-center gap-2 whitespace-nowrap text-[#0A1F44] hover:text-[#C9A227] transition cursor-pointer"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-          <Scale size={28} className="nav-logo"/>
+          <Scale size={28} className="nav-logo" />
           <span className="nav-logo-text">LawAssist</span>
         </Link>
 
@@ -108,7 +105,6 @@ function Navbar() {
               >
                 Login
               </Link>
-
               <Link
                 to="/register"
                 className="nav-btn nav-register"
@@ -130,7 +126,6 @@ function Navbar() {
                   My Dashboard
                 </Link>
               )}
-
               {userRole === "legalExpert" && (
                 <Link
                   to="/legal-expert-dashboard"
@@ -142,7 +137,6 @@ function Navbar() {
                   Expert Dashboard
                 </Link>
               )}
-
               <button className="nav-btn nav-register" onClick={handleLogout}>
                 Logout
               </button>
@@ -170,21 +164,21 @@ function Navbar() {
         </Link>
         <Link
           to="/explore-rights"
+          className="nav-link"
           onClick={() => {
             setIsOpen(false);
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
-          className="nav-link"
         >
           Explore Rights
         </Link>
         <Link
           to="/queries"
+          className="nav-link"
           onClick={() => {
             setIsOpen(false);
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
-          className="nav-link"
         >
           Queries
         </Link>
@@ -221,7 +215,6 @@ function Navbar() {
             >
               Login
             </Link>
-
             <Link
               to="/register"
               className="nav-btn nav-register w-full text-center"
@@ -249,7 +242,6 @@ function Navbar() {
             >
               {userRole === "consumer" ? "My Dashboard" : "Expert Dashboard"}
             </Link>
-
             <button
               className="nav-btn nav-register w-full"
               onClick={() => {

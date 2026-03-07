@@ -3,7 +3,6 @@ import axios from "axios";
 import ProfileHeader from "../components/ProfileHeader";
 import ProfileForm from "../components/ProfileForm";
 import AccountSection from "../components/AccountSection";
-import "../styles/manageProfile.css";
 
 const API = "https://law-assist.onrender.com/api";
 
@@ -12,15 +11,15 @@ const UserManageProfile = () => {
   const token = localStorage.getItem("token");
 
   const fetchProfile = useCallback(async () => {
-  try {
-    const res = await axios.get(`${API}/users/profile`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setUser(res.data);
-  } catch (err) {
-    console.log(err);
-  }
-}, [token]);
+    try {
+      const res = await axios.get(`${API}/users/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUser(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }, [token]);
 
   useEffect(() => {
     fetchProfile();
@@ -30,8 +29,8 @@ const UserManageProfile = () => {
 
   return (
     <>
-      <div className="profile-page">
-        <div className="profile-container">
+      <div className="min-h-screen bg-gray-50 pt-24 md:pt-32 px-4 md:px-6 pb-16">
+        <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-sm p-5 md:p-8 transition-all duration-300 hover:shadow-xl">
           <ProfileHeader user={user} />
           <ProfileForm user={user} refresh={fetchProfile} />
           <AccountSection />
