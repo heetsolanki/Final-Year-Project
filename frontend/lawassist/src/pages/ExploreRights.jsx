@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Scale, ArrowRight } from "lucide-react";
+import { Scale, ArrowRight, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BackToTopButton from "../components/BackToTopButton";
+import SearchBar from "../components/SearchBar";
 import { iconMap } from "../data";
 
 const API = "http://localhost:5000/api";
@@ -14,6 +15,12 @@ const ExploreRights = () => {
 
   const [laws, setLaws] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredLaws = laws.filter((law) => {
+    const search = searchTerm.toLowerCase();
+    return JSON.stringify(law).toLowerCase().includes(search);
+  });
 
   useEffect(() => {
     const fetchLaws = async () => {
@@ -47,6 +54,20 @@ const ExploreRights = () => {
             </p>
           </div>
 
+          <SearchBar
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            placeholder="Search consumer rights, laws, or issues..."
+          />
+
+          {searchTerm && (
+            <p className="flex justify-center items-center gap-1 text-center text-gray-500 mb-8">
+              <Search size={18} className="text-[#1E3A8A]" />
+              Showing {filteredLaws.length} result
+              {filteredLaws.length !== 1 ? "s" : ""} for "{searchTerm}"
+            </p>
+          )}
+
           {/* Loading */}
           {loading && (
             <p className="text-center text-gray-500">
@@ -56,8 +77,8 @@ const ExploreRights = () => {
 
           {/* Grid */}
           {!loading && (
-            <div className="features-grid">
-              {laws.map((law) => (
+            <div className="features-grid transition-all duration-300">
+              {(searchTerm ? filteredLaws : laws).map((law) => (
                 <div key={law._id} className="feature-card">
                   {/* Icon */}
                   <div className="feature-icon">
@@ -74,7 +95,7 @@ const ExploreRights = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/laws/${law._id}`);
+                      navigate(`/laws/${law._id}`, { state: { searchTerm } });
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
                     className="flex items-center gap-1 mt-6 text-sm font-medium text-[#0A1F44] hover:underline"
@@ -84,6 +105,12 @@ const ExploreRights = () => {
                 </div>
               ))}
             </div>
+          )}
+
+          {searchTerm && filteredLaws.length === 0 && (
+            <p className="text-center text-gray-500 mt-8">
+              No matching consumer rights found.
+            </p>
           )}
 
           {/* Info Box */}
