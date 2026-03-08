@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { ChevronDown, ArrowLeft, Scale } from "lucide-react";
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import AskQueryForm from "../components/AskQueryForm";
+import BackToTopButton from "./BackToTopButton";
 
 const API = "http://localhost:5000/api";
 
@@ -17,6 +18,8 @@ const LawDetails = () => {
   const [law, setLaw] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
   const token = localStorage.getItem("token");
+  const location = useLocation();
+  const searchTerm = location.state?.searchTerm || "";
 
   let userRole = null;
 
@@ -30,14 +33,27 @@ const LawDetails = () => {
       try {
         const res = await axios.get(`${API}/laws/${id}`);
 
-        setLaw(res.data);
+        const fetchedLaw = res.data;
+        setLaw(fetchedLaw);
+
+        if (searchTerm) {
+          const index = fetchedLaw.sections.findIndex((section) =>
+            JSON.stringify(section)
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()),
+          );
+
+          if (index !== -1) {
+            setActiveIndex(index);
+          }
+        }
       } catch (error) {
         console.log(error);
       }
     };
 
     fetchLaw();
-  }, [id]);
+  }, [id, searchTerm]);
 
   const toggleCard = (index) => {
     if (activeIndex === index) {
@@ -194,7 +210,7 @@ const LawDetails = () => {
           </div>
         </div>
       </div>
-
+      <BackToTopButton />
       <Footer />
     </>
   );
