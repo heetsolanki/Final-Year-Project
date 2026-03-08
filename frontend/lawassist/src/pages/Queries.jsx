@@ -6,7 +6,7 @@ import Footer from "../components/Footer";
 import AskQueryForm from "../components/AskQueryForm";
 import BackToTopButton from "../components/BackToTopButton";
 import AlertPopup from "../components/AlertPopup";
-import { categories, getStatusClass } from "../data";
+import { getStatusClass } from "../data";
 
 const API = "https://law-assist.onrender.com/api";
 
@@ -20,6 +20,19 @@ const Queries = () => {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [expert, setExpert] = useState(null);
   const token = localStorage.getItem("token");
+  
+  const categories = [
+  "All",
+  "Banking",
+  "E-Commerce",
+  "Insurance",
+  "Real Estate",
+  "Telecom",
+  "Travel",
+  "Education",
+  "Medical",
+  "Others",
+];
 
   let userRole = null;
 
@@ -180,7 +193,11 @@ const Queries = () => {
                   </p>
 
                   <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center text-sm text-gray-500">
-                    <span>0 Answers</span>
+                    <span>
+                      {query.answeredBy?.name !== undefined
+                        ? `Answered by: ${query.answeredBy.name}`
+                        : "Not answered yet"}
+                    </span>
                     <button
                       className="bg-[#1E3A8A] hover:bg-[#1E3A8A]/90 text-white font-medium text-sm py-2 px-4 rounded-lg transition"
                       onClick={() => {

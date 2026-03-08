@@ -19,6 +19,10 @@ import {
   Eye,
   Lock,
   Activity,
+  Utensils,
+  Pill,
+  Tag,
+  Wifi,
 } from "lucide-react";
 
 // Expert Profile Data
@@ -341,7 +345,6 @@ export const states = {
 // Query Categories
 
 export const categories = [
-  "All",
   "Banking",
   "E-Commerce",
   "Insurance",
@@ -560,16 +563,25 @@ export const offers = [
 ];
 
 export const getStatusClass = (status) => {
-    switch (status) {
-      case "In Review":
-        return "user-status-pending";
-      case "Answered":
-        return "user-status-answered";
-      case "Assigned":
-        return "user-status-consult";
-      case "Resolved":
-        return "user-status-resolved";
-      default:
-        return "user-status-default";
-    }
-  };
+  switch (status) {
+    case "In Review":
+      return "user-status-pending";
+    case "Answered":
+      return "user-status-answered";
+    case "Assigned":
+      return "user-status-consult";
+    case "Resolved":
+      return "user-status-resolved";
+    default:
+      return "user-status-default";
+  }
+};
+
+export const iconMap = {
+  "Shopping & Product Problems": <ShoppingCart size={30} />,
+  "Online Shopping Problems": <Wifi size={30} />,
+  "Food & Restaurant Safety": <Utensils size={30} />,
+  "MRP & Pricing Problems": <Tag size={30} />,
+  "Medicine & Pharmacy Safety": <Pill size={30} />,
+  "Online Fraud & Cyber Scams": <ShieldCheck size={30} />,
+};
