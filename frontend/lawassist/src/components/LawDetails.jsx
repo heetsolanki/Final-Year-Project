@@ -9,7 +9,7 @@ import Footer from "../components/Footer";
 import AskQueryForm from "../components/AskQueryForm";
 import BackToTopButton from "./BackToTopButton";
 
-const API = "http://localhost:5000/api";
+const API = "https://law-assist.onrender.com/api";
 
 const LawDetails = () => {
   const { id } = useParams();

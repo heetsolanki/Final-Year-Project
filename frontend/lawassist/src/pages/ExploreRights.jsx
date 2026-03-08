@@ -8,7 +8,7 @@ import BackToTopButton from "../components/BackToTopButton";
 import SearchBar from "../components/SearchBar";
 import { iconMap } from "../data";
 
-const API = "http://localhost:5000/api";
+const API = "https://law-assist.onrender.com/api";
 
 const ExploreRights = () => {
   const navigate = useNavigate();
