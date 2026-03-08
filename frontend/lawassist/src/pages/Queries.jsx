@@ -8,7 +8,7 @@ import BackToTopButton from "../components/BackToTopButton";
 import AlertPopup from "../components/AlertPopup";
 import { categories, getStatusClass } from "../data";
 
-const API = "https://lawassist-api.onrender.com/api";
+const API = "https://law-assist.onrender.com/api";
 
 const Queries = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
