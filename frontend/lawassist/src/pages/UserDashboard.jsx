@@ -18,7 +18,7 @@ import BackToTopButton from "../components/BackToTopButton";
 import QueryDetailsModal from "../components/QueryDetailsModal";
 import { getStatusClass } from "../data";
 
-const API = "https://lawassist-api.onrender.com/api";
+const API = "https://law-assist.onrender.com/api";
 
 const UserDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
