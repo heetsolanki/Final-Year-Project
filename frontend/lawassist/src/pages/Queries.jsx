@@ -177,7 +177,7 @@ const Queries = () => {
                   key={query._id}
                   className="bg-white relative rounded-xl shadow-sm p-5 sm:p-6 lg:p-8 mb-6 transition hover:shadow-md sm:hover:shadow-lg"
                 >
-                  <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+                  <div className="flex items-center flex-wrap justify-between mb-2">
                     <h3 className="text-base sm:text-lg font-semibold text-gray-800 leading-snug">
                       {query.title}
                     </h3>

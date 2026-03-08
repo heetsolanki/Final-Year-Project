@@ -118,7 +118,7 @@ const LawDetails = () => {
                         <h3 className="text-lg font-semibold text-[#0A1F44]">
                           {section.alias}
                         </h3>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-xs sm:text-sm text-gray-600 mt-1 leading-relaxed">
                           {section.description.short}
                         </p>
                       </div>
@@ -126,7 +126,7 @@ const LawDetails = () => {
 
                     <ChevronDown
                       size={20}
-                      className={`transition duration-300 ${
+                      className={`flex-shrink-0 transition duration-300 ${
                         isOpen ? "rotate-180 text-[#0A1F44]" : "text-gray-400"
                       }`}
                     />
