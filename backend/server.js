@@ -30,6 +30,7 @@ app.use("/api/dashboard", require("./routes/dashboardRoutes"));
 app.use("/api/queries", require("./routes/queryRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/expert", require("./routes/expertRoutes"));
+app.use("/api/laws", require("./routes/lawRoutes"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

@@ -13,6 +13,8 @@ import Experts from "./pages/Experts";
 import ExpertProfile from "./pages/ExpertProfile";
 import ViewExpert from "./pages/ViewExpert";
 import ExploreRights from "./pages/ExploreRights";
+import LawDetails from "./pages/LawDetails";
+import SectionDetails from "./pages/SectionDetails";
 import Queries from "./pages/Queries";
 
 function App() {
@@ -33,7 +35,9 @@ function App() {
         />
         <Route path="/experts" element={<Experts />} />
         <Route path="/experts/:id" element={<ViewExpert />} />
-        <Route path="/expert-profile" element={<ExpertProfile />} />
+        <Route path="/explore-rights" element={<ExploreRights />} />
+        <Route path="/laws/:id" element={<LawDetails />} />
+        <Route path="/laws/:id/:sectionIndex" element={<SectionDetails />} />
         <Route path="/explore-rights" element={<ExploreRights />} />
         <Route path="/queries" element={<Queries />} />
       </Routes>

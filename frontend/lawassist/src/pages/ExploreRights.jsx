@@ -1,116 +1,103 @@
-import React from "react";
-import {
-  Shield,
-  Info,
-  ShoppingCart,
-  MessageCircle,
-  Scale,
-  BookOpen,
-} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Scale, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BackToTopButton from "../components/BackToTopButton";
+import { iconMap } from "../data";
+
+const API = "http://localhost:5000/api";
 
 const ExploreRights = () => {
   const navigate = useNavigate();
 
-  const rights = [
-    {
-      title: "Right to Safety",
-      slug: "right-to-safety",
-      description:
-        "Protection against hazardous goods and unsafe services.",
-      icon: <Shield size={28} />,
-    },
-    {
-      title: "Right to be Informed",
-      slug: "right-to-be-informed",
-      description:
-        "Right to receive accurate and complete product information.",
-      icon: <Info size={28} />,
-    },
-    {
-      title: "Right to Choose",
-      slug: "right-to-choose",
-      description:
-        "Freedom to select from a variety of goods and services.",
-      icon: <ShoppingCart size={28} />,
-    },
-    {
-      title: "Right to be Heard",
-      slug: "right-to-be-heard",
-      description:
-        "Right to raise complaints and have them addressed.",
-      icon: <MessageCircle size={28} />,
-    },
-    {
-      title: "Right to Seek Redressal",
-      slug: "right-to-seek-redressal",
-      description:
-        "Right to claim compensation for defective goods or unfair practices.",
-      icon: <Scale size={28} />,
-    },
-    {
-      title: "Right to Consumer Awareness",
-      slug: "right-to-consumer-awareness",
-      description:
-        "Right to be educated about consumer rights and responsibilities.",
-      icon: <BookOpen size={28} />,
-    },
-  ];
+  const [laws, setLaws] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLaws = async () => {
+      try {
+        const res = await axios.get(`${API}/laws`);
+
+        setLaws(res.data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLaws();
+  }, []);
 
   return (
     <>
       <Navbar />
 
-      <div className="min-h-screen bg-gray-50 py-14 pt-40">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pt-40 pb-20">
         <div className="max-w-7xl mx-auto px-6">
-
-          {/* Header Section */}
-          <div className="text-center mb-14">
-            <h2 className="section-title">Explore Your Consumer Rights</h2>
+          {/* Header */}
+          <div className="text-center mb-16">
+            <h1 className="section-title">Explore Your Consumer Rights</h1>
             <div className="section-underline"></div>
             <p className="section-subtitle">
-              Learn about your legal protections under the Consumer Protection Act
-              and understand how to take action if your rights are violated.
+              Select a category below to understand your rights and learn how to
+              take action when facing consumer problems.
             </p>
           </div>
 
-          {/* Rights Grid */}
-          <div className="features-grid">
-            {rights.map((right, index) => (
-              <div
-                key={index}
-                className="feature-card"
-                onClick={() => navigate(`/explore-rights/${right.slug}`)}
-              >
-                <div className="feature-icon">
-                  {right.icon}
+          {/* Loading */}
+          {loading && (
+            <p className="text-center text-gray-500">
+              Loading consumer rights...
+            </p>
+          )}
+
+          {/* Grid */}
+          {!loading && (
+            <div className="features-grid">
+              {laws.map((law) => (
+                <div key={law._id} className="feature-card">
+                  {/* Icon */}
+                  <div className="feature-icon">
+                    {iconMap[law.alias] || <Scale size={30} />}
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="feature-title">{law.alias}</h3>
+
+                  {/* Description */}
+                  <p className="feature-text">{law.description?.short}</p>
+
+                  {/* Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/laws/${law._id}`);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="flex items-center gap-1 mt-6 text-sm font-medium text-[#0A1F44] hover:underline"
+                  >
+                    Learn More <ArrowRight size={16} />
+                  </button>
                 </div>
+              ))}
+            </div>
+          )}
 
-                <h3 className="feature-title">{right.title}</h3>
-                <p className="feature-description">{right.description}</p>
-
-                <button className="mt-6 bg-[#0A1F44] text-white text-sm py-2 px-4 rounded-lg hover:bg-[#162f6a] transition">
-                  Learn More
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Info Strip */}
-          <div className="mt-12 bg-blue-50 rounded-2xl p-6 text-center">
+          {/* Info Box */}
+          <div className="mt-16 bg-blue-50 border border-blue-100 rounded-xl p-6 text-center">
             <p className="text-gray-700 max-w-3xl mx-auto">
-              Each right includes detailed explanations, real-life examples,
-              and the option to ask a legal query or consult an expert.
+              These simplified guides help you understand your rights as a
+              consumer. If you face any issue, you can ask a question and get
+              guidance from legal experts.
             </p>
           </div>
-
         </div>
       </div>
-      <BackToTopButton />
 
+      <BackToTopButton />
       <Footer />
     </>
   );
