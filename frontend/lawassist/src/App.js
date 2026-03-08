@@ -13,12 +13,14 @@ import Experts from "./pages/Experts";
 import ExpertProfile from "./pages/ExpertProfile";
 import ViewExpert from "./pages/ViewExpert";
 import ExploreRights from "./pages/ExploreRights";
-import LawDetails from "./pages/LawDetails";
 import Queries from "./pages/Queries";
+import LawDetails from "./components/LawDetails";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />

@@ -23,6 +23,7 @@ import {
   Pill,
   Tag,
   Wifi,
+  Boxes,
 } from "lucide-react";
 
 // Expert Profile Data
@@ -584,4 +585,8 @@ export const iconMap = {
   "MRP & Pricing Problems": <Tag size={30} />,
   "Medicine & Pharmacy Safety": <Pill size={30} />,
   "Online Fraud & Cyber Scams": <ShieldCheck size={30} />,
+  "Housing & Builder Fraud": <Building size={30} />,
+  "Product Quality Standards": <Boxes size={30} />,
+  "Unfair Market Practices": <Activity size={30} />,
+  "Rental & Tenant Issues": <Landmark size={30} />,
 };

@@ -4,6 +4,10 @@
 
 /* ================= GLOBAL ================= */
 
+.html {
+  @apply scroll-smooth;
+}
+
 body {
   @apply font-sans bg-white text-gray-800;
 }
