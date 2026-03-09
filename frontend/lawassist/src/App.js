@@ -16,6 +16,7 @@ import ExploreRights from "./pages/ExploreRights";
 import Queries from "./pages/Queries";
 import LawDetails from "./components/LawDetails";
 import ScrollToTop from "./components/ScrollToTop";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -27,12 +28,23 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/user-dashboard" element={<UserDashboard />}>
+        <Route
+          path="/user-dashboard"
+          element={
+            <ProtectedRoute allowedRole="consumer">
+              <UserDashboard />
+            </ProtectedRoute>
+          }
+        >
           <Route path="manage-profile" element={<UserManageProfile />} />
         </Route>
         <Route
           path="/legal-expert-dashboard"
-          element={<LegalExpertDashboard />}
+          element={
+            <ProtectedRoute allowedRole="expert">
+              <LegalExpertDashboard />
+            </ProtectedRoute>
+          }
         />
         <Route path="/experts" element={<Experts />} />
         <Route path="/expert-profile" element={<ExpertProfile />} />
