@@ -3,7 +3,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import AlertPopup from "./AlertPopup";
 
-const API = "http://localhost:5000/api";
+const API = "https://law-assist.onrender.com/api";
 
 const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const [answerText, setAnswerText] = useState("");
