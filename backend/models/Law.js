@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { categories } = require("../../frontend/lawassist/src/data");
 
 const sectionSchema = new mongoose.Schema({
   sectionNumber: String,
@@ -13,15 +14,14 @@ const lawSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
+  category: String,
+  alias: String,
   year: Number,
-
   description: {
     technical: String,
     layman: String,
     short: String,
   },
-
   sections: [sectionSchema],
 });
 

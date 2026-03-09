@@ -199,7 +199,10 @@ const LawDetails = () => {
 
                         {/* Form */}
                         {showForm && (
-                          <AskQueryForm onClose={() => setShowForm(false)} />
+                          <AskQueryForm
+                            defaultCategory={law.category}
+                            defaultSubcategory={law.alias}
+                          />
                         )}
                       </div>
                     </div>

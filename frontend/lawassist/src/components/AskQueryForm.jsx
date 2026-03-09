@@ -4,11 +4,16 @@ import { useNavigate } from "react-router-dom";
 import AlertPopup from "./AlertPopup";
 import { categories } from "../data";
 
-const AskQueryForm = ({ onClose, onSuccess }) => {
+const AskQueryForm = ({
+  onClose,
+  onSuccess,
+  defaultCategory = "",
+  defaultSubcategory = "",
+}) => {
   const [formData, setFormData] = useState({
     title: "",
-    category: "",
-    subcategory: "",
+    category: defaultCategory,
+    subcategory: defaultSubcategory,
     description: "",
   });
 
@@ -95,13 +100,14 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
           name="category"
           className="form-input"
           value={formData.category}
-          onChange={(e) => {
+          onChange={(e) =>
             setFormData({
               ...formData,
               category: e.target.value,
               subcategory: "",
-            });
-          }}
+            })
+          }
+          disabled={defaultCategory}
           required
         >
           <option value="">Select Category</option>
@@ -118,6 +124,7 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
             className="form-input"
             value={formData.subcategory}
             onChange={handleChange}
+            disabled={defaultSubcategory}
             required
           >
             <option value="">Select Sub Category</option>
