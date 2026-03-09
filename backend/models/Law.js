@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { categories } = require("../../frontend/lawassist/src/data");
 
 const sectionSchema = new mongoose.Schema({
   sectionNumber: String,
