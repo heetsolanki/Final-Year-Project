@@ -20,19 +20,18 @@ const Queries = () => {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [expert, setExpert] = useState(null);
   const token = localStorage.getItem("token");
-  
+
   const categories = [
-  "All",
-  "Banking",
-  "E-Commerce",
-  "Insurance",
-  "Real Estate",
-  "Telecom",
-  "Travel",
-  "Education",
-  "Medical",
-  "Others",
-];
+    "All",
+    "Shopping & Marketplace",
+    "Health & Safety",
+    "Digital & Telecom",
+    "Financial Services",
+    "Housing & Property",
+    "Travel & Transport",
+    "Utilities",
+    "Education",
+  ];
 
   let userRole = null;
 

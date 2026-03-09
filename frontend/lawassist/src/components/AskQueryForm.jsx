@@ -8,6 +8,7 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     title: "",
     category: "",
+    subcategory: "",
     description: "",
   });
 
@@ -38,6 +39,7 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
         {
           title: formData.title,
           category: formData.category,
+          subcategory: formData.subcategory,
           description: formData.description,
           status: "Pending",
           consultRequested: false,
@@ -45,7 +47,12 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
         { headers: { Authorization: `Bearer ${token}` } },
       );
       setShowSuccessModal(true);
-      setFormData({ title: "", category: "", description: "" });
+      setFormData({
+        title: "",
+        category: "",
+        subcategory: "",
+        description: "",
+      });
     } catch (error) {
       console.error(error);
       alert("Something went wrong.");
@@ -88,14 +95,39 @@ const AskQueryForm = ({ onClose, onSuccess }) => {
           name="category"
           className="form-input"
           value={formData.category}
-          onChange={handleChange}
+          onChange={(e) => {
+            setFormData({
+              ...formData,
+              category: e.target.value,
+              subcategory: "",
+            });
+          }}
           required
         >
           <option value="">Select Category</option>
-          {categories.map((cat) => (
-            <option key={cat}>{cat}</option>
+          {Object.keys(categories).map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
           ))}
         </select>
+
+        {formData.category && (
+          <select
+            name="subcategory"
+            className="form-input"
+            value={formData.subcategory}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Sub Category</option>
+            {categories[formData.category].map((sub) => (
+              <option key={sub} value={sub}>
+                {sub}
+              </option>
+            ))}
+          </select>
+        )}
 
         <textarea
           name="description"

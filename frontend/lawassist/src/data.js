@@ -28,7 +28,7 @@ import {
   Coins,
   DollarSign,
   School,
-  Car
+  Car,
 } from "lucide-react";
 
 // Expert Profile Data
@@ -350,17 +350,35 @@ export const states = {
 
 // Query Categories
 
-export const categories = [
-  "Banking",
-  "E-Commerce",
-  "Insurance",
-  "Real Estate",
-  "Telecom",
-  "Travel",
-  "Education",
-  "Medical",
-  "Others",
-];
+export const categories = {
+  "Shopping & Marketplace": [
+    "Shopping & Product Problems",
+    "Online Shopping Problems",
+    "Product Quality Standards",
+    "MRP & Pricing Problems",
+    "Courier & Delivery Problems",
+  ],
+
+  "Health & Safety": ["Food & Restaurant Safety", "Medicine & Pharmacy Safety"],
+
+  "Digital & Telecom": ["Online Fraud & Cyber Scams", "Telecom Complaints"],
+
+  "Financial Services": [
+    "Banking & Financial Services",
+    "Insurance Claim Problems",
+  ],
+
+  "Housing & Property": ["Housing & Builder Fraud", "Rental & Tenant Issues"],
+
+  "Travel & Transport": [
+    "Travel & Ticket Refunds",
+    "Automobile & Vehicle Issues",
+  ],
+
+  Utilities: ["Electricity & Utility Complaints"],
+
+  Education: ["Education & College Complaints"],
+};
 
 // Home Page Data
 
