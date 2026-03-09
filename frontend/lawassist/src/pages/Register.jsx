@@ -9,7 +9,7 @@ import Footer from "../components/Footer";
 import AlertPopup from "../components/AlertPopup";
 import { consumerPoints, expertPoints } from "../data";
 
-const API = "https://law-assist.onrender.com/api";
+const API = "http://localhost:5000/api";
 
 function Register() {
   const [role, setRole] = useState("consumer");
@@ -120,6 +120,7 @@ function Register() {
         });
 
         const data = await response.json();
+        console.log("Register API Response:", data);
 
         if (!response.ok) {
           setErrors({ email: data.message });
@@ -141,7 +142,12 @@ function Register() {
 
           if (counter === 0) {
             clearInterval(interval);
-            navigate("/login");
+
+            if (data.role === "legalExpert") {
+              navigate("/legal-expert-dashboard");
+            } else {
+              navigate("/user-dashboard");
+            }
           }
         }, 1000);
 
@@ -246,14 +252,18 @@ function Register() {
                   {Object.entries(passwordChecks)
                     .filter(([_, valid]) => !valid)
                     .map(([key]) => (
-                      <div key={key} className="flex items-center gap-2 text-xs text-red-500">
+                      <div
+                        key={key}
+                        className="flex items-center gap-2 text-xs text-red-500"
+                      >
                         <XCircle size={16} />
                         <span>
                           {key === "length" && "Minimum 8 characters"}
                           {key === "upper" && "At least one uppercase"}
                           {key === "lower" && "At least one lowercase"}
                           {key === "number" && "At least one number"}
-                          {key === "special" && "At least one special character"}
+                          {key === "special" &&
+                            "At least one special character"}
                         </span>
                       </div>
                     ))}

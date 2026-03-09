@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 
-const protect = require("../middleware/authMiddleware");
+const { verifyToken, authorizeRole } = require("../middleware/authMiddleware");
 const Query = require("../models/Query");
 
 /* ================= CREATE QUERY ================= */
-router.post("/", protect, async (req, res) => {
+router.post("/", verifyToken, authorizeRole("consumer"), async (req, res) => {
   try {
     const { title, category, description } = req.body;
 
@@ -63,7 +63,7 @@ router.get("/:id", async (req, res) => {
 });
 
 /* ================= DELETE QUERY ================= */
-router.delete("/:id", protect, async (req, res) => {
+router.delete("/:id", verifyToken, authorizeRole("consumer"), async (req, res) => {
   try {
     const { id } = req.params;
 

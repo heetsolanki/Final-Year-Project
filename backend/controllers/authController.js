@@ -38,15 +38,22 @@ exports.registerUser = async (req, res) => {
       role: role || "consumer",
     };
 
-    // Only add expert-related field if legalExpert
     if (role === "legalExpert") {
       userData.profileCompleted = false;
     }
 
     const newUser = await User.create(userData);
 
+    const token = jwt.sign(
+      { userId: newUser.userId, role: newUser.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" },
+    );
+
     res.status(201).json({
       message: "Registration successful",
+      token,
+      role: newUser.role,
       user: {
         userId: newUser.userId,
         name: newUser.name,

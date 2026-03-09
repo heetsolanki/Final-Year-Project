@@ -1,17 +1,38 @@
 const express = require("express");
 const router = express.Router();
-const protect = require("../middleware/authMiddleware");
+const { verifyToken, authorizeRole } = require("../middleware/authMiddleware");
 const Query = require("../models/Query");
 
-router.get("/", protect, async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
   try {
     const userId = req.user.userId;
 
-    const queries = await Query.find({ userId });
+    const stats = await Query.aggregate([
+      { $match: { userId } },
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
 
-    const total = queries.length;
-    const pending = queries.filter((q) => q.status === "Pending").length;
-    const resolved = queries.filter((q) => q.status === "Resolved").length;
+    let total = 0;
+    let pending = 0;
+    let resolved = 0;
+
+    stats.forEach((item) => {
+      total += item.count;
+
+      if (item._id === "Pending") pending = item.count;
+      if (item._id === "Resolved") resolved = item.count;
+    });
+
+    const recentQueries = await Query.find({ userId })
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    const queries = await Query.find({ userId });
 
     res.json({
       name: req.user.name,
@@ -19,9 +40,10 @@ router.get("/", protect, async (req, res) => {
       totalQueries: total,
       pendingQueries: pending,
       resolvedQueries: resolved,
-      recentQueries: queries.slice(-5),
-      queries: queries
+      recentQueries,
+      queries
     });
+
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }

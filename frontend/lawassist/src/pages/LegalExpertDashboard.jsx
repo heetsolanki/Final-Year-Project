@@ -15,7 +15,7 @@ import QueryDetailsModal from "../components/QueryDetailsModal";
 import BackToTopButton from "../components/BackToTopButton";
 import { getStatusClass } from "../data";
 
-const API = "https://law-assist.onrender.com/api";
+const API = "http://localhost:5000/api";
 
 const LegalExpertDashboard = () => {
   const [expert, setExpert] = useState({});

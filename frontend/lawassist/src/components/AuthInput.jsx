@@ -8,6 +8,11 @@ function AuthInput({
   placeholder,
   children,
 }) {
+  const blockAction = (e) => {
+    e.preventDefault();
+    alert("Copy-paste is disabled for password security.");
+  };
+
   return (
     <div className="form-group">
       <label>{label}</label>
@@ -18,6 +23,10 @@ function AuthInput({
           name={name}
           value={value}
           onChange={onChange}
+          onCopy={blockAction}
+          onPaste={blockAction}
+          onCut={blockAction}
+          onDragStart={blockAction}
           placeholder={placeholder}
         />
         {children}

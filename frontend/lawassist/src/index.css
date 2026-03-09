@@ -274,7 +274,7 @@ body {
 }
 
 .view-modal {
-  @apply relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl p-6 sm:p-8;
+  @apply relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-6 sm:p-8;
   animation: fadeInScale 0.25s ease;
 }
 
@@ -328,6 +328,34 @@ body {
 
 .view-actions {
   @apply mt-8 flex flex-wrap gap-3 justify-end;
+}
+
+/* ================= MOBILE MODAL FIX ================= */
+
+@media (max-width: 640px) {
+
+  .view-overlay {
+    @apply fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4 sm:px-6;
+    overflow: hidden;
+  }
+
+  .view-modal {
+    @apply relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-6 sm:p-8;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: fadeInScale 0.25s ease;
+  }
+
+  .view-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .view-item p {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+
 }
 
 /* ============================================================

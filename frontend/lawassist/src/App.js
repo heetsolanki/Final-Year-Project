@@ -41,7 +41,7 @@ function App() {
         <Route
           path="/legal-expert-dashboard"
           element={
-            <ProtectedRoute allowedRole="expert">
+            <ProtectedRoute allowedRole="legalExpert">
               <LegalExpertDashboard />
             </ProtectedRoute>
           }

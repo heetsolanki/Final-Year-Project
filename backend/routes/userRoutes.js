@@ -1,17 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middleware/authMiddleware");
+const { verifyToken, authorizeRole } = require("../middleware/authMiddleware");
 const Query = require("../models/Query");
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 
 /* ================= GET PROFILE ================= */
-router.get("/profile", authMiddleware, (req, res) => {
+router.get("/profile", verifyToken, authorizeRole("consumer"), (req, res) => {
   res.status(200).json(req.user);
 });
 
 /* ================= UPDATE PROFILE ================= */
-router.put("/profile", authMiddleware, async (req, res) => {
+router.put("/profile", verifyToken, authorizeRole("consumer"), async (req, res) => {
   try {
     const updatedUser = await User.findOneAndUpdate(
       { userId: req.user.userId },
@@ -29,7 +29,7 @@ router.put("/profile", authMiddleware, async (req, res) => {
 });
 
 /* ================= CHANGE PASSWORD ================= */
-router.put("/change-password", authMiddleware, async (req, res) => {
+router.put("/change-password", verifyToken, authorizeRole("consumer"), async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -53,7 +53,7 @@ router.put("/change-password", authMiddleware, async (req, res) => {
 });
 
 /* ================= DELETE ACCOUNT ================= */
-router.delete("/delete-account", authMiddleware, async (req, res) => {
+router.delete("/delete-account", verifyToken, authorizeRole("consumer"), async (req, res) => {
   try {
     // Delete user's queries first
     await Query.deleteMany({ userId: req.user.userId });

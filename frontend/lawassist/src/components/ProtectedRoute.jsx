@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children, allowedRole }) => {
       if (decoded.role === "consumer") {
         return <Navigate to="/user-dashboard" replace />;
       } else {
-        return <Navigate to="/expert-dashboard" replace />;
+        return <Navigate to="/legal-expert-dashboard" replace />;
       }
     }
 

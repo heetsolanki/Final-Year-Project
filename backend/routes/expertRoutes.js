@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middleware/authMiddleware");
+const { verifyToken, authorizeRole } = require("../middleware/authMiddleware");
 
 const {
   getExpertStats,
@@ -14,13 +14,13 @@ const {
   getExpertById
 } = require("../controllers/expertController");
 
-router.get("/stats", authMiddleware, getExpertStats);
-router.get("/queries", authMiddleware, getAllQueries);
-router.patch("/accept/:id", authMiddleware, acceptCase);
-router.post("/answer/:id", authMiddleware, answerQuery);
-router.patch("/resolve/:id", authMiddleware, resolveQuery);
-router.post("/complete-profile", authMiddleware, completeExpertProfile);
-router.get("/profile", authMiddleware, getExpertProfile);
+router.get("/stats", verifyToken, authorizeRole("legalExpert"), getExpertStats);
+router.get("/queries", verifyToken, authorizeRole("legalExpert"), getAllQueries);
+router.patch("/accept/:id", verifyToken, authorizeRole("legalExpert"), acceptCase);
+router.post("/answer/:id", verifyToken, authorizeRole("legalExpert"), answerQuery);
+router.patch("/resolve/:id", verifyToken, authorizeRole("legalExpert"), resolveQuery);
+router.post("/complete-profile", verifyToken, authorizeRole("legalExpert"), completeExpertProfile);
+router.get("/profile", verifyToken, authorizeRole("legalExpert"), getExpertProfile);
 router.get("/all", getAllExperts);
 router.get("/:id", getExpertById);
 
