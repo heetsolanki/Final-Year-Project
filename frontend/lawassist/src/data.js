@@ -24,6 +24,11 @@ import {
   Tag,
   Wifi,
   Boxes,
+  Plane,
+  Coins,
+  DollarSign,
+  School,
+  Car
 } from "lucide-react";
 
 // Expert Profile Data
@@ -589,4 +594,11 @@ export const iconMap = {
   "Product Quality Standards": <Boxes size={30} />,
   "Unfair Market Practices": <Activity size={30} />,
   "Rental & Tenant Issues": <Landmark size={30} />,
+  "Travel & Ticket Refunds": <Plane size={30} />,
+  "Banking & Financial Services": <DollarSign size={30} />,
+  "Insurance Claim Problems": <Coins size={30} />,
+  "Education & College Complaints": <School size={30} />,
+  "Electricity & Utility Complaints": <Lightbulb size={30} />,
+  "Courier & Delivery Problems": <Package size={30} />,
+  "Automobile & Vehicle Issues": <Car size={30} />,
 };
