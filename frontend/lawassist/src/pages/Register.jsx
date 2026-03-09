@@ -9,7 +9,7 @@ import Footer from "../components/Footer";
 import AlertPopup from "../components/AlertPopup";
 import { consumerPoints, expertPoints } from "../data";
 
-const API = "http://localhost:5000/api";
+const API = "https://law-assist.onrender.com/api";
 
 function Register() {
   const [role, setRole] = useState("consumer");
