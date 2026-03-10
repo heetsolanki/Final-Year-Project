@@ -20,6 +20,7 @@ const Queries = () => {
   const [selectedQuery, setSelectedQuery] = useState(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [expert, setExpert] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("All");
   const token = localStorage.getItem("token");
 
   const categories = [
@@ -33,6 +34,8 @@ const Queries = () => {
     "Utilities",
     "Education",
   ];
+
+  const statuses = ["All", "In Review", "Assigned", "Answered", "Resolved"];
 
   let userRole = null;
 
@@ -108,10 +111,15 @@ const Queries = () => {
     return () => clearInterval(interval);
   }, [userRole]);
 
-  const filteredQueries =
-    selectedCategory === "All"
-      ? queries
-      : queries.filter((query) => query.category === selectedCategory);
+  const filteredQueries = queries.filter((query) => {
+    const categoryMatch =
+      selectedCategory === "All" || query.category === selectedCategory;
+
+    const statusMatch =
+      selectedStatus === "All" || query.status === selectedStatus;
+
+    return categoryMatch && statusMatch;
+  });
 
   return (
     <>
@@ -163,6 +171,26 @@ const Queries = () => {
                 {cat}
               </button>
             ))}
+          </div>
+
+          {/* Status Tabs */}
+          <div className="flex justify-end mt-4">
+            <div className="flex flex-wrap gap-2 w-full sm:w-[60%] justify-center lg:w-[40%] justify-end">
+              {statuses.map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setSelectedStatus(status)}
+                  className={`text-xs sm:text-sm font-medium px-3.5 sm:px-4 py-1.5 rounded-md transition
+  ${
+    selectedStatus === status
+      ? getStatusClass(status)
+      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Queries List */}

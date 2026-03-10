@@ -262,7 +262,7 @@ body {
 }
 
 .user-status-default {
-  @apply bg-gray-100 text-gray-600;
+  @apply bg-orange-100 text-gray-600;
 }
 
 /* ============================================================
