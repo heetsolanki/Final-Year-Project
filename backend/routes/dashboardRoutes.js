@@ -1,11 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const { verifyToken, authorizeRole } = require("../middleware/authMiddleware");
+const { verifyToken } = require("../middleware/authMiddleware");
 const Query = require("../models/Query");
+const User = require("../models/User");
 
 router.get("/", verifyToken, async (req, res) => {
   try {
     const userId = req.user.userId;
+
+    const user = await User.findOne({ userId });
 
     const stats = await Query.aggregate([
       { $match: { userId } },
@@ -35,8 +38,8 @@ router.get("/", verifyToken, async (req, res) => {
     const queries = await Query.find({ userId });
 
     res.json({
-      name: req.user.name,
-      email: req.user.email,
+      name: user?.name,
+      email: user?.email,
       totalQueries: total,
       pendingQueries: pending,
       resolvedQueries: resolved,

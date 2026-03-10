@@ -22,6 +22,11 @@ const querySchema = new mongoose.Schema(
       required: true,
     },
 
+    subcategory: {
+      type: String,
+      required: true,
+    },
+
     description: {
       type: String,
       required: true,

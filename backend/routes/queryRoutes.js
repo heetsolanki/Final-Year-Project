@@ -8,7 +8,7 @@ const Query = require("../models/Query");
 /* ================= CREATE QUERY ================= */
 router.post("/", verifyToken, authorizeRole("consumer"), async (req, res) => {
   try {
-    const { title, category, description } = req.body;
+    const { title, category, subcategory, description } = req.body;
 
     if (!title || !category || !description) {
       return res.status(400).json({ message: "All fields are required" });
@@ -18,6 +18,7 @@ router.post("/", verifyToken, authorizeRole("consumer"), async (req, res) => {
       userId: req.user.userId,
       title,
       category,
+      subcategory,
       description,
     });
 
