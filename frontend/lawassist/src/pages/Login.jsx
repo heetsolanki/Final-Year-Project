@@ -118,7 +118,6 @@ function Login() {
         }
 
         localStorage.setItem("token", data.token);
-        console.log("Register API Response:", data);
 
         setShowSuccess(true);
         setCountdown(3);

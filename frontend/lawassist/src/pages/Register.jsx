@@ -121,7 +121,6 @@ function Register() {
         });
 
         const data = await response.json();
-        console.log("Register API Response:", data);
 
         if (!response.ok) {
           setErrors({ email: data.message });
