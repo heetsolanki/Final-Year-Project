@@ -48,11 +48,16 @@ exports.registerUser = async (req, res) => {
     console.log("New user registered:", newUser);
     console.log("Sending welcome email to:", email);
 
-    await sendEmail(
-      email,
-      "Welcome to LawAssist",
-      welcomeEmailTemplate(name, userId),
-    );
+    try {
+      await sendEmail(
+        email,
+        "Welcome to LawAssist",
+        welcomeEmailTemplate(name, userId),
+      );
+      console.log("Welcome email sent successfully");
+    } catch (emailError) {
+      console.error("Email error:", emailError.message);
+    }
 
     const token = jwt.sign(
       { userId: newUser.userId, role: newUser.role },
