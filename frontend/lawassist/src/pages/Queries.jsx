@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import API_URL from "../api";
 import { jwtDecode } from "jwt-decode";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -8,7 +9,7 @@ import BackToTopButton from "../components/BackToTopButton";
 import AlertPopup from "../components/AlertPopup";
 import { getStatusClass } from "../data";
 
-const API = "https://law-assist.onrender.com/api";
+// const API = "https://law-assist.onrender.com/api";
 
 const Queries = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -42,7 +43,7 @@ const Queries = () => {
 
   const fetchQueries = async () => {
     try {
-      const res = await axios.get(`${API}/queries/public`);
+      const res = await axios.get(`${API_URL}/api/queries/public`);
       setQueries(res.data || []);
     } catch (error) {
       console.log(error);
@@ -53,7 +54,7 @@ const Queries = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get(`${API}/expert/profile`, {
+      const res = await axios.get(`${API_URL}/api/expert/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -75,7 +76,7 @@ const Queries = () => {
       const token = localStorage.getItem("token");
 
       await axios.patch(
-        `${API}/expert/accept/${id}`,
+        `${API_URL}/api/expert/accept/${id}`,
         {},
         {
           headers: {
@@ -271,6 +272,11 @@ const Queries = () => {
                   <div className="view-item">
                     <span>Category</span>
                     <p>{selectedQuery.category}</p>
+                  </div>
+
+                  <div className="view-item">
+                    <span>Subcategory</span>
+                    <p>{selectedQuery.subcategory}</p>
                   </div>
 
                   <div className="view-item">

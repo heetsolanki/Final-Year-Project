@@ -1,8 +1,9 @@
 import { useState } from "react";
 import axios from "axios";
+import API_URL from "../api";
 import AuthInput from "./AuthInput";
 
-const API = "https://law-assist.onrender.com/api";
+// const API = "https://law-assist.onrender.com/api";
 
 const ChangePasswordModal = ({ onClose }) => {
   const token = localStorage.getItem("token");
@@ -48,7 +49,7 @@ const ChangePasswordModal = ({ onClose }) => {
       setLoading(true);
 
       await axios.put(
-        `${API}/users/change-password`,
+        `${API_URL}/api/users/change-password`,
         {
           currentPassword: formData.currentPassword,
           newPassword: formData.newPassword,

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import API_URL from "../api";
 import { useNavigate } from "react-router-dom";
 import { Scale, CheckCircle, XCircle, EyeOff, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -9,7 +10,7 @@ import Footer from "../components/Footer";
 import AlertPopup from "../components/AlertPopup";
 import { consumerPoints, expertPoints } from "../data";
 
-const API = "https://law-assist.onrender.com/api";
+// const API = "https://law-assist.onrender.com/api";
 
 function Register() {
   const [role, setRole] = useState("consumer");
@@ -106,7 +107,7 @@ function Register() {
 
     if (Object.keys(newErrors).length === 0) {
       try {
-        const response = await fetch(`${API}/auth/register`, {
+        const response = await fetch(`${API_URL}/api/auth/register`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

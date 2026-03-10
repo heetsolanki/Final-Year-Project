@@ -1,13 +1,14 @@
 import axios from "axios";
+import API_URL from "../api";
 
-const API = "https://law-assist.onrender.com/api";
+// const API = "https://law-assist.onrender.com/api";
 
 const DeleteAccountModal = ({ onClose }) => {
   const token = localStorage.getItem("token");
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`${API}/users/delete-account`, {
+      await axios.delete(`${API_URL}/api/users/delete-account`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

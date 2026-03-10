@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import API_URL from "../api";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   FolderOpen,
@@ -18,7 +19,7 @@ import BackToTopButton from "../components/BackToTopButton";
 import QueryDetailsModal from "../components/QueryDetailsModal";
 import { getStatusClass } from "../data";
 
-const API = "https://law-assist.onrender.com/api";
+// const API = "http://localhost:5000/api";
 
 const UserDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -37,7 +38,7 @@ const UserDashboard = () => {
   const fetchDashboard = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get(`${API}/dashboard`, {
+      const res = await axios.get(`${API_URL}/api/dashboard`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUserName(res.data.name || "");
@@ -54,7 +55,7 @@ const UserDashboard = () => {
     }
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${API}/queries/${selectedQueryId}`, {
+      await axios.delete(`${API_URL}/api/queries/${selectedQueryId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setShowDeleteModal(false);

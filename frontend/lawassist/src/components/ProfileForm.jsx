@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import API_URL from "../api";
 import SuccessModal from "./SuccessModal";
 
-const API = "https://law-assist.onrender.com/api";
+// const API = "https://law-assist.onrender.com/api";
 
 const ProfileForm = ({ user, refresh }) => {
   const [formData, setFormData] = useState({});
@@ -17,7 +18,7 @@ const ProfileForm = ({ user, refresh }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleUpdate = async () => {
-    await axios.put(`${API}/users/profile`, formData, {
+    await axios.put(`${API_URL}/api/users/profile`, formData, {
       headers: { Authorization: `Bearer ${token}` },
     });
     refresh();

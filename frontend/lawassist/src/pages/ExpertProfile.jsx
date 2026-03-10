@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
+import API_URL from "../api";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -19,7 +20,7 @@ import {
   expertiseOptions,
 } from "../data";
 
-const API = "https://law-assist.onrender.com/api";
+// const API = "https://law-assist.onrender.com/api";
 
 const ExpertProfile = () => {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ const ExpertProfile = () => {
 
   const fetchProfile = useCallback(async () => {
     try {
-      const res = await axios.get(`${API}/expert/profile`, {
+      const res = await axios.get(`${API_URL}/api/expert/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -90,7 +91,7 @@ const ExpertProfile = () => {
 
     try {
       await axios.post(
-        `${API}/expert/complete-profile`,
+        `${API_URL}/api/expert/complete-profile`,
         {
           ...formData,
           specialization:

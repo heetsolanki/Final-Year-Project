@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
+import API_URL from "../api";
 import ProfileHeader from "../components/ProfileHeader";
 import ProfileForm from "../components/ProfileForm";
 import AccountSection from "../components/AccountSection";
 
-const API = "https://law-assist.onrender.com/api";
+// const API = "https://law-assist.onrender.com/api";
 
 const UserManageProfile = () => {
   const [user, setUser] = useState(null);
@@ -12,7 +13,7 @@ const UserManageProfile = () => {
 
   const fetchProfile = useCallback(async () => {
     try {
-      const res = await axios.get(`${API}/users/profile`, {
+      const res = await axios.get(`${API_URL}/api/users/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser(res.data);

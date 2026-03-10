@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import API_URL from "../api";
 import {
   FolderOpen,
   Clock,
@@ -15,7 +16,7 @@ import QueryDetailsModal from "../components/QueryDetailsModal";
 import BackToTopButton from "../components/BackToTopButton";
 import { getStatusClass } from "../data";
 
-const API = "https://law-assist.onrender.com/api";
+// const API = "https://law-assist.onrender.com/api";
 
 const LegalExpertDashboard = () => {
   const [expert, setExpert] = useState({});
@@ -28,7 +29,7 @@ const LegalExpertDashboard = () => {
     try {
       const token = localStorage.getItem("token");
       const decoded = jwtDecode(token);
-      const res = await axios.get(`${API}/expert/profile`, {
+      const res = await axios.get(`${API_URL}/api/expert/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setExpert({
@@ -45,7 +46,7 @@ const LegalExpertDashboard = () => {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get(`${API}/expert/stats`, {
+      const res = await axios.get(`${API_URL}/api/expert/stats`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStats(res.data);
@@ -57,7 +58,7 @@ const LegalExpertDashboard = () => {
   const fetchQueries = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get(`${API}/expert/queries`, {
+      const res = await axios.get(`${API_URL}/api/expert/queries`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setQueries(res.data);

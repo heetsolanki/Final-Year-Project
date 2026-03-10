@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Scale, ArrowRight, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import API_URL from "../api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BackToTopButton from "../components/BackToTopButton";
 import SearchBar from "../components/SearchBar";
 import { iconMap } from "../data";
 
-const API = "https://law-assist.onrender.com/api";
+// const API = "https://law-assist.onrender.com/api";
 
 const ExploreRights = () => {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ const ExploreRights = () => {
   useEffect(() => {
     const fetchLaws = async () => {
       try {
-        const res = await axios.get(`${API}/laws`);
+        const res = await axios.get(`${API_URL}/api/laws`);
 
         setLaws(res.data);
       } catch (error) {

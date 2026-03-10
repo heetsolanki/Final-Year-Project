@@ -1,3 +1,4 @@
+import API_URL from "../api";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Scale, Eye, EyeOff } from "lucide-react";
@@ -8,7 +9,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import AlertPopup from "../components/AlertPopup";
 
-const API = "https://law-assist.onrender.com/api";
+// const API = "https://law-assist.onrender.com/api";
 
 function Login() {
   const navigate = useNavigate();
@@ -98,7 +99,7 @@ function Login() {
 
     if (Object.keys(newErrors).length === 0) {
       try {
-        const response = await fetch(`${API}/auth/login`, {
+        const response = await fetch(`${API_URL}/api/auth/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -117,6 +118,7 @@ function Login() {
         }
 
         localStorage.setItem("token", data.token);
+        console.log("Register API Response:", data);
 
         setShowSuccess(true);
         setCountdown(3);

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import API_URL from "../api";
 import { useNavigate } from "react-router-dom";
 import AlertPopup from "./AlertPopup";
 import { categories } from "../data";
@@ -40,7 +41,7 @@ const AskQueryForm = ({
         return;
       }
       await axios.post(
-        "https://law-assist.onrender.com/api/queries",
+        `${API_URL}/api/queries`,
         {
           title: formData.title,
           category: formData.category,

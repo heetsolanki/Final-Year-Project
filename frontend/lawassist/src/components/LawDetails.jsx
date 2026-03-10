@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import API_URL from "../api";
 import axios from "axios";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { ChevronDown, ArrowLeft, Scale } from "lucide-react";
@@ -9,7 +10,7 @@ import Footer from "../components/Footer";
 import AskQueryForm from "../components/AskQueryForm";
 import BackToTopButton from "./BackToTopButton";
 
-const API = "https://law-assist.onrender.com/api";
+// const API = "https://law-assist.onrender.com/api";
 
 const LawDetails = () => {
   const { id } = useParams();
@@ -31,7 +32,7 @@ const LawDetails = () => {
   useEffect(() => {
     const fetchLaw = async () => {
       try {
-        const res = await axios.get(`${API}/laws/${id}`);
+        const res = await axios.get(`${API_URL}/api/laws/${id}`);
 
         const fetchedLaw = res.data;
         setLaw(fetchedLaw);

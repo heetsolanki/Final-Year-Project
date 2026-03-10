@@ -5,8 +5,9 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BackToTopButton from "../components/BackToTopButton";
 import axios from "axios";
+import API_URL from "../api";
 
-const API = "https://law-assist.onrender.com/api";
+// const API = "https://law-assist.onrender.com/api";
 
 const ExpertProfile = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const ExpertProfile = () => {
 
   const fetchExpert = useCallback(async () => {
     try {
-      const res = await axios.get(`${API}/expert/${id}`);
+      const res = await axios.get(`${API_URL}/api/expert/${id}`);
       setExpert(res.data);
     } catch (error) {
       console.log(error);

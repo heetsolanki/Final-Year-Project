@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import API_URL from "../api";
 import { MapPin, Briefcase, IndianRupee } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BackToTopButton from "../components/BackToTopButton";
 
-const API = "https://law-assist.onrender.com/api";
+// const API = "https://law-assist.onrender.com/api";
 
 const Experts = () => {
   const [experts, setExperts] = useState([]);
@@ -24,7 +25,7 @@ const Experts = () => {
 
   const fetchExperts = async () => {
     try {
-      const res = await axios.get(`${API}/expert/all`);
+      const res = await axios.get(`${API_URL}/api/expert/all`);
       setExperts(res.data);
     } catch (error) {
       console.log(error);

@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
+import API_URL from "../api";
 import { jwtDecode } from "jwt-decode";
 import AlertPopup from "./AlertPopup";
+import { getStatusClass } from "../data";
 
-const API = "https://law-assist.onrender.com/api";
+// const API = "https://law-assist.onrender.com/api";
 
 const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const [answerText, setAnswerText] = useState("");
@@ -19,7 +21,7 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const handleResolve = async () => {
     try {
       await axios.patch(
-        `${API}/expert/resolve/${query._id}`,
+        `${API_URL}/api/expert/resolve/${query._id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       );
@@ -34,7 +36,7 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const handleSubmitAnswer = async () => {
     try {
       await axios.post(
-        `${API}/expert/answer/${query._id}`,
+        `${API_URL}/api/expert/answer/${query._id}`,
         { answer: answerText },
         { headers: { Authorization: `Bearer ${token}` } },
       );
@@ -48,7 +50,7 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`${API}/queries/${query._id}`, {
+      await axios.delete(`${API_URL}/api/queries/${query._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       refreshQueries();
@@ -56,16 +58,6 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
     } catch (error) {
       console.log(error);
       alert("Failed to delete query.");
-    }
-  };
-
-  const getStatusClass = (status) => {
-    switch (status) {
-      case "Pending": return "user-status-pending";
-      case "Answered": return "user-status-answered";
-      case "Consultation Requested": return "user-status-consult";
-      case "Resolved": return "user-status-resolved";
-      default: return "user-status-default";
     }
   };
 
@@ -90,6 +82,11 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
           <div className="view-item">
             <span>Category</span>
             <p>{query.category}</p>
+          </div>
+
+          <div className="view-item">
+            <span>Subcategory</span>
+            <p>{query.subcategory}</p>
           </div>
 
           <div className="view-item">
