@@ -357,11 +357,12 @@ export const categories = {
     "Product Quality Standards",
     "MRP & Pricing Problems",
     "Courier & Delivery Problems",
+    "Unfair Market Practices",
   ],
 
   "Health & Safety": ["Food & Restaurant Safety", "Medicine & Pharmacy Safety"],
 
-  "Digital & Telecom": ["Online Fraud & Cyber Scams", "Telecom Complaints"],
+  "Digital & Telecom": ["Online Fraud & Cyber Scams"],
 
   "Financial Services": [
     "Banking & Financial Services",
