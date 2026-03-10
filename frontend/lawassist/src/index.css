@@ -92,7 +92,7 @@ body {
 }
 
 .navbar {
-  @apply flex items-center justify-between px-8 py-4 rounded-full bg-white/70 backdrop-blur-xl shadow-lg border border-white/40;
+  @apply relative flex items-center justify-between px-8 py-4 rounded-full bg-white/70 backdrop-blur-xl shadow-lg border border-white/40;
 }
 
 .nav-links {
@@ -136,7 +136,7 @@ body {
 }
 
 .nav-logo {
-  @apply flex items-center gap-2 whitespace-nowrap;
+  @apply absolute left-1/2 -translate-x-1/2 flex items-center gap-2 whitespace-nowrap;
 }
 
 .nav-logo-text {
