@@ -1,6 +1,8 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const sendEmail = require("../utils/sendEmail");
+const welcomeEmailTemplate = require("../template/welcomeEmail");
 
 // ================= REGISTER =================
 exports.registerUser = async (req, res) => {
@@ -43,6 +45,14 @@ exports.registerUser = async (req, res) => {
     }
 
     const newUser = await User.create(userData);
+    console.log("New user registered:", newUser);
+    console.log("Sending welcome email to:", email);
+
+    await sendEmail(
+      email,
+      "Welcome to LawAssist",
+      welcomeEmailTemplate(name, userId),
+    );
 
     const token = jwt.sign(
       { userId: newUser.userId, role: newUser.role },

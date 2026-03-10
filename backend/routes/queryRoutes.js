@@ -4,6 +4,9 @@ const mongoose = require("mongoose");
 
 const { verifyToken, authorizeRole } = require("../middleware/authMiddleware");
 const Query = require("../models/Query");
+const sendEmail = require("../utils/sendEmail");
+const querySubmittedEmail = require("../template/querySubmittedEmail");
+const User = require("../models/User");
 
 /* ================= CREATE QUERY ================= */
 router.post("/", verifyToken, authorizeRole("consumer"), async (req, res) => {
@@ -21,6 +24,16 @@ router.post("/", verifyToken, authorizeRole("consumer"), async (req, res) => {
       subcategory,
       description,
     });
+
+    // Get user info
+    const user = await User.findOne({ userId: req.user.userId });
+
+    // Send confirmation email
+    await sendEmail(
+      user.email,
+      "Query Submitted Successfully - LawAssist",
+      querySubmittedEmail(user.name, newQuery.title, newQuery.category, newQuery.subcategory),
+    );
 
     res.status(201).json(newQuery);
   } catch (error) {
@@ -64,31 +77,36 @@ router.get("/:id", async (req, res) => {
 });
 
 /* ================= DELETE QUERY ================= */
-router.delete("/:id", verifyToken, authorizeRole("consumer"), async (req, res) => {
-  try {
-    const { id } = req.params;
+router.delete(
+  "/:id",
+  verifyToken,
+  authorizeRole("consumer"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid Query ID" });
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: "Invalid Query ID" });
+      }
+
+      const query = await Query.findById(id);
+
+      if (!query) {
+        return res.status(404).json({ message: "Query not found" });
+      }
+
+      if (query.userId.toString() !== req.user.userId) {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+
+      await query.deleteOne();
+
+      res.status(200).json({ message: "Query deleted successfully" });
+    } catch (error) {
+      console.error("Delete Query Error:", error);
+      res.status(500).json({ message: "Server error" });
     }
-
-    const query = await Query.findById(id);
-
-    if (!query) {
-      return res.status(404).json({ message: "Query not found" });
-    }
-
-    if (query.userId.toString() !== req.user.userId) {
-      return res.status(403).json({ message: "Unauthorized" });
-    }
-
-    await query.deleteOne();
-
-    res.status(200).json({ message: "Query deleted successfully" });
-  } catch (error) {
-    console.error("Delete Query Error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+  },
+);
 
 module.exports = router;
