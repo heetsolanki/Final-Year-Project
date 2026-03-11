@@ -1,112 +1,25 @@
 const express = require("express");
 const router = express.Router();
-const mongoose = require("mongoose");
 
 const { verifyToken, authorizeRole } = require("../middleware/authMiddleware");
-const Query = require("../models/Query");
-const sendEmail = require("../utils/sendEmail");
-const querySubmittedEmail = require("../template/querySubmittedEmail");
-const User = require("../models/User");
+
+const {
+  createQuery,
+  getPublicQueries,
+  getSingleQuery,
+  deleteQuery
+} = require("../controllers/queryController");
 
 /* ================= CREATE QUERY ================= */
-router.post("/", verifyToken, authorizeRole("consumer"), async (req, res) => {
-  try {
-    const { title, category, subcategory, description } = req.body;
-
-    if (!title || !category || !description) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    const newQuery = await Query.create({
-      userId: req.user.userId,
-      title,
-      category,
-      subcategory,
-      description,
-    });
-
-    // Get user info
-    const user = await User.findOne({ userId: req.user.userId });
-
-    // Send confirmation email
-    await sendEmail(
-      user.email,
-      "Query Submitted Successfully - LawAssist",
-      querySubmittedEmail(user.name, newQuery.title, newQuery.category, newQuery.subcategory),
-    );
-
-    res.status(201).json(newQuery);
-  } catch (error) {
-    console.error("Create Query Error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+router.post("/", verifyToken, authorizeRole("consumer"), createQuery);
 
 /* ================= GET ALL PUBLIC QUERIES ================= */
-router.get("/public", async (req, res) => {
-  try {
-    const queries = await Query.find().sort({ createdAt: -1 });
-    res.status(200).json(queries);
-  } catch (error) {
-    console.error("Fetch Queries Error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+router.get("/public", getPublicQueries);
 
 /* ================= GET SINGLE QUERY ================= */
-router.get("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // 🔥 Prevent ObjectId crash
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid Query ID" });
-    }
-
-    const query = await Query.findById(id);
-
-    if (!query) {
-      return res.status(404).json({ message: "Query not found" });
-    }
-
-    res.status(200).json(query);
-  } catch (error) {
-    console.error("Get Query Error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+router.get("/:id", getSingleQuery);
 
 /* ================= DELETE QUERY ================= */
-router.delete(
-  "/:id",
-  verifyToken,
-  authorizeRole("consumer"),
-  async (req, res) => {
-    try {
-      const { id } = req.params;
-
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ message: "Invalid Query ID" });
-      }
-
-      const query = await Query.findById(id);
-
-      if (!query) {
-        return res.status(404).json({ message: "Query not found" });
-      }
-
-      if (query.userId.toString() !== req.user.userId) {
-        return res.status(403).json({ message: "Unauthorized" });
-      }
-
-      await query.deleteOne();
-
-      res.status(200).json({ message: "Query deleted successfully" });
-    } catch (error) {
-      console.error("Delete Query Error:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  },
-);
+router.delete("/:id", verifyToken, authorizeRole("consumer"), deleteQuery);
 
 module.exports = router;

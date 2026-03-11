@@ -2,7 +2,8 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("../utils/sendEmail");
-const welcomeEmailTemplate = require("../template/welcomeEmail");
+const welcomeEmailTemplate = require("../template/userWelcomeEmail");
+const expertWelcomeEmail = require("../template/expertWelcomeEmail");
 
 // ================= REGISTER =================
 exports.registerUser = async (req, res) => {
@@ -48,15 +49,19 @@ exports.registerUser = async (req, res) => {
     console.log("New user registered:", newUser);
     console.log("Sending welcome email to:", email);
 
-    try {
+    if (role === "legalExpert") {
+      await sendEmail(
+        email,
+        "Welcome to LawAssist - Legal Expert",
+        expertWelcomeEmail(name, userId),
+      );
+    }
+    else {
       await sendEmail(
         email,
         "Welcome to LawAssist",
         welcomeEmailTemplate(name, userId),
       );
-      console.log("Welcome email sent successfully");
-    } catch (emailError) {
-      console.error("Email error:", emailError.message);
     }
 
     const token = jwt.sign(
