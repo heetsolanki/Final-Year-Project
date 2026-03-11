@@ -2,8 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import API_URL from "../api";
 import AuthInput from "./AuthInput";
-
-// const API = "https://law-assist.onrender.com/api";
+import AlertPopup from "./AlertPopup";
 
 const ChangePasswordModal = ({ onClose }) => {
   const token = localStorage.getItem("token");
@@ -16,6 +15,7 @@ const ChangePasswordModal = ({ onClose }) => {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -60,7 +60,7 @@ const ChangePasswordModal = ({ onClose }) => {
       );
 
       setLoading(false);
-      onClose();
+      setShowSuccessPopup(true);
     } catch (err) {
       setLoading(false);
       setErrors({
@@ -125,6 +125,15 @@ const ChangePasswordModal = ({ onClose }) => {
           {loading ? "Updating..." : "Update Password"}
         </button>
       </div>
+      <AlertPopup
+        show={showSuccessPopup}
+        title="Password Updated"
+        message="Your password has been changed successfully."
+        onClose={() => {
+          setShowSuccessPopup(false);
+          onClose();
+        }}
+      />
     </div>
   );
 };
