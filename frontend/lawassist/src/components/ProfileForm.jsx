@@ -3,8 +3,6 @@ import axios from "axios";
 import API_URL from "../api";
 import SuccessModal from "./SuccessModal";
 
-// const API = "https://law-assist.onrender.com/api";
-
 const ProfileForm = ({ user, refresh }) => {
   const [formData, setFormData] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);

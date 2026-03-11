@@ -5,8 +5,6 @@ import ProfileHeader from "../components/ProfileHeader";
 import ProfileForm from "../components/ProfileForm";
 import AccountSection from "../components/AccountSection";
 
-// const API = "https://law-assist.onrender.com/api";
-
 const UserManageProfile = () => {
   const [user, setUser] = useState(null);
   const token = localStorage.getItem("token");
