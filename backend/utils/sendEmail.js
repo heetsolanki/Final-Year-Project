@@ -1,19 +1,38 @@
-const { Resend } = require("resend");
+const nodemailer = require("nodemailer");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-const sendEmail = async (to, subject, html) => {
+const sendEmail = async (to, subject, text) => {
   try {
-    await resend.emails.send({
-      from: "LawAssist <onboarding@resend.dev>",
-      to: to,
-      subject: subject,
-      html: html
+    console.log("Preparing email...");
+
+    if (!to) {
+      console.log("No recipient email provided.");
+      return;
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
     });
 
-    console.log("Email sent successfully");
+    const mailOptions = {
+      from: `"LawAssist" <${process.env.EMAIL_USER}>`,
+      to: String(to).trim(),
+      subject,
+      html: text,
+    };
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log("Email sent:", info.response);
   } catch (error) {
-    console.error("Email sending failed:", error);
+    console.error("Email error:", error);
   }
 };
 
