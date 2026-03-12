@@ -6,7 +6,6 @@ const {
   getExpertStats,
   getAllQueries,
   answerQuery,
-  resolveQuery,
   acceptCase,
   completeExpertProfile,
   getExpertProfile,

@@ -135,9 +135,6 @@ const UserDashboard = () => {
                   </button>
                 )}
                 <button className="user-outline-btn">View Saved Topics</button>
-                <button className="user-outline-btn">
-                  Track Ongoing Cases
-                </button>
               </div>
 
               {showForm && (
@@ -215,7 +212,7 @@ const UserDashboard = () => {
                   </thead>
                   <tbody>
                     {filteredQueries.map((query) => (
-                      <tr key={query.id}>
+                      <tr key={query._id}>
                         <td>{query.title}</td>
                         <td>{query.category}</td>
                         <td>

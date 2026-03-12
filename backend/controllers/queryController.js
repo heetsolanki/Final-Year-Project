@@ -4,15 +4,11 @@ const sendEmail = require("../utils/sendEmail");
 const querySubmittedEmail = require("../template/querySubmittedEmail");
 const expertQueryNotification = require("../template/expertQueryNotification");
 const User = require("../models/User");
+const Expert = require("../models/Expert");
 
-/* ================= CREATE QUERY ================= */
 exports.createQuery = async (req, res) => {
   try {
     const { title, category, subcategory, description } = req.body;
-
-    if (!title || !category || !description) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
 
     const newQuery = await Query.create({
       userId: req.user.userId,
@@ -23,13 +19,11 @@ exports.createQuery = async (req, res) => {
     });
 
     const user = await User.findOne({ userId: req.user.userId });
-    /* SEND EMAILS IN BACKGROUND */
 
     (async () => {
       try {
-        const experts = await User.find({ role: "legalExpert" });
+        const experts = await Expert.find({ verificationStatus: "verified" });
 
-        /* Email to user */
         await sendEmail(
           user.email,
           "Query Submitted Successfully - LawAssist",
@@ -41,7 +35,6 @@ exports.createQuery = async (req, res) => {
           ),
         );
 
-        /* Email to experts */
         await Promise.all(
           experts.map((expert) =>
             sendEmail(
@@ -64,11 +57,9 @@ exports.createQuery = async (req, res) => {
 
     res.status(201).json(newQuery);
   } catch (error) {
-    console.error("Create Query Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 /* ================= GET ALL PUBLIC QUERIES ================= */
 exports.getPublicQueries = async (req, res) => {
   try {

@@ -20,8 +20,6 @@ import {
   expertiseOptions,
 } from "../data";
 
-// const API = "https://law-assist.onrender.com/api";
-
 const ExpertProfile = () => {
   const navigate = useNavigate();
   const [showProfilePopup, setShowProfilePopup] = useState(false);

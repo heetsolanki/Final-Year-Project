@@ -1,4 +1,5 @@
 const Query = require("../models/Query");
+const Expert = require("../models/Expert");
 const User = require("../models/User");
 const queryStatusUpdateEmail = require("../template/queryStatusUpdateEmail");
 const sendEmail = require("../utils/sendEmail");
@@ -19,59 +20,47 @@ exports.completeExpertProfile = async (req, res) => {
       bio,
     } = req.body;
 
-    const user = await User.findOne({ userId: expertId });
+    const expert = await Expert.findOne({ userId: expertId });
 
-    if (!user) {
+    if (!expert) {
       return res.status(404).json({ message: "Expert not found" });
     }
 
-    if (user.role !== "legalExpert") {
-      return res
-        .status(403)
-        .json({ message: "Only experts can complete profile" });
-    }
+    expert.barCouncilId = barCouncilId;
+    expert.specialization = specialization;
+    expert.experience = experience;
+    expert.consultationCharges = consultationCharges;
+    expert.state = state;
+    expert.city = city;
+    expert.languages = languages;
+    expert.expertiseAreas = expertiseAreas;
+    expert.bio = bio;
 
-    user.barCouncilId = barCouncilId;
-    user.specialization = specialization;
-    user.experience = experience;
-    user.consultationCharges = consultationCharges;
-    user.state = state;
-    user.city = city;
-    user.languages = languages;
-    user.expertiseAreas = expertiseAreas;
-    user.bio = bio;
+    const completion = calculateProfileCompletion(expert);
 
-    const completion = calculateProfileCompletion(user);
+    expert.profileCompletion = completion;
+    expert.verificationStatus = completion === 100 ? "verified" : "pending";
 
-    user.profileCompletion = completion;
-
-    user.verificationStatus = completion === 100 ? "verified" : "pending";
-
-    await user.save();
+    await expert.save();
 
     res.json({
       message: "Profile updated successfully",
       profileCompletion: completion,
-      verificationStatus: user.verificationStatus,
+      verificationStatus: expert.verificationStatus,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Error updating profile" });
   }
 };
 
 exports.getExpertProfile = async (req, res) => {
   try {
-    const user = await User.findOne({ userId: req.user.userId }).select(
+    const expert = await Expert.findOne({ userId: req.user.userId }).select(
       "-password",
     );
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.json(user);
-  } catch (error) {
+    res.json(expert);
+  } catch {
     res.status(500).json({ message: "Error fetching profile" });
   }
 };
@@ -81,18 +70,18 @@ exports.getExpertStats = async (req, res) => {
     const expertId = req.user.userId;
 
     const assignedQueries = await Query.countDocuments({
-      expertId: expertId,
+      expertId,
       status: "Assigned",
     });
 
     const pendingQueries = await Query.countDocuments({
-      expertId: expertId,
+      expertId,
       status: "Assigned",
       $or: [{ answer: "" }, { answer: null }],
     });
 
     const resolvedQueries = await Query.countDocuments({
-      expertId: expertId,
+      expertId,
       status: "Resolved",
     });
 
@@ -101,8 +90,7 @@ exports.getExpertStats = async (req, res) => {
       pendingQueries,
       resolvedQueries,
     });
-  } catch (error) {
-    console.error(error);
+  } catch {
     res.status(500).json({ message: "Error fetching stats" });
   }
 };
@@ -112,12 +100,11 @@ exports.getAllQueries = async (req, res) => {
     const expertId = req.user.userId;
 
     const queries = await Query.find({
-      $or: [{ status: "In Review" }, { expertId: expertId }],
+      $or: [{ status: "In Review" }, { expertId }],
     }).sort({ createdAt: -1 });
 
     res.json(queries);
-  } catch (error) {
-    console.error(error);
+  } catch {
     res.status(500).json({ message: "Error fetching queries" });
   }
 };
@@ -125,13 +112,6 @@ exports.getAllQueries = async (req, res) => {
 exports.acceptCase = async (req, res) => {
   try {
     const { id } = req.params;
-
-    const existingQuery = await Query.findById(id);
-
-    if (!existingQuery) {
-      console.log("Query does not exist");
-      return res.status(404).json({ message: "Query not found" });
-    }
 
     const query = await Query.findOneAndUpdate(
       {
@@ -147,7 +127,6 @@ exports.acceptCase = async (req, res) => {
     );
 
     if (!query) {
-      console.log("Query update failed — conditions not matched");
       return res.status(400).json({
         message: "Case already accepted by another expert.",
       });
@@ -163,14 +142,11 @@ exports.acceptCase = async (req, res) => {
       );
     }
 
-    console.log("Case accepted successfully");
-
     res.json({
       message: "Case accepted successfully",
       query,
     });
-  } catch (error) {
-    console.error("Accept Case Error:", error);
+  } catch {
     res.status(500).json({ message: "Error accepting case" });
   }
 };
@@ -180,7 +156,7 @@ exports.answerQuery = async (req, res) => {
     const { id } = req.params;
     const { answer } = req.body;
 
-    const expert = await User.findOne({ userId: req.user.userId });
+    const expert = await Expert.findOne({ userId: req.user.userId });
 
     if (!expert || expert.verificationStatus !== "verified") {
       return res.status(403).json({
@@ -189,10 +165,6 @@ exports.answerQuery = async (req, res) => {
     }
 
     const query = await Query.findById(id);
-
-    if (!query) {
-      return res.status(404).json({ message: "Query not found" });
-    }
 
     if (query.expertId !== req.user.userId) {
       return res.status(403).json({
@@ -225,21 +197,20 @@ exports.answerQuery = async (req, res) => {
       message: "Answer submitted successfully",
       query,
     });
-  } catch (error) {
-    console.error(error);
+  } catch {
     res.status(500).json({ message: "Error answering query" });
   }
 };
 
-const calculateProfileCompletion = (user) => {
+const calculateProfileCompletion = (expert) => {
   const fields = [
-    user.barCouncilId,
-    user.specialization,
-    user.experience,
-    user.city,
-    user.languages,
-    user.expertiseAreas,
-    user.bio,
+    expert.barCouncilId,
+    expert.specialization,
+    expert.experience,
+    expert.city,
+    expert.languages,
+    expert.expertiseAreas,
+    expert.bio,
   ];
 
   const filled = fields.filter(
@@ -255,30 +226,24 @@ const calculateProfileCompletion = (user) => {
 
 exports.getAllExperts = async (req, res) => {
   try {
-    const experts = await User.find({
-      role: "legalExpert",
+    const experts = await Expert.find({
       verificationStatus: "verified",
     }).select(
       "name specialization experience city state consultationCharges expertiseAreas bio",
     );
 
     res.json(experts);
-  } catch (error) {
-    console.error(error);
+  } catch {
     res.status(500).json({ message: "Error fetching experts" });
   }
 };
 
 exports.getExpertById = async (req, res) => {
   try {
-    const expert = await User.findById(req.params.id).select("-password");
-
-    if (!expert) {
-      return res.status(404).json({ message: "Expert not found" });
-    }
+    const expert = await Expert.findById(req.params.id).select("-password");
 
     res.json(expert);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Error fetching expert" });
   }
 };

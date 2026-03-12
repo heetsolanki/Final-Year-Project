@@ -4,7 +4,7 @@ const reviewSchema = new mongoose.Schema(
   {
     expertId: {
       type: String,
-      ref: "User",
+      ref: "Expert",
       required: true,
     },
     userId: {

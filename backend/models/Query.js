@@ -47,6 +47,22 @@ const querySchema = new mongoose.Schema(
       enum: ["In Review", "Assigned", "Resolved", "Answered"],
       default: "In Review",
     },
+    assignedAt: {
+      type: Date,
+    },
+
+    answeredAt: {
+      type: Date,
+    },
+
+    resolvedAt: {
+      type: Date,
+    },
+
+    ratingGiven: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

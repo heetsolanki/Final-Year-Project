@@ -16,8 +16,6 @@ import QueryDetailsModal from "../components/QueryDetailsModal";
 import BackToTopButton from "../components/BackToTopButton";
 import { getStatusClass } from "../data";
 
-// const API = "https://law-assist.onrender.com/api";
-
 const LegalExpertDashboard = () => {
   const [expert, setExpert] = useState({});
   const [stats, setStats] = useState({});
@@ -86,8 +84,7 @@ const LegalExpertDashboard = () => {
 
       <div className="min-h-screen bg-gray-50 py-14 px-4 pt-36 max-md:px-3 max-md:pt-28">
         <div className="expert-dashboard-container">
-          {expert.role === "legalExpert" &&
-            expert.verificationStatus !== "verified" && (
+          {expert.verificationStatus !== "verified" && (
               <div className="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-4 shadow-sm">
                 {expert.verificationStatus === "incomplete" && (
                   <>
