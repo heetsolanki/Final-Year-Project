@@ -159,7 +159,7 @@ const QueryDetailsModal = ({
         </div>
 
         {query.status === "Assigned" && userRole === "legalExpert" && (
-          <div className="mt-4">
+          <div className="mt-4 flex-shrink-0">
             <textarea
               placeholder="Write your legal answer..."
               value={answerText}

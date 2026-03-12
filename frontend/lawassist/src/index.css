@@ -274,7 +274,8 @@ body {
 }
 
 .view-modal {
-  @apply relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-6 sm:p-8;
+  @apply relative overflow-hidden w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-6 sm:p-8 flex flex-col;
+  max-height: 90vh;
   animation: fadeInScale 0.25s ease;
 }
 
@@ -303,7 +304,8 @@ body {
 }
 
 .view-content {
-  @apply space-y-5 text-sm sm:text-base text-gray-700;
+  @apply space-y-5 text-sm sm:text-base text-gray-700 overflow-y-auto pr-1;
+  max-height: 55vh;
 }
 
 .view-item span {
