@@ -1,5 +1,7 @@
 const Query = require("../models/Query");
 const User = require("../models/User");
+const queryStatusUpdateEmail = require("../template/queryStatusUpdateEmail");
+const sendEmail = require("../utils/sendEmail");
 
 exports.completeExpertProfile = async (req, res) => {
   try {
@@ -122,15 +124,14 @@ exports.getAllQueries = async (req, res) => {
 
 exports.acceptCase = async (req, res) => {
   try {
-    if (
-      req.user.role === "legalExpert" &&
-      req.user.verificationStatus !== "verified"
-    ) {
-      return res.status(403).json({
-        message: "Complete and verify your profile before accepting cases",
-      });
-    }
     const { id } = req.params;
+
+    const existingQuery = await Query.findById(id);
+
+    if (!existingQuery) {
+      console.log("Query does not exist");
+      return res.status(404).json({ message: "Query not found" });
+    }
 
     const query = await Query.findOneAndUpdate(
       {
@@ -146,17 +147,30 @@ exports.acceptCase = async (req, res) => {
     );
 
     if (!query) {
+      console.log("Query update failed — conditions not matched");
       return res.status(400).json({
         message: "Case already accepted by another expert.",
       });
     }
+
+    const user = await User.findOne({ userId: query.userId });
+
+    if (user) {
+      await sendEmail(
+        user.email,
+        "Your query has been accepted",
+        queryStatusUpdateEmail(user.name, query.title, "Accepted"),
+      );
+    }
+
+    console.log("Case accepted successfully");
 
     res.json({
       message: "Case accepted successfully",
       query,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Accept Case Error:", error);
     res.status(500).json({ message: "Error accepting case" });
   }
 };
@@ -193,6 +207,16 @@ exports.answerQuery = async (req, res) => {
     query.status = "Answered";
 
     await query.save();
+
+    const user = await User.findOne({ userId: query.userId });
+
+    if (user) {
+      await sendEmail(
+        user.email,
+        "Your query has been accepted",
+        queryStatusUpdateEmail(user.name, query.title, "Accepted"),
+      );
+    }
 
     res.json({
       message: "Answer submitted successfully",
@@ -251,7 +275,7 @@ exports.getAllExperts = async (req, res) => {
       role: "legalExpert",
       verificationStatus: "verified",
     }).select(
-      "name specialization experience city state consultationCharges expertiseAreas bio"
+      "name specialization experience city state consultationCharges expertiseAreas bio",
     );
 
     res.json(experts);
