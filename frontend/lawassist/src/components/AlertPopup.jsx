@@ -5,7 +5,7 @@ function AlertPopup({ show, title, message, buttonText = "OK", onClose, showButt
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 sm:p-7 text-center">
+      <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 sm:p-7 text-center">
         {/* Icon */}
         <div className="flex justify-center mb-4">
           <div className="bg-green-100 p-3 rounded-full">
