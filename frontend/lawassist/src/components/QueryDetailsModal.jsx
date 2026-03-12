@@ -5,9 +5,12 @@ import { jwtDecode } from "jwt-decode";
 import AlertPopup from "./AlertPopup";
 import { getStatusClass } from "../data";
 
-// const API = "https://law-assist.onrender.com/api";
-
-const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
+const QueryDetailsModal = ({
+  query,
+  onClose,
+  refreshQueries,
+  openReviewModal,
+}) => {
   const [answerText, setAnswerText] = useState("");
   const token = localStorage.getItem("token");
   const [showAnswerPopup, setShowAnswerPopup] = useState(false);
@@ -21,11 +24,14 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   const handleResolve = async () => {
     try {
       await axios.patch(
-        `${API_URL}/api/expert/resolve/${query._id}`,
+        `${API_URL}/api/users/resolve/${query._id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       );
       refreshQueries();
+      if (openReviewModal) {
+        openReviewModal(query);
+      }
       onClose();
     } catch (error) {
       console.log(error);
@@ -69,7 +75,9 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
   return (
     <div className="view-overlay">
       <div className="view-modal">
-        <button className="view-close-btn" onClick={onClose}>✕</button>
+        <button className="view-close-btn" onClick={onClose}>
+          ✕
+        </button>
 
         <h2 className="view-title">Query Details</h2>
 
@@ -91,7 +99,9 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
 
           <div className="view-item">
             <span>Status</span>
-            <span className={`user-status-badge view-item-status ${getStatusClass(query.status)}`}>
+            <span
+              className={`user-status-badge view-item-status ${getStatusClass(query.status)}`}
+            >
               {query.status}
             </span>
           </div>
@@ -114,7 +124,8 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
                 <p>{query.answer}</p>
                 {query.answeredBy && (
                   <small>
-                    Answered by: {query.answeredBy.name} ({query.answeredBy.specialization})
+                    Answered by: {query.answeredBy.name} (
+                    {query.answeredBy.specialization})
                   </small>
                 )}
               </>
@@ -128,7 +139,7 @@ const QueryDetailsModal = ({ query, onClose, refreshQueries }) => {
 
         {/* ACTION BUTTONS */}
         <div className="view-actions">
-          {userRole === "consumer" && query.status === "Assigned" && (
+          {userRole === "consumer" && query.status === "Answered" && (
             <button
               className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl shadow-md transition duration-200"
               onClick={handleResolve}

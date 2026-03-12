@@ -18,7 +18,6 @@ router.get("/stats", verifyToken, authorizeRole("legalExpert"), getExpertStats);
 router.get("/queries", verifyToken, authorizeRole("legalExpert"), getAllQueries);
 router.patch("/accept/:id", verifyToken, authorizeRole("legalExpert"), acceptCase);
 router.post("/answer/:id", verifyToken, authorizeRole("legalExpert"), answerQuery);
-router.patch("/resolve/:id", verifyToken, authorizeRole("legalExpert"), resolveQuery);
 router.post("/complete-profile", verifyToken, authorizeRole("legalExpert"), completeExpertProfile);
 router.get("/profile", verifyToken, authorizeRole("legalExpert"), getExpertProfile);
 router.get("/all", getAllExperts);

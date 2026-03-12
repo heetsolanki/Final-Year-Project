@@ -177,13 +177,16 @@ exports.acceptCase = async (req, res) => {
 
 exports.answerQuery = async (req, res) => {
   try {
-    if (req.user.verificationStatus !== "verified") {
+    const { id } = req.params;
+    const { answer } = req.body;
+
+    const expert = await User.findOne({ userId: req.user.userId });
+
+    if (!expert || expert.verificationStatus !== "verified") {
       return res.status(403).json({
         message: "Only verified experts can answer queries",
       });
     }
-    const { id } = req.params;
-    const { answer } = req.body;
 
     const query = await Query.findById(id);
 
@@ -200,8 +203,8 @@ exports.answerQuery = async (req, res) => {
     query.answer = answer;
 
     query.answeredBy = {
-      name: req.user.name,
-      specialization: req.user.specialization || "Legal Expert",
+      name: expert.name,
+      specialization: expert.specialization || "Legal Expert",
     };
 
     query.status = "Answered";
@@ -213,8 +216,8 @@ exports.answerQuery = async (req, res) => {
     if (user) {
       await sendEmail(
         user.email,
-        "Your query has been accepted",
-        queryStatusUpdateEmail(user.name, query.title, "Accepted"),
+        "Your query has been answered",
+        queryStatusUpdateEmail(user.name, query.title, "Answered"),
       );
     }
 
@@ -223,27 +226,8 @@ exports.answerQuery = async (req, res) => {
       query,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error answering query" });
-  }
-};
-
-exports.resolveQuery = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const query = await Query.findById(id);
-
-    if (!query) {
-      return res.status(404).json({ message: "Query not found" });
-    }
-
-    query.status = "Resolved";
-
-    await query.save();
-
-    res.json({ message: "Query resolved successfully", query });
-  } catch (error) {
-    res.status(500).json({ message: "Error resolving query" });
   }
 };
 

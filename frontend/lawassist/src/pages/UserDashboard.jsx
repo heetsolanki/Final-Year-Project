@@ -17,6 +17,7 @@ import Footer from "../components/Footer";
 import AskQueryForm from "../components/AskQueryForm";
 import BackToTopButton from "../components/BackToTopButton";
 import QueryDetailsModal from "../components/QueryDetailsModal";
+import ReviewModal from "../components/ReviewModal";
 import { getStatusClass } from "../data";
 
 // const API = "http://localhost:5000/api";
@@ -31,6 +32,8 @@ const UserDashboard = () => {
   const [selectedQueryId, setSelectedQueryId] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedQuery, setSelectedQuery] = useState(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewQuery, setReviewQuery] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
   const isProfilePage = location.pathname.includes("manage-profile");
@@ -96,7 +99,7 @@ const UserDashboard = () => {
     const matchesFilter = filterStatus === "All" || q.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
-  
+
   return (
     <>
       <Navbar />
@@ -305,6 +308,10 @@ const UserDashboard = () => {
               setSelectedQuery(null);
             }}
             refreshQueries={fetchDashboard}
+            openReviewModal={(query) => {
+              setReviewQuery(query);
+              setShowReviewModal(true);
+            }}
           />
         )}
 
@@ -329,6 +336,15 @@ const UserDashboard = () => {
               </div>
             </div>
           </div>
+        )}
+        {showReviewModal && reviewQuery && (
+          <ReviewModal
+            query={reviewQuery}
+            onClose={() => {
+              setShowReviewModal(false);
+              setReviewQuery(null);
+            }}
+          />
         )}
       </div>
       <BackToTopButton />
