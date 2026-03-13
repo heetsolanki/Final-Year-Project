@@ -3,9 +3,13 @@ import axios from "axios";
 import API_URL from "../api";
 import AuthInput from "./AuthInput";
 import AlertPopup from "./AlertPopup";
+import { EyeOff, Eye } from "lucide-react";
 
 const ChangePasswordModal = ({ onClose }) => {
   const token = localStorage.getItem("token");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     currentPassword: "",
@@ -86,35 +90,59 @@ const ChangePasswordModal = ({ onClose }) => {
           {/* Current Password */}
           <AuthInput
             label="Current Password"
-            type="password"
+            type={showCurrentPassword ? "text" : "password"}
             name="currentPassword"
             value={formData.currentPassword}
             onChange={handleChange}
             placeholder="Enter current password"
             error={errors.currentPassword}
-          ></AuthInput>
+          >
+            <button
+              type="button"
+              className="eye-icon"
+              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+            >
+              {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </AuthInput>
 
           {/* New Password */}
           <AuthInput
             label="New Password"
-            type="password"
+            type={showNewPassword ? "text" : "password"}
             name="newPassword"
             value={formData.newPassword}
             onChange={handleChange}
             placeholder="Enter new password"
             error={errors.newPassword}
-          ></AuthInput>
+          >
+            <button
+              type="button"
+              className="eye-icon"
+              onClick={() => setShowNewPassword(!showNewPassword)}
+            >
+              {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </AuthInput>
 
           {/* Confirm Password */}
           <AuthInput
             label="Confirm New Password"
-            type="password"
+            type={showConfirmPassword ? "text" : "password"}
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
             placeholder="Confirm new password"
             error={errors.confirmPassword}
-          ></AuthInput>
+          >
+            <button
+              type="button"
+              className="eye-icon"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </AuthInput>
         </div>
 
         <button

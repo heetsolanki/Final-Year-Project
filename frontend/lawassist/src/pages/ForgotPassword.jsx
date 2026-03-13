@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import API_URL from "../api";
 import { useNavigate, Link } from "react-router-dom";
-import { XCircle } from "lucide-react";
+import { XCircle, Eye, EyeOff } from "lucide-react";
 import AuthInput from "../components/AuthInput";
 import AuthButton from "../components/AuthButton";
 import Navbar from "../components/Navbar";
@@ -26,6 +26,8 @@ function ForgotPassword() {
   const [showSuccess, setShowSuccess] = useState(false);
 
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const passwordsMatch = password === confirmPassword;
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -297,12 +299,20 @@ function ForgotPassword() {
                 <>
                   <AuthInput
                     label="New Password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     error={errors.password}
                     placeholder="Enter new password"
-                  />
+                  >
+                    <button
+                      type="button"
+                      className="eye-icon"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </AuthInput>
 
                   {password && (
                     <div className="mt-2 space-y-1">
@@ -329,12 +339,26 @@ function ForgotPassword() {
 
                   <AuthInput
                     label="Confirm Password"
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     error={errors.confirmPassword}
                     placeholder="Confirm password"
-                  />
+                  >
+                    <button
+                      type="button"
+                      className="eye-icon"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
+                    </button>
+                  </AuthInput>
 
                   <div className="w-full h-2 bg-gray-200 rounded mt-2 overflow-hidden">
                     <div

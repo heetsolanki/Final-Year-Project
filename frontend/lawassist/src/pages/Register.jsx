@@ -10,11 +10,10 @@ import Footer from "../components/Footer";
 import AlertPopup from "../components/AlertPopup";
 import { consumerPoints, expertPoints } from "../data";
 
-// const API = "https://law-assist.onrender.com/api";
-
 function Register() {
   const [role, setRole] = useState("consumer");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = useState(false);
   const [countdown, setCountdown] = useState(3);
@@ -272,13 +271,25 @@ function Register() {
 
               <AuthInput
                 label="Confirm Password"
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 name="confirmPassword"
                 value={form.confirmPassword}
                 onChange={handleChange}
                 error={errors.confirmPassword}
                 placeholder="Confirm your password"
-              />
+              >
+                <button
+                  type="button"
+                  className="eye-icon"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
+                </button>
+              </AuthInput>
 
               {/* STRENGTH BAR */}
               <div className="w-full h-2 bg-gray-200 rounded mt-2 overflow-hidden">
