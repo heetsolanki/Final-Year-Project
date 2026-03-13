@@ -386,12 +386,13 @@ function ForgotPassword() {
 
         {showSuccess && (
           <AlertPopup
-            show={showSuccess}
-            title="Password Reset Successful!"
-            message="You can now login with your new password."
-            buttonText="Go to Login"
-            onClose={handleClose}
-          />
+              show={showSuccess}
+              title="Login Successful!"
+              message={`Redirecting in ${countdown} seconds...`}
+              showButton={false}
+              buttonText="OK"
+              onClose={() => setShowSuccess(false)}
+            />
         )}
       </div>
 
