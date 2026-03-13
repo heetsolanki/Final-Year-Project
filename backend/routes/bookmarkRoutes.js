@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
-const { verifyToken } = require("../middleware/authMiddleware");
+const { verifyToken, authorizeRole } = require("../middleware/authMiddleware");
 
 // SAVE SECTION
 router.post("/save-law", verifyToken, async (req, res) => {
@@ -63,15 +63,31 @@ router.delete(
 );
 
 // GET SAVED SECTIONS
-router.get("/saved-laws", verifyToken, async (req, res) => {
-  try {
-    const user = await User.findOne({ userId: req.user.userId });
+router.get(
+  "/saved-laws",
+  verifyToken,
+  authorizeRole("consumer"),
+  async (req, res) => {
+    try {
+      // Block experts
+      if (req.user.role === "legalExpert") {
+        return res.status(403).json({
+          message: "Experts do not have bookmarks",
+        });
+      }
 
-    res.status(200).json(user.savedLaws);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error fetching bookmarks" });
-  }
-});
+      const user = await User.findOne({ userId: req.user.userId });
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.status(200).json(user.savedLaws || []);
+    } catch (error) {
+      console.error("Bookmark fetch error:", error);
+      res.status(500).json({ message: "Error fetching bookmarks" });
+    }
+  },
+);
 
 module.exports = router;

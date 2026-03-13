@@ -20,6 +20,7 @@ const Queries = () => {
   const [selectedQuery, setSelectedQuery] = useState(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [expert, setExpert] = useState(null);
+  const [isActive, setIsActive] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("All");
   const token = localStorage.getItem("token");
 
@@ -64,6 +65,7 @@ const Queries = () => {
       });
 
       setExpert(res.data);
+      setIsActive(res.data.isActive);
     } catch (error) {
       console.log(error);
     }
@@ -361,28 +363,38 @@ const Queries = () => {
                 </div>
               )}
               {selectedQuery.status === "In Review" &&
-                userRole === "legalExpert" && (
-                  <>
-                    <p
-                      className="text-sm text-red-500 mt-3"
-                      hidden={expert?.verificationStatus === "verified"}
-                    >
-                      Complete your expert profile to accept cases.
-                    </p>
-                    <button
-                      disabled={expert?.verificationStatus !== "verified"}
-                      className={`mt-4 px-4 py-2 text-sm font-medium rounded-lg transition 
-  ${
-    expert?.verificationStatus !== "verified"
-      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-      : "bg-emerald-600 text-white hover:bg-emerald-700"
-  }`}
-                      onClick={() => handleAcceptCase(selectedQuery._id)}
-                    >
-                      Accept Case
-                    </button>
-                  </>
-                )}
+  userRole === "legalExpert" && (
+    <>
+      {/* Profile incomplete warning */}
+      {expert?.verificationStatus !== "verified" && (
+        <p className="text-sm text-red-500 mt-3">
+          Complete your expert profile to accept cases.
+        </p>
+      )}
+
+      {/* Profile inactive warning */}
+      {expert?.verificationStatus === "verified" && !isActive && (
+        <p className="text-sm text-red-500 mt-3">
+          Activate your profile to accept cases.
+        </p>
+      )}
+
+      <button
+        disabled={
+          expert?.verificationStatus !== "verified" || !isActive
+        }
+        className={`mt-4 px-4 py-2 text-sm font-medium rounded-lg transition
+        ${
+          expert?.verificationStatus !== "verified" || !isActive
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            : "bg-emerald-600 text-white hover:bg-emerald-700"
+        }`}
+        onClick={() => handleAcceptCase(selectedQuery._id)}
+      >
+        Accept Case
+      </button>
+    </>
+  )}
               <AlertPopup
                 show={showSuccessPopup}
                 title="Success"

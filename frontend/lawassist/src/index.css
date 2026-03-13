@@ -874,6 +874,9 @@ body {
 .expert-side-card {
   @apply flex-1 min-w-[280px] max-lg:w-full bg-gray-50 p-6 rounded-2xl border border-gray-100 transition duration-300;
 }
+.profile {
+  @apply flex-[1.3] min-w-[320px];
+}
 
 .expert-side-card:hover {
   @apply bg-white shadow-md -translate-y-1;

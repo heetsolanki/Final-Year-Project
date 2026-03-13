@@ -113,6 +113,14 @@ exports.acceptCase = async (req, res) => {
   try {
     const { id } = req.params;
 
+    const expertProfile = await Expert.findOne({ userId: req.user.userId });
+
+    if (!expertProfile.isActive) {
+      return res.status(403).json({
+        message: "Your profile is inactive. Activate it to accept cases.",
+      });
+    }
+
     const query = await Query.findOneAndUpdate(
       {
         _id: id,
@@ -157,6 +165,12 @@ exports.answerQuery = async (req, res) => {
     const { answer } = req.body;
 
     const expert = await Expert.findOne({ userId: req.user.userId });
+
+    if (!expert.isActive) {
+      return res.status(403).json({
+        message: "Your profile is inactive. Activate it to answer queries.",
+      });
+    }
 
     if (!expert || expert.verificationStatus !== "verified") {
       return res.status(403).json({
@@ -228,6 +242,7 @@ exports.getAllExperts = async (req, res) => {
   try {
     const experts = await Expert.find({
       verificationStatus: "verified",
+      isActive: true,
     }).select(
       "name specialization experience city state consultationCharges expertiseAreas bio",
     );
@@ -245,5 +260,26 @@ exports.getExpertById = async (req, res) => {
     res.json(expert);
   } catch {
     res.status(500).json({ message: "Error fetching expert" });
+  }
+};
+
+exports.toggleExpertStatus = async (req, res) => {
+  try {
+    const expert = await Expert.findOne({ userId: req.user.userId });
+
+    if (!expert) {
+      return res.status(404).json({ message: "Expert not found" });
+    }
+
+    expert.isActive = !expert.isActive;
+    await expert.save();
+
+    res.status(200).json({
+      message: "Expert status updated",
+      isActive: expert.isActive,
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

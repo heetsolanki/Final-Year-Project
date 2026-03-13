@@ -22,7 +22,7 @@ exports.createQuery = async (req, res) => {
 
     (async () => {
       try {
-        const experts = await Expert.find({ verificationStatus: "verified" });
+        const experts = await Expert.find({ verificationStatus: "verified", isActive: true });
 
         await sendEmail(
           user.email,

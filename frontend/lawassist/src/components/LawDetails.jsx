@@ -29,7 +29,6 @@ const LawDetails = () => {
   const token = localStorage.getItem("token");
 
   const sectionAlias = location.state?.sectionAlias || null;
-  const searchTerm = location.state?.searchTerm || "";
 
   let userRole = null;
 
@@ -67,11 +66,16 @@ const LawDetails = () => {
     } catch (error) {
       console.log(error);
     }
-  }, [id, searchTerm, sectionAlias]);
+  }, [id, sectionAlias]);
 
-  const fetchBookmarks = async () => {
+  const fetchBookmarks = useCallback(async () => {
     try {
       if (!token) return;
+
+      const decoded = jwtDecode(token);
+
+      // Experts don't have bookmarks
+      if (decoded.role === "legalExpert") return;
 
       const res = await axios.get(`${API_URL}/api/bookmarks/saved-laws`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -83,14 +87,14 @@ const LawDetails = () => {
 
       setBookmarkedSections(sectionsForThisLaw);
     } catch (error) {
-      console.log(error);
+      console.log("Bookmark fetch error:", error);
     }
-  };
+  }, [id, token]);
 
   useEffect(() => {
     fetchLaw();
     fetchBookmarks();
-  }, [fetchLaw]);
+  }, [fetchLaw, fetchBookmarks]);
 
   const toggleBookmark = async (sectionAlias) => {
     try {
