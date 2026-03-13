@@ -44,6 +44,17 @@ const QueryDetailsModal = ({
     }
   }, [userRole]);
 
+  // Auto-refresh query details every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (refreshQueries) {
+        refreshQueries();
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [refreshQueries]);
+
   const handleAcceptCase = async () => {
     if (expert?.verificationStatus !== "verified") {
       alert("Complete your expert profile before accepting cases.");
@@ -129,6 +140,8 @@ const QueryDetailsModal = ({
     setShowAnswerPopup(false);
     onClose();
   };
+
+  
 
   return (
     <div className="view-overlay">
