@@ -28,6 +28,7 @@ function ForgotPassword() {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [countdown, setCountdown] = useState(3);
 
   const passwordsMatch = password === confirmPassword;
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -55,8 +56,17 @@ function ForgotPassword() {
       });
     }, 1000);
 
+    if (countdown === 0) {
+      navigate("/dashboard");
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
     return () => clearInterval(interval);
-  }, [step]);
+  }, [step, countdown]);
 
   const formatTime = (time) => {
     const m = Math.floor(time / 60);
@@ -386,13 +396,13 @@ function ForgotPassword() {
 
         {showSuccess && (
           <AlertPopup
-              show={showSuccess}
-              title="Login Successful!"
-              message={`Redirecting in ${countdown} seconds...`}
-              showButton={false}
-              buttonText="OK"
-              onClose={() => setShowSuccess(false)}
-            />
+            show={showSuccess}
+            title="Login Successful!"
+            message={`Redirecting in ${countdown} seconds...`}
+            showButton={false}
+            buttonText="OK"
+            onClose={() => setShowSuccess(false)}
+          />
         )}
       </div>
 

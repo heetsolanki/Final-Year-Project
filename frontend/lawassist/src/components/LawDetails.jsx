@@ -9,6 +9,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import AskQueryForm from "../components/AskQueryForm";
 import AlertPopup from "../components/AlertPopup";
+import ToastPopup from "../components/ToastPopup";
 import BackToTopButton from "./BackToTopButton";
 
 const LawDetails = () => {
@@ -19,6 +20,10 @@ const LawDetails = () => {
   const [showForm, setShowForm] = useState(false);
   const [law, setLaw] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
+
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
 
   const [bookmarkedSections, setBookmarkedSections] = useState([]);
 
@@ -116,6 +121,9 @@ const LawDetails = () => {
         );
 
         setBookmarkedSections((prev) => prev.filter((s) => s !== sectionAlias));
+        setToastMessage("Bookmark removed");
+        setToastType("remove");
+        setShowToast(true);
       } else {
         await axios.post(
           `${API_URL}/api/bookmarks/save-law`,
@@ -126,6 +134,9 @@ const LawDetails = () => {
         );
 
         setBookmarkedSections((prev) => [...prev, sectionAlias]);
+        setToastMessage("Bookmark saved");
+        setToastType("success");
+        setShowToast(true);
       }
     } catch (error) {
       console.error(error);
@@ -135,6 +146,16 @@ const LawDetails = () => {
   const toggleCard = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
   };
+
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => {
+        setShowToast(false);
+      }, 2500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showToast]);
 
   if (!law) return null;
 
@@ -282,6 +303,7 @@ const LawDetails = () => {
             navigate("/login");
           }}
         />
+        <ToastPopup show={showToast} message={toastMessage} type={toastType} />
       </div>
 
       <BackToTopButton />
