@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import API_URL from "../api";
 import { jwtDecode } from "jwt-decode";
@@ -14,12 +14,65 @@ const QueryDetailsModal = ({
   const [answerText, setAnswerText] = useState("");
   const token = localStorage.getItem("token");
   const [showAnswerPopup, setShowAnswerPopup] = useState(false);
+  const [expert, setExpert] = useState(null);
+  const [isActive, setIsActive] = useState(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
-  let userRole = null;
-  if (token) {
-    const decoded = jwtDecode(token);
-    userRole = decoded.role;
-  }
+  const decoded = token ? jwtDecode(token) : null;
+  const userRole = decoded?.role;
+
+  const fetchExpertProfile = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get(`${API_URL}/api/expert/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setExpert(res.data);
+      setIsActive(res.data.isActive);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (userRole === "legalExpert") {
+      fetchExpertProfile();
+    }
+  }, [userRole]);
+
+  const handleAcceptCase = async () => {
+    if (expert?.verificationStatus !== "verified") {
+      alert("Complete your expert profile before accepting cases.");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.patch(
+        `${API_URL}/api/expert/accept/${query._id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setShowSuccessPopup(true);
+
+      if (refreshQueries) {
+        refreshQueries();
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Case already taken by another expert");
+    }
+  };
 
   const handleResolve = async () => {
     try {
@@ -28,10 +81,13 @@ const QueryDetailsModal = ({
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       );
+
       refreshQueries();
+
       if (openReviewModal) {
         openReviewModal(query);
       }
+
       onClose();
     } catch (error) {
       console.log(error);
@@ -46,6 +102,7 @@ const QueryDetailsModal = ({
         { answer: answerText },
         { headers: { Authorization: `Bearer ${token}` } },
       );
+
       setShowAnswerPopup(true);
       refreshQueries();
     } catch (error) {
@@ -59,6 +116,7 @@ const QueryDetailsModal = ({
       await axios.delete(`${API_URL}/api/queries/${query._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       refreshQueries();
       onClose();
     } catch (error) {
@@ -116,12 +174,13 @@ const QueryDetailsModal = ({
             <p>{query.description}</p>
           </div>
 
-          {/* EXPERT ANSWER SECTION */}
           <div className="view-item view-answer">
             <span>Expert Answer</span>
+
             {query.answer ? (
               <>
                 <p>{query.answer}</p>
+
                 {query.answeredBy && (
                   <small>
                     Answered by: {query.answeredBy.name} (
@@ -135,13 +194,42 @@ const QueryDetailsModal = ({
               </p>
             )}
           </div>
+          {query.status === "In Review" && userRole === "legalExpert" && (
+            <>
+              {expert?.verificationStatus !== "verified" && (
+                <p className="text-sm text-red-500 mt-3">
+                  Complete your expert profile to accept cases.
+                </p>
+              )}
+
+              {expert?.verificationStatus === "verified" && !isActive && (
+                <p className="text-sm text-red-500 mt-3">
+                  Activate your profile to accept cases.
+                </p>
+              )}
+
+              <button
+                disabled={
+                  expert?.verificationStatus !== "verified" || !isActive
+                }
+                className={`mt-4 px-4 py-2 text-sm font-medium rounded-lg transition
+      ${
+        expert?.verificationStatus !== "verified" || !isActive
+          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+          : "bg-emerald-600 text-white hover:bg-emerald-700"
+      }`}
+                onClick={handleAcceptCase}
+              >
+                Accept Case
+              </button>
+            </>
+          )}
         </div>
 
-        {/* ACTION BUTTONS */}
         <div className="view-actions">
           {userRole === "consumer" && query.status === "Answered" && (
             <button
-              className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl shadow-md transition duration-200"
+              className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl"
               onClick={handleResolve}
             >
               Mark as Resolved
@@ -150,7 +238,7 @@ const QueryDetailsModal = ({
 
           {userRole === "consumer" && query.status === "In Review" && (
             <button
-              className="bg-red-500 hover:bg-red-600 text-white px-5 py-2.5 rounded-xl shadow-md transition duration-200"
+              className="bg-red-500 hover:bg-red-600 text-white px-5 py-2.5 rounded-xl"
               onClick={handleDelete}
             >
               Delete Query
@@ -159,17 +247,18 @@ const QueryDetailsModal = ({
         </div>
 
         {query.status === "Assigned" && userRole === "legalExpert" && (
-          <div className="mt-4 flex-shrink-0">
+          <div className="mt-4">
             <textarea
               placeholder="Write your legal answer..."
               value={answerText}
               onChange={(e) => setAnswerText(e.target.value)}
-              className="w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border rounded-lg p-3"
               rows="4"
             />
+
             <button
               onClick={handleSubmitAnswer}
-              className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg"
             >
               Submit Answer
             </button>
@@ -181,6 +270,12 @@ const QueryDetailsModal = ({
           title="Success"
           message="Answer submitted successfully!"
           onClose={handleAnswerPopupClose}
+        />
+        <AlertPopup
+          show={showSuccessPopup}
+          title="Success"
+          message="Case accepted successfully!"
+          onClose={() => setShowSuccessPopup(false)}
         />
       </div>
     </div>

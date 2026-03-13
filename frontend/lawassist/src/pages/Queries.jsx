@@ -1,28 +1,20 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import API_URL from "../api";
-import { jwtDecode } from "jwt-decode";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import AskQueryForm from "../components/AskQueryForm";
 import BackToTopButton from "../components/BackToTopButton";
-import AlertPopup from "../components/AlertPopup";
+import QueryDetailsModal from "../components/QueryDetailsModal";
 import { getStatusClass } from "../data";
-
-// const API = "https://law-assist.onrender.com/api";
 
 const Queries = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [showForm, setShowForm] = useState(false);
   const [queries, setQueries] = useState([]);
-  const [activeTab, setActiveTab] = useState("details");
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedQuery, setSelectedQuery] = useState(null);
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const [expert, setExpert] = useState(null);
-  const [isActive, setIsActive] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("All");
-  const token = localStorage.getItem("token");
 
   const categories = [
     "All",
@@ -38,13 +30,6 @@ const Queries = () => {
 
   const statuses = ["All", "In Review", "Assigned", "Answered", "Resolved"];
 
-  let userRole = null;
-
-  if (token) {
-    const decoded = jwtDecode(token);
-    userRole = decoded.role;
-  }
-
   const fetchQueries = async () => {
     try {
       const res = await axios.get(`${API_URL}/api/queries/public`);
@@ -54,64 +39,15 @@ const Queries = () => {
     }
   };
 
-  const fetchExpertProfile = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const res = await axios.get(`${API_URL}/api/expert/profile`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setExpert(res.data);
-      setIsActive(res.data.isActive);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleAcceptCase = async (id) => {
-    if (expert?.verificationStatus !== "verified") {
-      alert("Complete your expert profile before accepting cases.");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("token");
-
-      await axios.patch(
-        `${API_URL}/api/expert/accept/${id}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      setShowSuccessPopup(true);
-
-      fetchQueries();
-    } catch (error) {
-      console.log(error);
-      alert("Case already taken by another expert");
-    }
-  };
-
   useEffect(() => {
     fetchQueries();
-
-    if (userRole === "legalExpert") {
-      fetchExpertProfile();
-    }
 
     const interval = setInterval(() => {
       fetchQueries();
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [userRole]);
+  }, []);
 
   const filteredQueries = queries.filter((query) => {
     const categoryMatch =
@@ -141,14 +77,12 @@ const Queries = () => {
           {/* Ask Button */}
           {!showForm && (
             <div className="flex justify-center mb-6">
-              {userRole !== "legalExpert" && (
-                <button
-                  className="bg-[#1E3A8A] hover:bg-blue-700 text-white font-medium w-full sm:w-auto py-2.5 px-6 rounded-lg transition"
-                  onClick={() => setShowForm(true)}
-                >
-                  + Ask a Question
-                </button>
-              )}
+              <button
+                className="bg-[#1E3A8A] hover:bg-blue-700 text-white font-medium w-full sm:w-auto py-2.5 px-6 rounded-lg transition"
+                onClick={() => setShowForm(true)}
+              >
+                + Ask a Question
+              </button>
             </div>
           )}
 
@@ -183,11 +117,11 @@ const Queries = () => {
                   key={status}
                   onClick={() => setSelectedStatus(status)}
                   className={`text-xs sm:text-sm font-medium px-3.5 sm:px-4 py-1.5 rounded-md transition
-  ${
-    selectedStatus === status
-      ? getStatusClass(status)
-      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-  }`}
+                  ${
+                    selectedStatus === status
+                      ? getStatusClass(status)
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
                 >
                   {status}
                 </button>
@@ -224,10 +158,11 @@ const Queries = () => {
 
                   <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center text-sm text-gray-500">
                     <span>
-                      {query.answeredBy?.name !== undefined
+                      {query.answeredBy?.name
                         ? `Answered by: ${query.answeredBy.name}`
                         : "Not answered yet"}
                     </span>
+
                     <button
                       className="bg-[#1E3A8A] hover:bg-[#1E3A8A]/90 text-white font-medium text-sm py-2 px-4 rounded-lg transition"
                       onClick={() => {
@@ -246,164 +181,14 @@ const Queries = () => {
       </div>
 
       {showViewModal && selectedQuery && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4 sm:px-6">
-          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl p-6 sm:p-8 animate-[fadeInScale_0.25s_ease]">
-            {/* Close Button */}
-            <button
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-600 transition"
-              onClick={() => {
-                setShowViewModal(false);
-                setSelectedQuery(null);
-                setActiveTab("details");
-              }}
-            >
-              ✕
-            </button>
-
-            <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-800 mb-6">
-              Query Overview
-            </h2>
-
-            {/* Tabs */}
-            <div className="flex border-b border-gray-200 mb-6">
-              <button
-                className={`flex-1 text-sm sm:text-base py-2 font-medium text-gray-500 hover:text-blue-600 transition ${
-                  activeTab === "details"
-                    ? "bg-[#1E3A8A] rounded-lg text-white transition duration-300"
-                    : ""
-                }`}
-                onClick={() => setActiveTab("details")}
-              >
-                Query Details
-              </button>
-
-              <button
-                className={`flex-1 text-sm sm:text-base py-2 font-medium text-gray-500 hover:text-blue-600 transition ${
-                  activeTab === "answers"
-                    ? "bg-[#1E3A8A] rounded-lg text-white transition duration-300"
-                    : ""
-                }`}
-                onClick={() => setActiveTab("answers")}
-              >
-                Expert Answers
-              </button>
-            </div>
-
-            {/* Tab Content */}
-            <div className="max-h-[60vh] overflow-y-auto pr-1">
-              {/* QUERY DETAILS TAB */}
-              {activeTab === "details" && (
-                <div className="space-y-5 text-sm sm:text-base text-gray-700">
-                  <div className="view-item">
-                    <span>Title</span>
-                    <p>{selectedQuery.title}</p>
-                  </div>
-
-                  <div className="view-item">
-                    <span>Category</span>
-                    <p>{selectedQuery.category}</p>
-                  </div>
-
-                  <div className="view-item">
-                    <span>Subcategory</span>
-                    <p>{selectedQuery.subcategory}</p>
-                  </div>
-
-                  <div className="view-item">
-                    <span>Status</span>
-                    <span
-                      className={`user-status-badge view-item-status ${getStatusClass(
-                        selectedQuery.status,
-                      )}`}
-                    >
-                      {selectedQuery.status}
-                    </span>
-                  </div>
-
-                  <div className="view-item">
-                    <span>Description</span>
-                    <p>{selectedQuery.description}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* ANSWERS TAB */}
-              {activeTab === "answers" && (
-                <div className="mt-5">
-                  {selectedQuery.answer ? (
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-5">
-                      {/* Expert Header */}
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <h4 className="text-base font-semibold text-gray-900">
-                            {selectedQuery.answeredBy?.name || "Legal Expert"}
-                          </h4>
-
-                          <p className="text-sm text-gray-500">
-                            {selectedQuery.answeredBy?.specialization ||
-                              "Consumer Law"}
-                          </p>
-                        </div>
-
-                        <span className="text-xs font-medium px-3 py-1 rounded-full bg-emerald-100 text-emerald-700">
-                          Verified Expert
-                        </span>
-                      </div>
-
-                      {/* Answer Text */}
-                      <p className="text-sm text-gray-700 leading-relaxed">
-                        {selectedQuery.answer}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-center text-gray-400 text-sm py-6">
-                      No expert has responded yet.
-                    </p>
-                  )}
-                </div>
-              )}
-              {selectedQuery.status === "In Review" &&
-  userRole === "legalExpert" && (
-    <>
-      {/* Profile incomplete warning */}
-      {expert?.verificationStatus !== "verified" && (
-        <p className="text-sm text-red-500 mt-3">
-          Complete your expert profile to accept cases.
-        </p>
-      )}
-
-      {/* Profile inactive warning */}
-      {expert?.verificationStatus === "verified" && !isActive && (
-        <p className="text-sm text-red-500 mt-3">
-          Activate your profile to accept cases.
-        </p>
-      )}
-
-      <button
-        disabled={
-          expert?.verificationStatus !== "verified" || !isActive
-        }
-        className={`mt-4 px-4 py-2 text-sm font-medium rounded-lg transition
-        ${
-          expert?.verificationStatus !== "verified" || !isActive
-            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-            : "bg-emerald-600 text-white hover:bg-emerald-700"
-        }`}
-        onClick={() => handleAcceptCase(selectedQuery._id)}
-      >
-        Accept Case
-      </button>
-    </>
-  )}
-              <AlertPopup
-                show={showSuccessPopup}
-                title="Success"
-                message="Case accepted successfully!"
-                onClose={() => setShowSuccessPopup(false)}
-              />
-            </div>
-          </div>
-        </div>
+        <QueryDetailsModal
+          query={selectedQuery}
+          onClose={() => {
+            setShowViewModal(false);
+            setSelectedQuery(null);
+          }}
+          refreshQueries={fetchQueries}
+        />
       )}
 
       <BackToTopButton />
