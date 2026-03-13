@@ -24,11 +24,11 @@ function ForgotPassword() {
 
   const [timer, setTimer] = useState(120);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [countdown, setCountdown] = useState(3);
 
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [countdown, setCountdown] = useState(3);
 
   const passwordsMatch = password === confirmPassword;
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -42,8 +42,8 @@ function ForgotPassword() {
     special: /[@$!%*?&]/.test(password),
   };
 
-  const strengthScore = Object.values(passwordChecks).filter(Boolean).length;
-  const strengthPercent = (strengthScore / 5) * 100;
+  const strengthPercent =
+    (Object.values(passwordChecks).filter(Boolean).length / 5) * 100;
 
   /* OTP TIMER */
   useEffect(() => {
@@ -56,17 +56,24 @@ function ForgotPassword() {
       });
     }, 1000);
 
-    if (countdown === 0) {
-      navigate("/dashboard");
-      return;
-    }
+    return () => clearInterval(interval);
+  }, [step]);
 
-    const timer = setTimeout(() => {
-      setCountdown((prev) => prev - 1);
+  useEffect(() => {
+    if (!showSuccess) return;
+
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === 1) {
+          clearInterval(interval);
+          navigate("/login");
+        }
+        return prev - 1;
+      });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [step, countdown]);
+  }, [showSuccess, navigate]);
 
   const formatTime = (time) => {
     const m = Math.floor(time / 60);
@@ -103,7 +110,7 @@ function ForgotPassword() {
           return;
         }
 
-        setTimer(300);
+        setTimer(120);
         setStep(2);
       } catch (err) {
         console.error(err);
@@ -112,7 +119,7 @@ function ForgotPassword() {
       setLoading(false);
     } else if (step === 2) {
       /* STEP 2 → VERIFY OTP */
-      if (otp.length !== 6) {
+      if (otp.join("").length !== 6) {
         setErrors({ otp: "OTP must be 6 digits" });
         return;
       }
@@ -121,6 +128,7 @@ function ForgotPassword() {
         setLoading(true);
 
         const otpValue = otp.join("");
+
         const res = await fetch(`${API_URL}/api/auth/verify-reset-otp`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -203,18 +211,12 @@ function ForgotPassword() {
     }
   };
 
-  const handleClose = () => {
-    setShowSuccess(false);
-    navigate("/login");
-  };
-
   return (
     <>
       <Navbar />
 
       <div className="auth-wrapper">
         <div className="auth-container">
-          {/* LEFT PANEL */}
           <div className="auth-left bg-blue-900">
             <h2 className="text-3xl font-semibold mb-4">Forgot Password?</h2>
 
@@ -223,7 +225,6 @@ function ForgotPassword() {
             {step === 3 && <p>Create a new secure password.</p>}
           </div>
 
-          {/* RIGHT PANEL */}
           <div className="auth-right">
             <h2 className="text-lg sm:text-xl font-bold text-gray-800 text-center mb-1">
               Reset Password
@@ -234,6 +235,7 @@ function ForgotPassword() {
             </p>
 
             <form className="auth-form" onSubmit={handleSubmit}>
+              {/* STEP 1 */}
               {step === 1 && (
                 <>
                   <AuthInput
@@ -254,6 +256,7 @@ function ForgotPassword() {
                 </>
               )}
 
+              {/* STEP 2 */}
               {step === 2 && (
                 <>
                   <div className="mb-4">
@@ -305,6 +308,7 @@ function ForgotPassword() {
                 </>
               )}
 
+              {/* STEP 3 */}
               {step === 3 && (
                 <>
                   <AuthInput
@@ -397,8 +401,8 @@ function ForgotPassword() {
         {showSuccess && (
           <AlertPopup
             show={showSuccess}
-            title="Login Successful!"
-            message={`Redirecting in ${countdown} seconds...`}
+            title="Password Reset Successful!"
+            message={`Redirecting to login in ${countdown} seconds...`}
             showButton={false}
             buttonText="OK"
             onClose={() => setShowSuccess(false)}
