@@ -39,6 +39,22 @@ const userSchema = new mongoose.Schema(
       },
     ],
 
+    resetOTP: {
+      type: String,
+    },
+
+    otpExpire: {
+      type: Date,
+    },
+
+    resetToken: {
+      type: String,
+    },
+
+    resetTokenExpire: {
+      type: Date,
+    },
+
     phone: String,
     gender: String,
     dob: Date,

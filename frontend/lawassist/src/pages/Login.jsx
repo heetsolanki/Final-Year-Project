@@ -197,11 +197,6 @@ function Login() {
               </AuthInput>
 
               <div className="auth-options">
-                <label className="remember">
-                  <input type="checkbox" />
-                  Remember me
-                </label>
-
                 <Link
                   to="/forgot-password"
                   className="auth-link"
