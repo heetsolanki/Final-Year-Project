@@ -12,14 +12,12 @@ import {
   Search,
   Eye,
 } from "lucide-react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import AskQueryForm from "../components/AskQueryForm";
-import BackToTopButton from "../components/BackToTopButton";
-import QueryDetailsModal from "../components/QueryDetailsModal";
-import ReviewModal from "../components/ReviewModal";
-import SavedTopics from "../components/SavedTopics";
-import UserConsultations from "../components/UserConsultations";
+import AskQueryForm from "../components/queries/AskQueryForm";
+import BackToTopButton from "../components/layout/BackToTopButton";
+import QueryDetailsModal from "../components/queries/QueryDetailsModal";
+import ReviewModal from "../components/queries/ReviewModal";
+import SavedTopics from "../components/laws/SavedTopics";
+import UserConsultations from "../components/chat/UserConsultations";
 import { getStatusClass } from "../data";
 
 const UserDashboard = () => {
@@ -97,7 +95,6 @@ const UserDashboard = () => {
 
   return (
     <>
-      <Navbar />
       {showSavedTopics ? (
         <div className="user-dashboard-wrapper">
           <div className="user-dashboard-container">
@@ -356,7 +353,6 @@ const UserDashboard = () => {
         </>
       )}
       <BackToTopButton />
-      <Footer />
     </>
   );
 };

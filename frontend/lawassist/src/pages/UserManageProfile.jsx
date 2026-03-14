@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import API_URL from "../api";
-import ProfileHeader from "../components/ProfileHeader";
-import ProfileForm from "../components/ProfileForm";
-import AccountSection from "../components/AccountSection";
+import ProfileHeader from "../components/profile/ProfileHeader";
+import ProfileForm from "../components/profile/ProfileForm";
+import AccountSection from "../components/profile/AccountSection";
 
 const UserManageProfile = () => {
   const [user, setUser] = useState(null);

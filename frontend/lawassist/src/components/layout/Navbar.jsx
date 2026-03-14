@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Scale, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -7,6 +7,7 @@ import { jwtDecode } from "jwt-decode";
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
 
@@ -19,7 +20,7 @@ function Navbar() {
           const decoded = jwtDecode(token);
           setIsLoggedIn(true);
           setUserRole(decoded.role);
-        } catch (error) {
+        } catch {
           setIsLoggedIn(false);
           setUserRole(null);
         }
@@ -30,9 +31,7 @@ function Navbar() {
     };
 
     checkAuth();
-    window.addEventListener("storage", checkAuth);
-    return () => window.removeEventListener("storage", checkAuth);
-  }, []);
+  }, [location]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");

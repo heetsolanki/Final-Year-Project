@@ -3,13 +3,9 @@ import { Scale, ArrowRight, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import API_URL from "../api";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import BackToTopButton from "../components/BackToTopButton";
-import SearchBar from "../components/SearchBar";
+import BackToTopButton from "../components/layout/BackToTopButton";
+import SearchBar from "../components/laws/SearchBar";
 import { iconMap } from "../data";
-
-// const API = "https://law-assist.onrender.com/api";
 
 const ExploreRights = () => {
   const navigate = useNavigate();
@@ -41,8 +37,6 @@ const ExploreRights = () => {
 
   return (
     <>
-      <Navbar />
-
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pt-40 pb-20">
         <div className="max-w-7xl mx-auto px-6">
           {/* Header */}
@@ -124,9 +118,7 @@ const ExploreRights = () => {
           </div>
         </div>
       </div>
-
       <BackToTopButton />
-      <Footer />
     </>
   );
 };

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { Star, X } from "lucide-react";
-import API_URL from "../api";
+import API_URL from "../../api";
 
 const ReviewModal = ({ query, onClose }) => {
   const [rating, setRating] = useState(0);

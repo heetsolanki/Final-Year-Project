@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import API_URL from "../api";
+import API_URL from "../../api";
 import { Bookmark, ArrowLeft, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 

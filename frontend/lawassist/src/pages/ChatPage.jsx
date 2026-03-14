@@ -3,10 +3,8 @@ import { useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import API_URL from "../api";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import ChatSidebar from "../components/ChatSidebar";
-import ChatWindow from "../components/ChatWindow";
+import ChatSidebar from "../components/chat/ChatSidebar";
+import ChatWindow from "../components/chat/ChatWindow";
 import useSocket from "../hooks/useSocket";
 
 const ChatPage = () => {
@@ -128,8 +126,6 @@ const ChatPage = () => {
 
   return (
     <>
-      <Navbar />
-
       <div className="pt-28 sm:pt-32 pb-4 sm:pb-6 min-h-screen bg-gray-50 flex justify-center px-2 sm:px-3">
        <div className="w-full max-w-[1200px] h-[calc(100vh-7rem)] md:h-[82vh] bg-white rounded-2xl shadow-xl flex overflow-hidden border relative">
           <div
@@ -163,8 +159,6 @@ const ChatPage = () => {
           )}
         </div>
       </div>
-
-      <Footer />
     </>
   );
 };

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import API_URL from "../api";
+import API_URL from "../../api";
 import { jwtDecode } from "jwt-decode";
-import AlertPopup from "./AlertPopup";
-import { getStatusClass } from "../data";
+import AlertPopup from "../ui/AlertPopup";
+import { getStatusClass } from "../../data";
 
 const QueryDetailsModal = ({
   query,

@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { MapPin, Briefcase, CheckCircle, ArrowLeft, Star } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import BackToTopButton from "../components/BackToTopButton";
+import BackToTopButton from "../components/layout/BackToTopButton";
 import axios from "axios";
 import API_URL from "../api";
 
@@ -84,19 +82,15 @@ const ExpertProfile = () => {
   if (!expert) {
     return (
       <>
-        <Navbar />
         <div className="text-center mt-40 text-lg">
           Loading expert profile...
         </div>
-        <Footer />
       </>
     );
   }
 
   return (
     <>
-      <Navbar />
-
       <div className="min-h-screen bg-gray-50 pt-28 sm:pt-32 lg:pt-36 pb-12 sm:pb-16 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 lg:space-y-10">
           <button
@@ -288,9 +282,7 @@ const ExpertProfile = () => {
           </div>
         </div>
       </div>
-
       <BackToTopButton />
-      <Footer />
     </>
   );
 };

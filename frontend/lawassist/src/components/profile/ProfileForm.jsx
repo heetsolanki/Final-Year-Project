@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import API_URL from "../api";
-import SuccessModal from "./SuccessModal";
+import API_URL from "../../api";
+import SuccessModal from "../ui/SuccessModal";
 
 const ProfileForm = ({ user, refresh }) => {
   const [formData, setFormData] = useState({});

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
-import API_URL from "../api";
+import API_URL from "../../api";
 import { useNavigate } from "react-router-dom";
-import AlertPopup from "./AlertPopup";
-import { categories } from "../data";
+import AlertPopup from "../ui/AlertPopup";
+import { categories } from "../../data";
 
 const AskQueryForm = ({
   onClose,

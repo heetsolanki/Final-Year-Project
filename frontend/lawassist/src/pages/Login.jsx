@@ -3,13 +3,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Scale, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
-import AuthInput from "../components/AuthInput";
-import AuthButton from "../components/AuthButton";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import AlertPopup from "../components/AlertPopup";
-
-// const API = "https://law-assist.onrender.com/api";
+import AuthInput from "../components/auth/AuthInput";
+import AuthButton from "../components/auth/AuthButton";
+import AlertPopup from "../components/ui/AlertPopup";
 
 function Login() {
   const navigate = useNavigate();
@@ -142,7 +138,6 @@ function Login() {
 
   return (
     <>
-      <Navbar />
       <div className="auth-wrapper">
         <div className="auth-container">
           {/* LEFT SECTION */}
@@ -234,7 +229,6 @@ function Login() {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 }

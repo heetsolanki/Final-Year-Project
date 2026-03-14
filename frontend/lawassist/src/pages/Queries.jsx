@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import API_URL from "../api";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import AskQueryForm from "../components/AskQueryForm";
-import BackToTopButton from "../components/BackToTopButton";
-import QueryDetailsModal from "../components/QueryDetailsModal";
+import AskQueryForm from "../components/queries/AskQueryForm";
+import BackToTopButton from "../components/layout/BackToTopButton";
+import QueryDetailsModal from "../components/queries/QueryDetailsModal";
 import { getStatusClass } from "../data";
 
 const Queries = () => {
@@ -61,8 +59,6 @@ const Queries = () => {
 
   return (
     <>
-      <Navbar />
-
       <div className="min-h-screen bg-gray-50 pt-28 sm:pt-32 lg:pt-40 px-4 sm:px-6 lg:px-8 pb-20">
         <div className="max-w-6xl mx-auto">
           {/* Heading */}
@@ -190,9 +186,7 @@ const Queries = () => {
           refreshQueries={fetchQueries}
         />
       )}
-
       <BackToTopButton />
-      <Footer />
     </>
   );
 };

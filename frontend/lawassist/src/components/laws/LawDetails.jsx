@@ -1,16 +1,14 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { jwtDecode } from "jwt-decode";
-import API_URL from "../api";
+import API_URL from "../../api";
 import axios from "axios";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { ChevronDown, ArrowLeft, Scale, BookmarkIcon } from "lucide-react";
 
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import AskQueryForm from "../components/AskQueryForm";
-import AlertPopup from "../components/AlertPopup";
-import ToastPopup from "../components/ToastPopup";
-import BackToTopButton from "./BackToTopButton";
+import AskQueryForm from "../queries/AskQueryForm";
+import AlertPopup from "../ui/AlertPopup";
+import ToastPopup from "../ui/ToastPopup";
+import BackToTopButton from "../layout/BackToTopButton";
 
 const LawDetails = () => {
   const { id } = useParams();
@@ -161,8 +159,6 @@ const LawDetails = () => {
 
   return (
     <>
-      <Navbar />
-
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pt-36 pb-24">
         <div className="max-w-4xl mx-auto px-6">
           <button
@@ -307,7 +303,6 @@ const LawDetails = () => {
       </div>
 
       <BackToTopButton />
-      <Footer />
     </>
   );
 };

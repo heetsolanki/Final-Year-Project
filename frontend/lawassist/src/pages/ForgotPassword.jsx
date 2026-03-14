@@ -2,11 +2,9 @@ import { useState, useEffect } from "react";
 import API_URL from "../api";
 import { useNavigate, Link } from "react-router-dom";
 import { XCircle, Eye, EyeOff } from "lucide-react";
-import AuthInput from "../components/AuthInput";
-import AuthButton from "../components/AuthButton";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import AlertPopup from "../components/AlertPopup";
+import AuthInput from "../components/auth/AuthInput";
+import AuthButton from "../components/auth/AuthButton";
+import AlertPopup from "../components/ui/AlertPopup";
 
 function ForgotPassword() {
   const navigate = useNavigate();
@@ -213,8 +211,6 @@ function ForgotPassword() {
 
   return (
     <>
-      <Navbar />
-
       <div className="auth-wrapper">
         <div className="auth-container">
           <div className="auth-left bg-blue-900">
@@ -409,8 +405,6 @@ function ForgotPassword() {
           />
         )}
       </div>
-
-      <Footer />
     </>
   );
 }

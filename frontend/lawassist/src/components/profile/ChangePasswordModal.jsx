@@ -1,8 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
-import API_URL from "../api";
-import AuthInput from "./AuthInput";
-import AlertPopup from "./AlertPopup";
+import API_URL from "../../api";
+import AuthInput from "../auth/AuthInput";
+import AlertPopup from "../ui/AlertPopup";
 import { EyeOff, Eye } from "lucide-react";
 
 const ChangePasswordModal = ({ onClose }) => {

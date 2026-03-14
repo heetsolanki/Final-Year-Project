@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import API_URL from "../api";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 
 const Consultations = () => {
   const [consultations, setConsultations] = useState([]);
@@ -35,8 +33,6 @@ const Consultations = () => {
 
   return (
     <>
-      <Navbar />
-
       <div className="min-h-screen bg-gray-50 pt-24 pb-20 px-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-6">
           My Consultations
@@ -69,8 +65,6 @@ const Consultations = () => {
           ))}
         </div>
       </div>
-
-      <Footer />
     </>
   );
 };

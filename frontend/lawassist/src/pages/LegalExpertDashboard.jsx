@@ -10,11 +10,9 @@ import {
   User,
   BadgeCheck,
 } from "lucide-react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import QueryDetailsModal from "../components/QueryDetailsModal";
-import BackToTopButton from "../components/BackToTopButton";
-import ExpertConsultations from "../components/ExpertConsultations";
+import QueryDetailsModal from "../components/queries/QueryDetailsModal";
+import BackToTopButton from "../components/layout/BackToTopButton";
+import ExpertConsultations from "../components/chat/ExpertConsultations";
 import { getStatusClass } from "../data";
 
 const LegalExpertDashboard = () => {
@@ -106,8 +104,6 @@ const LegalExpertDashboard = () => {
 
   return (
     <>
-      <Navbar />
-
       <div className="min-h-screen bg-gray-50 py-14 px-4 pt-36 max-md:px-3 max-md:pt-28">
         <div className="expert-dashboard-container">
           {expert.verificationStatus !== "verified" && (
@@ -395,7 +391,6 @@ const LegalExpertDashboard = () => {
         />
       )}
       <BackToTopButton />
-      <Footer />
     </>
   );
 };

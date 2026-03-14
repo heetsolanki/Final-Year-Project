@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import MessageBubble from "./MessageBubble";
 import ChatInput from "./ChatInput";
 import axios from "axios";
-import API_URL from "../api";
+import API_URL from "../../api";
 
 const ChatWindow = ({
   consultationId,

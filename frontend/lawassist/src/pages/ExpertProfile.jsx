@@ -2,9 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import API_URL from "../api";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import AlertPopup from "../components/AlertPopup";
+import AlertPopup from "../components/ui/AlertPopup";
 import {
   Scale,
   MapPin,
@@ -117,8 +115,6 @@ const ExpertProfile = () => {
 
   return (
     <>
-      <Navbar />
-
       <div className="min-h-screen bg-gray-50 pt-24 sm:pt-28 pb-12 sm:pb-16 px-4">
         <div className="mx-auto w-full max-w-4xl rounded-xl bg-white p-5 sm:p-8 md:p-10 shadow-lg">
           <div className="mb-6">
@@ -354,8 +350,6 @@ const ExpertProfile = () => {
           </form>
         </div>
       </div>
-
-      <Footer />
     </>
   );
 };

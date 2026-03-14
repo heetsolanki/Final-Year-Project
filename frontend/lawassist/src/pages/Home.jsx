@@ -1,16 +1,11 @@
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-
 import useScrollReveal from "../hooks/useScrollReveal";
-import BackToTopButton from "../components/BackToTopButton";
+import BackToTopButton from "../components/layout/BackToTopButton";
 import { miniCards, features, steps, homeCategories } from "../data";
 
 function Home() {
   useScrollReveal();
   return (
     <>
-      <Navbar />
-
       {/* HERO SECTION */}
       <section className="pt-56 max-md:pt-40 bg-white mb-20 max-md:mb-12 fade-up">
         <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center justify-between gap-16 max-md:gap-10">
@@ -144,8 +139,6 @@ function Home() {
         </div>
       </section>
       <BackToTopButton />
-
-      <Footer />
     </>
   );
 }

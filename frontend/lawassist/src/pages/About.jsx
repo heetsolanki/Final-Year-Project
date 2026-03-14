@@ -1,6 +1,4 @@
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import BackToTopButton from "../components/BackToTopButton";
+import BackToTopButton from "../components/layout/BackToTopButton";
 import {
   Scale,
   Shield,
@@ -15,8 +13,6 @@ import { missions, offers } from "../data";
 function About() {
   return (
     <>
-      <Navbar />
-
       <main className="pt-40">
         {/* HERO SECTION */}
         <section
@@ -266,8 +262,6 @@ function About() {
         </section>
       </main>
       <BackToTopButton />
-
-      <Footer />
     </>
   );
 }

@@ -3,11 +3,9 @@ import API_URL from "../api";
 import { useNavigate } from "react-router-dom";
 import { Scale, CheckCircle, XCircle, EyeOff, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
-import AuthInput from "../components/AuthInput";
-import AuthButton from "../components/AuthButton";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import AlertPopup from "../components/AlertPopup";
+import AuthInput from "../components/auth/AuthInput";
+import AuthButton from "../components/auth/AuthButton";
+import AlertPopup from "../components/ui/AlertPopup";
 import { consumerPoints, expertPoints } from "../data";
 
 function Register() {
@@ -164,7 +162,6 @@ function Register() {
 
   return (
     <>
-      <Navbar />
       <div className="auth-wrapper">
         <div className="auth-container">
           {/* LEFT SECTION — FORM */}
@@ -357,7 +354,6 @@ function Register() {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 }

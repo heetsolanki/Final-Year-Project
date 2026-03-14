@@ -3,11 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import API_URL from "../api";
 import { MapPin, Briefcase, IndianRupee } from "lucide-react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import BackToTopButton from "../components/BackToTopButton";
-
-// const API = "https://law-assist.onrender.com/api";
+import BackToTopButton from "../components/layout/BackToTopButton";
 
 const Experts = () => {
   const [experts, setExperts] = useState([]);
@@ -34,8 +30,6 @@ const Experts = () => {
 
   return (
     <>
-      <Navbar />
-
       <div className="min-h-screen bg-gray-50 py-16 px-4 pt-36">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -105,8 +99,6 @@ const Experts = () => {
         </div>
       </div>
       <BackToTopButton />
-
-      <Footer />
     </>
   );
 };
