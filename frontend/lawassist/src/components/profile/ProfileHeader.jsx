@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
 
-const ProfileHeader = ({ user }) => {
+const ProfileHeader = ({ user, setActiveTab }) => {
   const navigate = useNavigate();
 
   const memberSince = user?.createdAt
@@ -16,9 +16,6 @@ const ProfileHeader = ({ user }) => {
       {/* ===== TOP HEADER ROW ===== */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl md:text-2xl font-semibold text-gray-800">
-            Manage Profile
-          </h2>
 
           <p className="text-gray-500 text-xs md:text-sm mt-1">
             Update your personal information and account settings securely.
@@ -26,7 +23,7 @@ const ProfileHeader = ({ user }) => {
         </div>
 
         <button
-          onClick={() => navigate("/user-dashboard")}
+          onClick={() => setActiveTab("overview")}
           className="p-2 rounded-lg hover:bg-gray-100 transition"
         >
           <X size={20} />

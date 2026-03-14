@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import API_URL from "../../api";
+import API_URL from "../../../api";
 import { useNavigate } from "react-router-dom";
 import { MessageCircle } from "lucide-react";
+import DashboardCard from "../DashboardCard";
 
-const UserConsultations = () => {
+const Consultations = () => {
   const [consultations, setConsultations] = useState([]);
   const navigate = useNavigate();
 
@@ -31,39 +32,38 @@ const UserConsultations = () => {
   }, []);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6 transition hover:shadow-lg">
-      <h3 className="text-lg font-semibold text-[#1E3A8A] mb-4 flex items-center gap-2">
-        <MessageCircle size={18} />
-        My Consultations
-      </h3>
-
+    <DashboardCard title="My Consultations" icon={MessageCircle}>
       {consultations.length === 0 ? (
-        <p className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500">
           You haven't started any consultations yet.
-        </p>
+        </div>
       ) : (
         <div className="space-y-3">
           {consultations.map((c) => (
             <div
               key={c.consultationId}
               onClick={() => navigate(`/chat/${c.consultationId}`)}
-              className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50 flex justify-between items-center"
+              className="flex items-center justify-between p-4 border border-gray-200 rounded-xl cursor-pointer
+              hover:bg-gray-50 transition"
             >
+              {/* Left side */}
               <div>
                 <p className="font-medium text-gray-800">
                   Consultation {c.consultationId}
                 </p>
 
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 mt-1">
                   Started {new Date(c.createdAt).toLocaleDateString()}
                 </p>
               </div>
 
+              {/* Status */}
               <span
-                className={`text-xs px-3 py-1 rounded-full ${
+                className={`text-xs font-medium px-3 py-1 rounded-full
+                ${
                   c.status === "active"
                     ? "bg-green-100 text-green-700"
-                    : "bg-gray-200 text-gray-600"
+                    : "bg-gray-100 text-gray-600"
                 }`}
               >
                 {c.status}
@@ -72,8 +72,8 @@ const UserConsultations = () => {
           ))}
         </div>
       )}
-    </div>
+    </DashboardCard>
   );
 };
 
-export default UserConsultations;
+export default Consultations;

@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [require('tailwind-scrollbar-hide')],
   extend: {
     animation: {
       fadeIn: "fadeIn 0.3s ease-out",
