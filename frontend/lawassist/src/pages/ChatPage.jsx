@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import API_URL from "../api";
 import ChatSidebar from "../components/chat/ChatSidebar";
 import ChatWindow from "../components/chat/ChatWindow";
 import useSocket from "../hooks/useSocket";
+import { ArrowLeft, X } from "lucide-react";
 
 const ChatPage = () => {
   const { consultationId } = useParams();
-
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const decoded = jwtDecode(token);
   const role = decoded.role;
@@ -127,19 +128,31 @@ const ChatPage = () => {
   return (
     <>
       <div className="pt-28 sm:pt-32 pb-4 sm:pb-6 min-h-screen bg-gray-50 flex justify-center px-2 sm:px-3">
-       <div className="w-full max-w-[1200px] h-[calc(100vh-7rem)] md:h-[82vh] bg-white rounded-2xl shadow-xl flex overflow-hidden border relative">
-          <div
-            className={`w-full md:w-[320px] border-r ${chatOpen ? "hidden md:block" : "block"}`}
+        <div className="w-full max-w-[1200px] flex flex-col gap-3">
+          {/* Back Button */}
+          <button
+            onClick={() => navigate("/user-dashboard")}
+            className="flex items-center gap-2 text-gray-600 hover:text-black transition"
           >
-            <ChatSidebar
-              consultations={consultations}
-              selected={consultationId}
-              unreadCounts={unreadCounts}
-              openChat={() => setChatOpen(true)}
-            />
-          </div>
+            <ArrowLeft size={20} />
+            Back to Dashboard
+          </button>
 
-          {/* <div className={`flex-1 ${chatOpen ? "block" : "hidden md:block"}`}> */}
+          {/* Chat Container */}
+          <div className="w-full h-[calc(100vh-7rem)] md:h-[82vh] bg-white rounded-2xl shadow-xl flex overflow-hidden border relative">
+            <div
+              className={`w-full md:w-[320px] border-r ${
+                chatOpen ? "hidden md:block" : "block"
+              }`}
+            >
+              <ChatSidebar
+                consultations={consultations}
+                selected={consultationId}
+                unreadCounts={unreadCounts}
+                openChat={() => setChatOpen(true)}
+              />
+            </div>
+
             {chatOpen && (
               <ChatWindow
                 consultationId={consultationId}
@@ -151,12 +164,13 @@ const ChatPage = () => {
                 onClose={() => setChatOpen(false)}
               />
             )}
-          {/* </div> */}
-          {!chatOpen && (
-            <div className="hidden md:flex flex-1 items-center justify-center text-gray-400 text-sm">
-              Chat closed. Select a conversation to reopen.
-            </div>
-          )}
+
+            {!chatOpen && (
+              <div className="hidden md:flex flex-1 items-center justify-center text-gray-400 text-sm">
+                Chat closed. Select a conversation to reopen.
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </>
