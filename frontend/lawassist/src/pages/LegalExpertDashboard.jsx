@@ -14,6 +14,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import QueryDetailsModal from "../components/QueryDetailsModal";
 import BackToTopButton from "../components/BackToTopButton";
+import ExpertConsultations from "../components/ExpertConsultations";
 import { getStatusClass } from "../data";
 
 const LegalExpertDashboard = () => {
@@ -299,6 +300,10 @@ const LegalExpertDashboard = () => {
 
           {/* SIDE PANEL */}
           <div className="mt-12 flex gap-6 justify-between flex-wrap max-lg:flex-col">
+            
+            {/* Consultations */}
+            <ExpertConsultations />
+
             {/* Profile Card */}
             <div className="expert-side-card profile">
               <h3 className="text-lg font-semibold text-[#1E3A8A] mb-3 flex items-center gap-2">

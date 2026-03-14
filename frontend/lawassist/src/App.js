@@ -17,6 +17,8 @@ import Queries from "./pages/Queries";
 import LawDetails from "./components/LawDetails";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Consultations from "./pages/Consultations";
+import ChatPage from "./pages/ChatPage";
 
 function App() {
   return (
@@ -53,6 +55,8 @@ function App() {
         <Route path="/laws/:id" element={<LawDetails />} />
         <Route path="/explore-rights" element={<ExploreRights />} />
         <Route path="/queries" element={<Queries />} />
+        <Route path="/consultations" element={<Consultations />} />
+        <Route path="/chat/:consultationId" element={<ChatPage />} />
       </Routes>
     </Router>
   );

@@ -13,6 +13,42 @@ const ExpertProfile = () => {
 
   const [expert, setExpert] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [loadingConsultation, setLoadingConsultation] = useState(false);
+
+  const startConsultation = async () => {
+  try {
+
+    setLoadingConsultation(true);
+
+    const token = localStorage.getItem("token");
+
+    const res = await axios.post(
+      `${API_URL}/api/consultations/create`,
+      {
+        expertUserId: expert.userId,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const consultationId = res.data.consultationId;
+
+    navigate(`/chat/${consultationId}`);
+
+  } catch (error) {
+
+    console.log(error);
+    alert("Unable to start consultation");
+
+  } finally {
+
+    setLoadingConsultation(false);
+
+  }
+};
 
   const fetchExpert = useCallback(async () => {
     try {
@@ -115,8 +151,12 @@ const ExpertProfile = () => {
                   ₹{expert.consultationCharges || "Free"}
                 </p>
 
-                <button className="w-full bg-[#1E3A8A] text-white py-2.5 sm:py-3 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-[#1E3A8A]/90">
-                  Send Query
+                <button
+                  onClick={startConsultation}
+                  disabled={loadingConsultation}
+                  className="w-full bg-[#1E3A8A] text-white py-2.5 sm:py-3 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-[#1E3A8A]/90 disabled:opacity-60"
+                >
+                  {loadingConsultation ? "Starting..." : "Start Consultation"}
                 </button>
               </div>
             </div>
@@ -188,78 +228,64 @@ const ExpertProfile = () => {
 
           {/* REVIEWS SECTION */}
           <div className="bg-white rounded-2xl shadow-sm p-5 sm:p-6 lg:p-8 transition-all duration-300 hover:shadow-lg">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg sm:text-xl lg:text-3xl font-bold text-[#0A1F44]">
+                Client Reviews
+              </h2>
 
-  <div className="flex items-center justify-between mb-6">
-    <h2 className="text-lg sm:text-xl lg:text-3xl font-bold text-[#0A1F44]">
-      Client Reviews
-    </h2>
+              {reviews.length > 0 && (
+                <span className="text-sm text-gray-500">
+                  {reviews.length} Review{reviews.length > 1 && "s"}
+                </span>
+              )}
+            </div>
 
-    {reviews.length > 0 && (
-      <span className="text-sm text-gray-500">
-        {reviews.length} Review{reviews.length > 1 && "s"}
-      </span>
-    )}
-  </div>
+            {reviews.length === 0 ? (
+              <div className="text-center py-8 text-gray-500 text-sm">
+                No client reviews yet.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                {reviews.map((review) => (
+                  <div
+                    key={review._id}
+                    className="bg-gray-50 rounded-xl p-4 sm:p-5 shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
+                  >
+                    {/* Top Row */}
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="font-semibold text-gray-800">
+                        {review.username || "Client"}
+                      </p>
 
-  {reviews.length === 0 ? (
-    <div className="text-center py-8 text-gray-500 text-sm">
-      No client reviews yet.
-    </div>
-  ) : (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                      <p className="text-xs text-gray-400">
+                        {new Date(review.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
 
-      {reviews.map((review) => (
+                    {/* Stars */}
+                    <div className="flex gap-1 mb-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          size={16}
+                          className={
+                            star <= review.rating
+                              ? "text-yellow-500 fill-yellow-500"
+                              : "text-gray-300"
+                          }
+                        />
+                      ))}
+                    </div>
 
-        <div
-          key={review._id}
-          className="bg-gray-50 rounded-xl p-4 sm:p-5 shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
-        >
-
-          {/* Top Row */}
-          <div className="flex items-center justify-between mb-2">
-
-            <p className="font-semibold text-gray-800">
-              {review.username || "Client"}
-            </p>
-
-            <p className="text-xs text-gray-400">
-              {new Date(review.createdAt).toLocaleDateString()}
-            </p>
-
+                    {/* Comment */}
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {review.comment}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-
-          {/* Stars */}
-          <div className="flex gap-1 mb-2">
-
-            {[1,2,3,4,5].map((star) => (
-
-              <Star
-                key={star}
-                size={16}
-                className={
-                  star <= review.rating
-                    ? "text-yellow-500 fill-yellow-500"
-                    : "text-gray-300"
-                }
-              />
-
-            ))}
-
-          </div>
-
-          {/* Comment */}
-          <p className="text-gray-600 text-sm leading-relaxed">
-            {review.comment}
-          </p>
-
-        </div>
-
-      ))}
-
-    </div>
-  )}
-
-</div>
         </div>
       </div>
 

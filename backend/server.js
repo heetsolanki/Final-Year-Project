@@ -5,6 +5,9 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const http = require("http");
+const { Server } = require("socket.io");
+const chatSocket = require("./sockets/chatSocket");
 
 const app = express();
 
@@ -33,8 +36,21 @@ app.use("/api/expert", require("./routes/expertRoutes"));
 app.use("/api/laws", require("./routes/lawRoutes"));
 app.use("/api/reviews", require("./routes/reviewRoutes"));
 app.use("/api/bookmarks", require("./routes/bookmarkRoutes"));
+app.use("/api/consultations", require("./routes/consultationRoutes"));
+app.use("/api/chat", require("./routes/chatRoutes"));
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
+
+chatSocket(io);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server successfully running!`);
+
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });

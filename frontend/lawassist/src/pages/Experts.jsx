@@ -56,13 +56,17 @@ const Experts = () => {
                 className="bg-white rounded-2xl shadow-sm p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
               >
                 <div className="flex justify-between items-center mb-2">
-                  <h2 className="text-lg font-semibold text-gray-800">{expert.name}</h2>
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    {expert.name}
+                  </h2>
                   <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">
                     Verified
                   </span>
                 </div>
 
-                <p className="text-sm text-indigo-600 font-medium mb-4">{expert.specialization}</p>
+                <p className="text-sm text-indigo-600 font-medium mb-4">
+                  {expert.specialization}
+                </p>
 
                 <div className="space-y-3 mb-6 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
@@ -88,8 +92,11 @@ const Experts = () => {
                   >
                     View Profile
                   </button>
-                  <button className="flex-1 bg-indigo-600 text-white py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-indigo-700">
-                    Send Query
+                  <button
+                    onClick={() => navigate(`/experts/${expert._id}`)}
+                    className="flex-1 bg-indigo-600 text-white py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-indigo-700"
+                  >
+                    Consult Now
                   </button>
                 </div>
               </div>
