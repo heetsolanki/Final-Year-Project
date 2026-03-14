@@ -1,11 +1,4 @@
-const DashboardTabs = ({ activeTab, setActiveTab }) => {
-  const tabs = [
-    { id: "overview", label: "Overview" },
-    { id: "queries", label: "All Queries" },
-    { id: "consultations", label: "Consultations" },
-    { id: "saved", label: "Saved Topics" },
-  ];
-
+const DashboardTabs = ({ activeTab, setActiveTab, tabs = [] }) => {
   return (
     <div className="mt-8 border-b border-gray-200">
       <div className="flex gap-6 md:gap-8 overflow-x-auto whitespace-nowrap px-1 pb-2">
@@ -26,9 +19,7 @@ const DashboardTabs = ({ activeTab, setActiveTab }) => {
             <span
               className={`absolute left-0 bottom-0 h-[2px] w-full bg-[#1E3A8A]
               transform transition-transform duration-300
-              ${
-                activeTab === tab.id ? "scale-x-100" : "scale-x-0"
-              } origin-left`}
+              ${activeTab === tab.id ? "scale-x-100" : "scale-x-0"} origin-left`}
             />
           </button>
         ))}

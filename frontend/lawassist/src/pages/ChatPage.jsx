@@ -6,7 +6,7 @@ import API_URL from "../api";
 import ChatSidebar from "../components/chat/ChatSidebar";
 import ChatWindow from "../components/chat/ChatWindow";
 import useSocket from "../hooks/useSocket";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 const ChatPage = () => {
   const { consultationId } = useParams();

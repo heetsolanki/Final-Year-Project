@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import API_URL from "../api";
+import { User } from "lucide-react";
 
 import DashboardTopCard from "../components/dashboard/DashboardTopCard";
-import Tabs from "../components/dashboard/DashboardTabs";
 
 import UserOverviewTab from "../components/dashboard/user/OverviewTab";
 import UserQueriesTab from "../components/dashboard/user/QueriesTab";
@@ -14,6 +14,13 @@ import UserProfileTab from "../components/dashboard/user/UserProfileTab";
 import QueryDetailsModal from "../components/queries/QueryDetailsModal";
 import ReviewModal from "../components/queries/ReviewModal";
 import BackToTopButton from "../components/layout/BackToTopButton";
+
+const USER_TABS = [
+  { id: "overview", label: "Overview" },
+  { id: "queries", label: "All Queries" },
+  { id: "consultations", label: "Consultations" },
+  { id: "saved", label: "Saved Topics" },
+];
 
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -127,6 +134,8 @@ const UserDashboard = () => {
             email={email}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
+            tabs={USER_TABS}
+            avatarIcon={User}
           />
 
           {/* Tab Content */}
