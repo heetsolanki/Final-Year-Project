@@ -1,7 +1,15 @@
-import { User, Settings } from "lucide-react";
+import { Settings, User } from "lucide-react";
 import DashboardTabs from "./DashboardTabs";
 
-const DashboardTopCard = ({ userName, email, activeTab, setActiveTab }) => {
+const DashboardTopCard = ({
+  userName,
+  email,
+  activeTab,
+  setActiveTab,
+  tabs,
+  avatarIcon: AvatarIcon = User,
+  headerExtra = null,
+}) => {
   return (
     <div className="relative rounded-2xl px-6 md:px-12 py-8 md:py-10 mt-6 mb-10 shadow-md overflow-hidden bg-gradient-to-r from-blue-50 via-white to-blue-50">
       {/* background accent */}
@@ -13,15 +21,19 @@ const DashboardTopCard = ({ userName, email, activeTab, setActiveTab }) => {
         <div className="flex items-center gap-5">
           {/* Avatar */}
           <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-blue-100 flex items-center justify-center shadow-md hover:scale-105 transition">
-            <User size={24} className="md:w-[30px] md:h-[30px] text-blue-700" />
+            <AvatarIcon
+              size={24}
+              className="md:w-[30px] md:h-[30px] text-blue-700"
+            />
           </div>
 
           <div>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-800">
               Welcome back, {userName}
             </h2>
-
             <p className="text-sm text-gray-500 mt-1">{email}</p>
+            {/* Optional extra content below email e.g. status badge */}
+            {headerExtra}
           </div>
         </div>
 
@@ -40,7 +52,11 @@ const DashboardTopCard = ({ userName, email, activeTab, setActiveTab }) => {
 
       {/* Tabs */}
       <div className="mt-8">
-        <DashboardTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+        <DashboardTabs
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          tabs={tabs}
+        />
       </div>
     </div>
   );
