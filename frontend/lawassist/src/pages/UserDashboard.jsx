@@ -19,6 +19,7 @@ import BackToTopButton from "../components/BackToTopButton";
 import QueryDetailsModal from "../components/QueryDetailsModal";
 import ReviewModal from "../components/ReviewModal";
 import SavedTopics from "../components/SavedTopics";
+import UserConsultations from "../components/UserConsultations";
 import { getStatusClass } from "../data";
 
 const UserDashboard = () => {
@@ -269,6 +270,7 @@ const UserDashboard = () => {
 
                   {/* SIDE PANEL */}
                   <div className="user-side-panel">
+                    <UserConsultations />
                     <div className="user-side-card">
                       <h3>
                         <Bell size={16} /> Recent Activity
