@@ -12,6 +12,7 @@ function Login() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [countdown, setCountdown] = useState(3);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -86,6 +87,7 @@ function Login() {
     e.preventDefault();
 
     let newErrors = {};
+    setLoading(true);
 
     if (!emailValid) newErrors.email = "Enter a valid email address";
 
@@ -109,6 +111,7 @@ function Login() {
         const data = await response.json();
 
         if (!response.ok) {
+          setLoading(false);
           setErrors({ email: data.message });
           return;
         }
@@ -117,6 +120,7 @@ function Login() {
 
         setShowSuccess(true);
         setCountdown(3);
+        setLoading(false);
 
         setForm({
           email: "",
@@ -132,6 +136,7 @@ function Login() {
         }, 3000);
       } catch (error) {
         console.error("Login error:", error);
+        setLoading(false);
       }
     }
   };
@@ -203,7 +208,7 @@ function Login() {
                 </Link>
               </div>
 
-              <AuthButton text="Login" disabled={!formValid} />
+              <AuthButton text={loading ? "Logging in..." : "Login"} disabled={!formValid || loading} />
 
               <p className="auth-switch">
                 Don't have an account?

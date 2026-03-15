@@ -15,6 +15,7 @@ function Register() {
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = useState(false);
   const [countdown, setCountdown] = useState(3);
+  const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
     fullName: "",
@@ -103,6 +104,7 @@ function Register() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
+      setLoading(true);
       try {
         const response = await fetch(`${API_URL}/api/auth/register`, {
           method: "POST",
@@ -120,6 +122,7 @@ function Register() {
         const data = await response.json();
 
         if (!response.ok) {
+          setLoading(false);
           setErrors({ email: data.message });
           return;
         }
@@ -130,6 +133,7 @@ function Register() {
 
         setCountdown(3);
         setShowSuccess(true);
+        setLoading(false);
 
         let counter = 3;
 
@@ -156,6 +160,7 @@ function Register() {
         });
       } catch (error) {
         console.error("Registration error:", error);
+        setLoading(false);
       }
     }
   };
@@ -298,7 +303,7 @@ function Register() {
 
               <input type="hidden" value={role} name="role" />
 
-              <AuthButton text="Create Account" disabled={!formValid} />
+              <AuthButton text={loading ? "Creating Account..." : "Create Account"} disabled={!formValid || loading} />
 
               <p className="auth-switch">
                 Already have an account?

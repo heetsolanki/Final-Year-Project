@@ -97,7 +97,7 @@ function Navbar() {
 
         {/* RIGHT LINKS */}
         <div className="nav-links">
-          {userRole === "consumer" && (
+          {userRole !== "legalExpert" && (
           <Link
             to="/experts"
             className="nav-link"
