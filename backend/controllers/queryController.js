@@ -2,9 +2,7 @@ const mongoose = require("mongoose");
 const Query = require("../models/Query");
 const sendEmail = require("../utils/sendEmail");
 const querySubmittedEmail = require("../template/querySubmittedEmail");
-const expertQueryNotification = require("../template/expertQueryNotification");
 const User = require("../models/User");
-const Expert = require("../models/Expert");
 
 exports.createQuery = async (req, res) => {
   try {
@@ -18,42 +16,20 @@ exports.createQuery = async (req, res) => {
       description,
     });
 
+    // Send confirmation email to the consumer (query starts as "Pending" — admin must approve)
     const user = await User.findOne({ userId: req.user.userId });
-
-    (async () => {
-      try {
-        const experts = await Expert.find({ verificationStatus: "verified", isActive: true });
-
-        await sendEmail(
-          user.email,
-          "Query Submitted Successfully - LawAssist",
-          querySubmittedEmail(
-            user.name,
-            newQuery.title,
-            newQuery.category,
-            newQuery.subcategory,
-          ),
-        );
-
-        await Promise.all(
-          experts.map((expert) =>
-            sendEmail(
-              expert.email,
-              "New Consumer Query Posted - LawAssist",
-              expertQueryNotification(
-                expert.name,
-                user.name,
-                newQuery.title,
-                newQuery.category,
-                newQuery.description,
-              ),
-            ),
-          ),
-        );
-      } catch (err) {
-        console.error("Email sending error:", err);
-      }
-    })();
+    if (user) {
+      sendEmail(
+        user.email,
+        "Query Submitted Successfully - LawAssist",
+        querySubmittedEmail(
+          user.name,
+          newQuery.title,
+          newQuery.category,
+          newQuery.subcategory,
+        ),
+      ).catch((err) => console.error("Email sending error:", err));
+    }
 
     res.status(201).json(newQuery);
   } catch (error) {

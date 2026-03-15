@@ -4,6 +4,7 @@ import API_URL from "../api";
 import ProfileHeader from "../components/profile/ProfileHeader";
 import ProfileForm from "../components/profile/ProfileForm";
 import AccountSection from "../components/profile/AccountSection";
+import { Scale } from "lucide-react";
 
 const UserManageProfile = () => {
   const [user, setUser] = useState(null);
@@ -34,9 +35,9 @@ const UserManageProfile = () => {
           <ProfileForm user={user} refresh={fetchProfile} />
           <AccountSection />
 
-          <div className="mt-10 md:mt-12 text-xs md:text-sm text-gray-500 border-t pt-6 text-center leading-relaxed">
-            ⚖️ LawAssist ensures that all personal information is securely
-            stored and protected under our privacy policy.
+          <div className="mt-10 md:mt-12 text-xs md:text-sm text-gray-500 border-t pt-6 text-center leading-relaxed flex items-center justify-center gap-2">
+            <Scale size={16} className="text-gray-400" />
+            <span>LawAssist ensures that all personal information is securely stored and protected under our privacy policy.</span>
           </div>
         </div>
       </div>

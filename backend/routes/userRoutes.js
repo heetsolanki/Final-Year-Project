@@ -3,6 +3,7 @@ const router = express.Router();
 const { verifyToken, authorizeRole } = require("../middleware/authMiddleware");
 const Query = require("../models/Query");
 const User = require("../models/User");
+const Notification = require("../models/Notification");
 const bcrypt = require("bcryptjs");
 
 /* ================= GET PROFILE ================= */
@@ -116,6 +117,24 @@ router.patch(
       res.json({ message: "Query resolved successfully", query });
     } catch (error) {
       res.status(500).json({ message: "Error resolving query" });
+    }
+  },
+);
+
+/* ================= GET USER NOTIFICATIONS ================= */
+router.get(
+  "/notifications",
+  verifyToken,
+  authorizeRole("consumer"),
+  async (req, res) => {
+    try {
+      const notifications = await Notification.find({
+        targetUserId: req.user.userId,
+      }).sort({ createdAt: -1 });
+
+      res.status(200).json(notifications);
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
     }
   },
 );

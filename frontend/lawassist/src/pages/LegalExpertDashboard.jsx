@@ -8,6 +8,7 @@ import ExpertOverviewTab from "../components/dashboard/expert/OverviewTab";
 import ExpertQueriesTab from "../components/dashboard/expert/QueriesTab";
 import ExpertConsultationsTab from "../components/dashboard/expert/Consultations";
 import ExpertManageProfile from "../components/dashboard/expert/ExpertProfileTab";
+import ExpertNotificationsTab from "../components/dashboard/expert/NotificationsTab";
 import QueryDetailsModal from "../components/queries/QueryDetailsModal";
 import BackToTopButton from "../components/layout/BackToTopButton";
 
@@ -16,6 +17,7 @@ const EXPERT_TABS = [
   { id: "overview", label: "Overview" },
   { id: "queries", label: "Assigned Queries" },
   { id: "consultations", label: "Consultations" },
+  { id: "notifications", label: "Notifications" },
 ];
 
 const LegalExpertDashboard = () => {
@@ -26,6 +28,8 @@ const LegalExpertDashboard = () => {
   const [isActive, setIsActive] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Queries tab state
   const [searchTerm, setSearchTerm] = useState("");
@@ -97,74 +101,87 @@ const LegalExpertDashboard = () => {
     fetchQueries();
 
     const interval = setInterval(() => {
+      fetchExpertProfile();
       fetchStats();
       fetchQueries();
+      setRefreshKey((prev) => prev + 1);
     }, 5000);
 
     return () => clearInterval(interval);
   }, []);
 
-  // Status badge rendered inline under the name in the top card
-  const statusBadge = isActive !== null && (
-    <span
-      className={`inline-flex items-center gap-1 mt-1 text-xs font-medium px-2 py-0.5 rounded-full
-      ${isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}
-    >
-      <span
-        className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-green-500" : "bg-red-500"}`}
-      />
-      {isActive ? "Active" : "Inactive"}
-    </span>
-  );
-
   return (
     <>
       <div className="user-dashboard-wrapper bg-slate-50 min-h-screen">
         <div className="user-dashboard-container max-w-7xl mx-auto px-4 md:px-6">
-          {/* Verification / Inactive Banners — unchanged logic */}
-          {expert.verificationStatus !== "verified" && (
+          {/* Verification / Inactive Banners */}
+          {expert.verificationStatus === "profile_incomplete" && (
             <div className="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-4 shadow-sm">
-              {expert.verificationStatus === "incomplete" && (
-                <>
-                  <p className="text-sm font-medium text-yellow-800">
-                    ⚠ Complete your expert profile to start accepting and
-                    answering cases.
-                  </p>
-                  <p className="mt-1 text-sm text-gray-700">
-                    Profile Completion:{" "}
-                    <span className="font-semibold">
-                      {expert.profileCompletion || 0}%
-                    </span>
-                  </p>
-                  <button
-                    className="mt-3 rounded-md bg-[#C9A227] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#b8921f]"
-                    onClick={() => (window.location.href = "/expert-profile")}
-                  >
-                    Complete Profile
-                  </button>
-                </>
-              )}
-
-              {expert.verificationStatus === "pending" && (
-                <>
-                  <p className="text-sm font-medium text-yellow-800">
-                    ⏳ Your expert profile is currently under verification.
-                  </p>
-                  <p className="mt-1 text-sm text-gray-700">
-                    Profile Completion:{" "}
-                    <span className="font-semibold">
-                      {expert.profileCompletion || 0}%
-                    </span>
-                  </p>
-                </>
-              )}
+              <p className="text-sm font-medium text-yellow-800">
+                Complete your expert profile to start accepting and
+                answering cases.
+              </p>
+              <p className="mt-1 text-sm text-gray-700">
+                Profile Completion:{" "}
+                <span className="font-semibold">
+                  {expert.profileCompletion || 0}%
+                </span>
+              </p>
+              <button
+                className="mt-3 rounded-md bg-[#C9A227] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#b8921f]"
+                onClick={() => (window.location.href = "/expert-profile")}
+              >
+                Complete Profile
+              </button>
             </div>
           )}
 
-          {isActive === false && (
+          {expert.verificationStatus === "under_review" && (
+            <div className="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-4 shadow-sm inline-flex items-center gap-2 w-full">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border border-yellow-300 whitespace-nowrap">
+                <span className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                Under Review
+              </span>
+              <p className="text-sm text-yellow-800">
+                Your expert profile is currently under review. Profile Completion: <span className="font-semibold">{expert.profileCompletion || 0}%</span>
+              </p>
+            </div>
+          )}
+
+          {expert.verificationStatus === "rejected" && (
             <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 shadow-sm">
               <p className="text-sm font-medium text-red-700">
-                🔴 Your profile is currently inactive.
+                Your profile verification was rejected.
+              </p>
+              {expert.rejectionReason && (
+                <p className="mt-1 text-sm text-red-600">
+                  Reason: {expert.rejectionReason}
+                </p>
+              )}
+              <button
+                className="mt-3 rounded-md bg-[#C9A227] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#b8921f]"
+                onClick={() => (window.location.href = "/expert-profile")}
+              >
+                Update Profile & Resubmit
+              </button>
+            </div>
+          )}
+
+          {expert.verificationStatus === "blocked" && (
+            <div className="mb-6 rounded-lg border border-gray-300 bg-gray-50 p-4 shadow-sm">
+              <p className="text-sm font-medium text-gray-700">
+                Your account has been blocked by the administrator.
+              </p>
+              <p className="mt-1 text-sm text-gray-500">
+                Please contact support for assistance.
+              </p>
+            </div>
+          )}
+
+          {isActive === false && expert.verificationStatus !== "blocked" && (
+            <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 shadow-sm">
+              <p className="text-sm font-medium text-red-700">
+                Your profile is currently inactive.
               </p>
               <p className="mt-1 text-sm text-gray-700">
                 Activate your profile to accept or respond to consumer queries.
@@ -172,7 +189,7 @@ const LegalExpertDashboard = () => {
             </div>
           )}
 
-          {/* Shared DashboardTopCard — BadgeCheck icon, expert tabs, status badge */}
+          {/* Shared DashboardTopCard */}
           <DashboardTopCard
             userName={expert.name || "Advocate"}
             email={expert.email || ""}
@@ -180,7 +197,6 @@ const LegalExpertDashboard = () => {
             setActiveTab={setActiveTab}
             tabs={EXPERT_TABS}
             avatarIcon={BadgeCheck}
-            headerExtra={statusBadge}
           />
 
           {/* Tab Content */}
@@ -211,6 +227,8 @@ const LegalExpertDashboard = () => {
           )}
 
           {activeTab === "consultations" && <ExpertConsultationsTab />}
+
+          {activeTab === "notifications" && <ExpertNotificationsTab refreshKey={refreshKey} />}
 
           {activeTab === "profile" && (
             <ExpertManageProfile

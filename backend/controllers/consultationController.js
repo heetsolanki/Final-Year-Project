@@ -1,5 +1,7 @@
 const Consultation = require("../models/Consultation");
 const Expert = require("../models/Expert");
+const sendEmail = require("../utils/sendEmail");
+const newConsultationEmail = require("../template/newConsultationEmail");
 
 exports.createConsultation = async (req, res) => {
   try {
@@ -10,7 +12,7 @@ exports.createConsultation = async (req, res) => {
     if (
       !expert ||
       !expert.isActive ||
-      expert.verificationStatus !== "verified"
+      expert.verificationStatus !== "active"
     ) {
       return res.status(400).json({ message: "Expert unavailable" });
     }
@@ -25,6 +27,13 @@ exports.createConsultation = async (req, res) => {
       consultationFee: expert.consultationCharges,
       paymentStatus: "paid",
     });
+
+    // Send email notification to expert
+    await sendEmail(
+      expert.email,
+      "New Consultation on LawAssist",
+      newConsultationEmail(expert.name, consultationId, req.user.userId),
+    );
 
     res.status(201).json(consultation);
   } catch (error) {

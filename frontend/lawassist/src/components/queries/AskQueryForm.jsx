@@ -21,6 +21,7 @@ const AskQueryForm = ({
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -61,7 +62,7 @@ const AskQueryForm = ({
       });
     } catch (error) {
       console.error(error);
-      alert("Something went wrong.");
+      setShowErrorPopup(true);
     } finally {
       setLoading(false);
     }
@@ -154,8 +155,8 @@ const AskQueryForm = ({
 
       <AlertPopup
         show={showSuccessModal}
-        title="Query Submitted 🎉"
-        message="Your query has been successfully submitted. You can track its progress from your dashboard."
+        title="Query Submitted"
+        message="Your query has been submitted and is pending admin review. You can track its progress from your dashboard."
         onClose={() => {
           setShowSuccessModal(false);
           if (onClose) onClose();
@@ -166,7 +167,15 @@ const AskQueryForm = ({
         show={showLoginPopup}
         title="Please Login"
         message="You need to be logged in to submit a query."
+        type="warning"
         onClose={handleLoginRedirect}
+      />
+      <AlertPopup
+        show={showErrorPopup}
+        title="Something went wrong"
+        message="Failed to submit your query. Please try again."
+        type="error"
+        onClose={() => setShowErrorPopup(false)}
       />
     </div>
   );

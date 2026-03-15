@@ -38,6 +38,7 @@ app.use("/api/reviews", require("./routes/reviewRoutes"));
 app.use("/api/bookmarks", require("./routes/bookmarkRoutes"));
 app.use("/api/consultations", require("./routes/consultationRoutes"));
 app.use("/api/chat", require("./routes/chatRoutes"));
+app.use("/api/admin", require("./routes/adminRoutes"));
 
 const server = http.createServer(app);
 
