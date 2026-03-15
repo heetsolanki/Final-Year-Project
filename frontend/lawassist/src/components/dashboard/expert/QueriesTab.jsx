@@ -50,8 +50,8 @@ const ExpertQueriesTab = ({
           className="border rounded-lg px-3 py-2 text-sm bg-white"
         >
           <option value="All">All</option>
-          <option value="In Review">In Review</option>
           <option value="Assigned">Assigned</option>
+          <option value="Answered">Answered</option>
           <option value="Resolved">Resolved</option>
         </select>
       </div>
@@ -95,12 +95,12 @@ const ExpertQueriesTab = ({
                   <td className="py-3 pr-2">
                     <button
                       className={`text-blue-600 hover:text-blue-800 transition ${
-                        expert.verificationStatus !== "verified" || !isActive
+                        expert.verificationStatus !== "active" || !isActive
                           ? "cursor-not-allowed opacity-50"
                           : ""
                       }`}
                       disabled={
-                        expert.verificationStatus !== "verified" || !isActive
+                        expert.verificationStatus !== "active" || !isActive
                       }
                       onClick={() => {
                         if (!isActive) return;

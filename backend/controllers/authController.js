@@ -44,6 +44,7 @@ exports.registerUser = async (req, res) => {
         name,
         email,
         password: hashedPassword,
+        role: "legalExpert",
         profileCompleted: false,
       });
 
@@ -58,6 +59,7 @@ exports.registerUser = async (req, res) => {
         name,
         email,
         password: hashedPassword,
+        role: "consumer",
       });
 
       await sendEmail(
@@ -93,15 +95,31 @@ exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     let user = await User.findOne({ email });
-    let role = "consumer";
+    let role;
 
-    if (!user) {
+    if (user) {
+      // Normalize legacy role values from old DB records
+      const dbRole = user.role || "consumer";
+      if (dbRole === "user") role = "consumer";
+      else if (dbRole === "expert") role = "legalExpert";
+      else role = dbRole;
+    } else {
       user = await Expert.findOne({ email });
       role = "legalExpert";
     }
 
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // Check if user is blocked
+    if (user.status === "blocked") {
+      return res.status(403).json({ message: "Your account has been blocked. Please contact the administrator." });
+    }
+
+    // Check if expert is blocked
+    if (role === "legalExpert" && user.verificationStatus === "blocked") {
+      return res.status(403).json({ message: "Your account has been blocked. Please contact the administrator." });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -113,7 +131,7 @@ exports.loginUser = async (req, res) => {
     const token = jwt.sign(
       {
         userId: user.userId,
-        role,
+        role: role,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" },
@@ -139,15 +157,14 @@ exports.sendResetOTP = async (req, res) => {
     }
 
     if (!user) {
-      return res.status(404).json({ message: "No account found with this email" });
+      return res
+        .status(404)
+        .json({ message: "No account found with this email" });
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    const hashedOTP = crypto
-      .createHash("sha256")
-      .update(otp)
-      .digest("hex");
+    const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
 
     user.resetOTP = hashedOTP;
     user.otpExpire = Date.now() + 2 * 60 * 1000; // ⬅ changed to 2 minutes
@@ -157,11 +174,10 @@ exports.sendResetOTP = async (req, res) => {
     await sendEmail(
       email,
       "Password Reset OTP",
-      `Your password reset OTP is ${otp}. It expires in 2 minutes.`
+      `Your password reset OTP is ${otp}. It expires in 2 minutes.`,
     );
 
     res.json({ message: "OTP sent successfully" });
-
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -174,10 +190,7 @@ exports.verifyResetOTP = async (req, res) => {
     console.log("Email received:", email);
     console.log("OTP received:", otp);
 
-    const hashedOTP = crypto
-      .createHash("sha256")
-      .update(otp)
-      .digest("hex");
+    const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
 
     console.log("Hashed OTP:", hashedOTP);
 
@@ -204,7 +217,6 @@ exports.verifyResetOTP = async (req, res) => {
     await match.save();
 
     res.json({ resetToken });
-
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -234,6 +246,28 @@ exports.resetPassword = async (req, res) => {
     await user.save();
 
     res.json({ message: "Password reset successful" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/* ================= CHECK USER STATUS ================= */
+exports.checkUserStatus = async (req, res) => {
+  try {
+    const { userId } = req.user;
+
+    let user = await User.findOne({ userId }).select("status");
+    if (user) {
+      return res.json({ status: user.status || "active" });
+    }
+
+    const expert = await Expert.findOne({ userId }).select("verificationStatus");
+    if (expert) {
+      const status = expert.verificationStatus === "blocked" ? "blocked" : "active";
+      return res.json({ status });
+    }
+
+    return res.json({ status: "deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

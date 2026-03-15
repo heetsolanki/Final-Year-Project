@@ -39,6 +39,23 @@ const userSchema = new mongoose.Schema(
       },
     ],
 
+    role: {
+      type: String,
+      enum: ["consumer", "legalExpert", "admin"],
+      default: "consumer",
+    },
+
+    isMasterAdmin: {
+      type: Boolean,
+      default: false,
+    },
+
+    status: {
+      type: String,
+      enum: ["active", "blocked"],
+      default: "active",
+    },
+
     resetOTP: {
       type: String,
     },
@@ -53,6 +70,11 @@ const userSchema = new mongoose.Schema(
 
     resetTokenExpire: {
       type: Date,
+    },
+
+    queryRejectCount: {
+      type: Number,
+      default: 0,
     },
 
     phone: String,

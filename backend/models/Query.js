@@ -44,9 +44,18 @@ const querySchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["In Review", "Assigned", "Resolved", "Answered"],
-      default: "In Review",
+      enum: ["Pending", "In Review", "Assigned", "Answered", "Resolved", "Rejected"],
+      default: "Pending",
     },
+
+    rejectionReason: {
+      type: String,
+    },
+
+    rejectedBy: {
+      type: String,
+    },
+
     assignedAt: {
       type: Date,
     },

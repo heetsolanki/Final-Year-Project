@@ -17,6 +17,7 @@ const QueryDetailsModal = ({
   const [expert, setExpert] = useState(null);
   const [isActive, setIsActive] = useState(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [errorPopup, setErrorPopup] = useState({ show: false, title: "", message: "" });
 
   const decoded = token ? jwtDecode(token) : null;
   const userRole = decoded?.role;
@@ -56,8 +57,8 @@ const QueryDetailsModal = ({
   }, [refreshQueries]);
 
   const handleAcceptCase = async () => {
-    if (expert?.verificationStatus !== "verified") {
-      alert("Complete your expert profile before accepting cases.");
+    if (expert?.verificationStatus !== "active") {
+      setErrorPopup({ show: true, title: "Profile Incomplete", message: "Complete your expert profile before accepting cases." });
       return;
     }
 
@@ -81,7 +82,7 @@ const QueryDetailsModal = ({
       }
     } catch (error) {
       console.log(error);
-      alert("Case already taken by another expert");
+      setErrorPopup({ show: true, title: "Case Unavailable", message: "Case already taken by another expert." });
     }
   };
 
@@ -102,7 +103,7 @@ const QueryDetailsModal = ({
       onClose();
     } catch (error) {
       console.log(error);
-      alert("Failed to mark query as resolved.");
+      setErrorPopup({ show: true, title: "Error", message: "Failed to mark query as resolved." });
     }
   };
 
@@ -118,7 +119,7 @@ const QueryDetailsModal = ({
       refreshQueries();
     } catch (error) {
       console.log(error);
-      alert("Failed to submit answer");
+      setErrorPopup({ show: true, title: "Error", message: "Failed to submit answer." });
     }
   };
 
@@ -132,7 +133,7 @@ const QueryDetailsModal = ({
       onClose();
     } catch (error) {
       console.log(error);
-      alert("Failed to delete query.");
+      setErrorPopup({ show: true, title: "Error", message: "Failed to delete query." });
     }
   };
 
@@ -209,13 +210,13 @@ const QueryDetailsModal = ({
           </div>
           {query.status === "In Review" && userRole === "legalExpert" && (
             <>
-              {expert?.verificationStatus !== "verified" && (
+              {expert?.verificationStatus !== "active" && (
                 <p className="text-sm text-red-500 mt-3">
                   Complete your expert profile to accept cases.
                 </p>
               )}
 
-              {expert?.verificationStatus === "verified" && !isActive && (
+              {expert?.verificationStatus === "active" && !isActive && (
                 <p className="text-sm text-red-500 mt-3">
                   Activate your profile to accept cases.
                 </p>
@@ -223,11 +224,11 @@ const QueryDetailsModal = ({
 
               <button
                 disabled={
-                  expert?.verificationStatus !== "verified" || !isActive
+                  expert?.verificationStatus !== "active" || !isActive
                 }
                 className={`mt-4 px-4 py-2 text-sm font-medium rounded-lg transition
       ${
-        expert?.verificationStatus !== "verified" || !isActive
+        expert?.verificationStatus !== "active" || !isActive
           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
           : "bg-emerald-600 text-white hover:bg-emerald-700"
       }`}
@@ -249,7 +250,7 @@ const QueryDetailsModal = ({
             </button>
           )}
 
-          {userRole === "consumer" && query.status === "In Review" && (
+          {userRole === "consumer" && (query.status === "In Review" || query.status === "Pending") && (
             <button
               className="bg-red-500 hover:bg-red-600 text-white px-5 py-2.5 rounded-xl"
               onClick={handleDelete}
@@ -289,6 +290,13 @@ const QueryDetailsModal = ({
           title="Success"
           message="Case accepted successfully!"
           onClose={() => setShowSuccessPopup(false)}
+        />
+        <AlertPopup
+          show={errorPopup.show}
+          title={errorPopup.title}
+          message={errorPopup.message}
+          type="error"
+          onClose={() => setErrorPopup({ show: false, title: "", message: "" })}
         />
       </div>
     </div>

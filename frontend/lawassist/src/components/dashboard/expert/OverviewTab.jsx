@@ -42,6 +42,14 @@ const ExpertOverviewTab = ({
 
   return (
     <div className="space-y-6">
+      {/* Active/Inactive Status Banner */}
+      {!isActive && expert.verificationStatus === "active" && (
+        <div className="flex items-center gap-2 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-xl text-sm">
+          <Clock size={16} className="shrink-0" />
+          <span>Your profile is currently <strong>inactive</strong>. Toggle your status to start accepting cases.</span>
+        </div>
+      )}
+
       {/* Stats */}
       <DashboardCard title="Case Summary" icon={LayoutDashboard}>
         <StatsGrid stats={statItems} />
@@ -86,12 +94,12 @@ const ExpertOverviewTab = ({
                     <td className="py-3 pr-2">
                       <button
                         className={`text-blue-600 hover:text-blue-800 transition ${
-                          expert.verificationStatus !== "verified" || !isActive
+                          expert.verificationStatus !== "active" || !isActive
                             ? "cursor-not-allowed opacity-50"
                             : ""
                         }`}
                         disabled={
-                          expert.verificationStatus !== "verified" || !isActive
+                          expert.verificationStatus !== "active" || !isActive
                         }
                         onClick={() => {
                           if (!isActive) return;

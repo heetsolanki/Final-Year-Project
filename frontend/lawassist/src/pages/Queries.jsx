@@ -54,7 +54,10 @@ const Queries = () => {
     const statusMatch =
       selectedStatus === "All" || query.status === selectedStatus;
 
-    return categoryMatch && statusMatch;
+    // Hide rejected queries from public view
+    const notRejected = query.status !== "Rejected";
+
+    return categoryMatch && statusMatch && notRejected;
   });
 
   return (

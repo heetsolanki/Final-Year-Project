@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import API_URL from "../../api";
 import axios from "axios";
+import ToastPopup from "../ui/ToastPopup";
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +14,16 @@ function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [userName, setUserName] = useState("");
+  const [showLogoutToast, setShowLogoutToast] = useState(false);
+
+  // Show logout toast after redirect
+  useEffect(() => {
+    if (sessionStorage.getItem("showLogoutToast") === "true") {
+      sessionStorage.removeItem("showLogoutToast");
+      setShowLogoutToast(true);
+      setTimeout(() => setShowLogoutToast(false), 2500);
+    }
+  }, [location]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -54,8 +65,14 @@ function Navbar() {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
     setUserRole(null);
+    setUserName("");
+    sessionStorage.setItem("showLogoutToast", "true");
     navigate("/");
   };
+
+  if (location.pathname.startsWith("/admin-dashboard")) {
+    return null;
+  }
 
   return (
     <div className="nav-wrapper">
@@ -98,13 +115,13 @@ function Navbar() {
         {/* RIGHT LINKS */}
         <div className="nav-links">
           {userRole !== "legalExpert" && (
-          <Link
-            to="/experts"
-            className="nav-link"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          >
-            Experts
-          </Link>
+            <Link
+              to="/experts"
+              className="nav-link"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
+              Experts
+            </Link>
           )}
           <Link
             to="/about"
@@ -277,6 +294,7 @@ function Navbar() {
           </>
         )}
       </div>
+      <ToastPopup show={showLogoutToast} message="Logout Successful" type="success" />
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { MapPin, Briefcase, CheckCircle, ArrowLeft, Star } from "lucide-react";
+import { MapPin, Briefcase, CheckCircle, ArrowLeft, Star, Circle } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import BackToTopButton from "../components/layout/BackToTopButton";
+import AlertPopup from "../components/ui/AlertPopup";
 import axios from "axios";
 import API_URL from "../api";
 
@@ -12,6 +13,7 @@ const ExpertProfile = () => {
   const [expert, setExpert] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [loadingConsultation, setLoadingConsultation] = useState(false);
+  const [errorPopup, setErrorPopup] = useState(false);
 
   const startConsultation = async () => {
   try {
@@ -39,7 +41,7 @@ const ExpertProfile = () => {
   } catch (error) {
 
     console.log(error);
-    alert("Unable to start consultation");
+    setErrorPopup(true);
 
   } finally {
 
@@ -122,10 +124,22 @@ const ExpertProfile = () => {
                   {expert.experience}+ Years Experience
                 </div>
 
-                {expert.verificationStatus === "verified" && (
+                {expert.verificationStatus === "active" && (
                   <div className="flex items-center gap-1 sm:gap-2 text-green-600 font-medium">
                     <CheckCircle size={16} />
                     Verified Legal Expert
+                  </div>
+                )}
+
+                {expert.isActive ? (
+                  <div className="flex items-center gap-1 sm:gap-2 text-green-600 font-medium">
+                    <Circle size={10} className="fill-green-500 text-green-500" />
+                    Available
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1 sm:gap-2 text-gray-500 font-medium">
+                    <Circle size={10} className="fill-gray-400 text-gray-400" />
+                    Currently Unavailable
                   </div>
                 )}
               </div>
@@ -147,10 +161,10 @@ const ExpertProfile = () => {
 
                 <button
                   onClick={startConsultation}
-                  disabled={loadingConsultation}
-                  className="w-full bg-[#1E3A8A] text-white py-2.5 sm:py-3 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-[#1E3A8A]/90 disabled:opacity-60"
+                  disabled={loadingConsultation || !expert.isActive}
+                  className="w-full bg-[#1E3A8A] text-white py-2.5 sm:py-3 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-[#1E3A8A]/90 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {loadingConsultation ? "Starting..." : "Start Consultation"}
+                  {loadingConsultation ? "Starting..." : !expert.isActive ? "Expert Unavailable" : "Start Consultation"}
                 </button>
               </div>
             </div>
@@ -282,6 +296,13 @@ const ExpertProfile = () => {
           </div>
         </div>
       </div>
+      <AlertPopup
+        show={errorPopup}
+        title="Unable to Start Consultation"
+        message="Something went wrong. Please try again later."
+        type="error"
+        onClose={() => setErrorPopup(false)}
+      />
       <BackToTopButton />
     </>
   );

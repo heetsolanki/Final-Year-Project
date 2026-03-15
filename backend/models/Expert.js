@@ -26,15 +26,29 @@ const expertSchema = new mongoose.Schema(
       required: true,
     },
 
+    role: {
+      type: String,
+      enum: ["legalExpert"],
+      default: "legalExpert",
+    },
+
     isActive: {
       type: Boolean,
       default: true,
     },
 
     specialization: String,
-    experience: Number,
+    experience: {
+      type: Number,
+      min: 1,
+      max: 50,
+    },
 
-    barCouncilId: String,
+    barCouncilId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
     consultationCharges: Number,
     languages: [String],
     expertiseAreas: [String],
@@ -55,9 +69,26 @@ const expertSchema = new mongoose.Schema(
 
     verificationStatus: {
       type: String,
-      enum: ["incomplete", "pending", "verified"],
-      default: "incomplete",
+      enum: ["profile_incomplete", "under_review", "active", "rejected", "blocked"],
+      default: "profile_incomplete",
     },
+
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    rejectionReason: {
+      type: String,
+      default: "",
+    },
+
+    idDocumentType: {
+      type: String,
+      enum: ["aadhaar", "pan", "passport", "voter_id", "driving_license"],
+    },
+    idNumber: String,
+    idProofUrl: String,
 
     profileCompletion: {
       type: Number,

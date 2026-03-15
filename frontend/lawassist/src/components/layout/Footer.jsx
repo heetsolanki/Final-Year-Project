@@ -52,9 +52,36 @@ function Footer() {
           <div>
             <h4 className="footer-heading">LEGAL</h4>
             <ul className="footer-links">
-              <li>Privacy Policy</li>
-              <li>Terms & Conditions</li>
-              <li>Disclaimer</li>
+              <li>
+                <Link
+                  to="/privacy-policy"
+                  onClick={() =>
+                    window.scrollTo({ top: 0, behavior: "smooth" })
+                  }
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/terms"
+                  onClick={() =>
+                    window.scrollTo({ top: 0, behavior: "smooth" })
+                  }
+                >
+                  Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/disclaimer"
+                  onClick={() =>
+                    window.scrollTo({ top: 0, behavior: "smooth" })
+                  }
+                >
+                  Disclaimer
+                </Link>
+              </li>
             </ul>
           </div>
 

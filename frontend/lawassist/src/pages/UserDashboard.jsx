@@ -10,6 +10,8 @@ import UserQueriesTab from "../components/dashboard/user/QueriesTab";
 import UserConsultations from "../components/dashboard/user/Consultations";
 import SavedTopics from "../components/dashboard/user/SavedTopics";
 import UserProfileTab from "../components/dashboard/user/UserProfileTab";
+import UserNotificationsTab from "../components/dashboard/user/NotificationsTab";
+import QueryTrackTab from "../components/dashboard/user/QueryTrackTab";
 
 import QueryDetailsModal from "../components/queries/QueryDetailsModal";
 import ReviewModal from "../components/queries/ReviewModal";
@@ -18,8 +20,10 @@ import BackToTopButton from "../components/layout/BackToTopButton";
 const USER_TABS = [
   { id: "overview", label: "Overview" },
   { id: "queries", label: "All Queries" },
+  { id: "track", label: "Track Status" },
   { id: "consultations", label: "Consultations" },
   { id: "saved", label: "Saved Topics" },
+  { id: "notifications", label: "Notifications" },
 ];
 
 const UserDashboard = () => {
@@ -40,6 +44,8 @@ const UserDashboard = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
 
   const [reviewQuery, setReviewQuery] = useState(null);
+
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const fetchDashboard = async () => {
     try {
@@ -79,6 +85,13 @@ const UserDashboard = () => {
 
   useEffect(() => {
     fetchDashboard();
+
+    const interval = setInterval(() => {
+      fetchDashboard();
+      setRefreshKey((prev) => prev + 1);
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const renderTab = () => {
@@ -110,11 +123,17 @@ const UserDashboard = () => {
           />
         );
 
+      case "track":
+        return <QueryTrackTab queries={queries} />;
+
       case "consultations":
         return <UserConsultations />;
 
       case "saved":
         return <SavedTopics />;
+
+      case "notifications":
+        return <UserNotificationsTab refreshKey={refreshKey} />;
 
       case "profile":
         return <UserProfileTab setActiveTab={setActiveTab} />;

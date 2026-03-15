@@ -6,10 +6,12 @@ import { Link } from "react-router-dom";
 import AuthInput from "../components/auth/AuthInput";
 import AuthButton from "../components/auth/AuthButton";
 import AlertPopup from "../components/ui/AlertPopup";
+import BlockedUserPopup from "../components/users/BlockedUserPopup";
 
 function Login() {
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showBlocked, setShowBlocked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const [loading, setLoading] = useState(false);
@@ -112,6 +114,10 @@ function Login() {
 
         if (!response.ok) {
           setLoading(false);
+          if (response.status === 403) {
+            setShowBlocked(true);
+            return;
+          }
           setErrors({ email: data.message });
           return;
         }
@@ -132,6 +138,8 @@ function Login() {
             navigate("/user-dashboard");
           } else if (data.role === "legalExpert") {
             navigate("/legal-expert-dashboard");
+          } else if (data.role === "admin") {
+            navigate("/admin-dashboard");
           }
         }, 3000);
       } catch (error) {
@@ -231,6 +239,11 @@ function Login() {
               buttonText="OK"
               onClose={() => setShowSuccess(false)}
             />
+            {showBlocked && <BlockedUserPopup onClose={() => {
+              setShowBlocked(false);
+              setForm({ email: "", password: "" });
+              setErrors({});
+            }} />}
           </div>
         </div>
       </div>
