@@ -31,3 +31,9 @@ dist/
 .DS_Store
 Thumbs.db
 backend/admin.js
+
+# ==============================
+# Uploaded Files
+# ==============================
+backend/uploads/*
+!backend/uploads/.gitkeep
