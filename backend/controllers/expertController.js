@@ -159,10 +159,13 @@ exports.getExpertStats = async (req, res) => {
       status: "Resolved",
     });
 
+    const expert = await Expert.findOne({ userId: expertId }, { totalEarnings: 1 });
+
     res.json({
       assignedQueries,
       pendingQueries,
       resolvedQueries,
+      totalEarnings: expert?.totalEarnings || 0,
     });
   } catch {
     res.status(500).json({ message: "Error fetching stats" });

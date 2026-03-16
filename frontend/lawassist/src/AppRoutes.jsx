@@ -24,6 +24,7 @@ import Disclaimer from "./pages/Disclaimer";
 // Components
 import LawDetails from "./components/laws/LawDetails";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import PaymentPage from "./components/payment/PaymentPage";
 
 const AppRoutes = () => {
   return (
@@ -74,6 +75,14 @@ const AppRoutes = () => {
       <Route path="/explore-rights" element={<ExploreRights />} />
       <Route path="/queries" element={<Queries />} />
       <Route path="/consultations" element={<Consultations />} />
+      <Route
+        path="/payment"
+        element={
+          <ProtectedRoute allowedRole="consumer">
+            <PaymentPage />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/chat/:consultationId" element={<ChatPage />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsAndConditions />} />

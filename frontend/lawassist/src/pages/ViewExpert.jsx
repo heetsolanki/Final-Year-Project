@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from "react";
 import { MapPin, Briefcase, CheckCircle, ArrowLeft, Star, Circle } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import BackToTopButton from "../components/layout/BackToTopButton";
-import AlertPopup from "../components/ui/AlertPopup";
 import axios from "axios";
 import API_URL from "../api";
 
@@ -12,43 +11,17 @@ const ExpertProfile = () => {
 
   const [expert, setExpert] = useState(null);
   const [reviews, setReviews] = useState([]);
-  const [loadingConsultation, setLoadingConsultation] = useState(false);
-  const [errorPopup, setErrorPopup] = useState(false);
 
-  const startConsultation = async () => {
-  try {
-
-    setLoadingConsultation(true);
-
+  const startConsultation = () => {
     const token = localStorage.getItem("token");
 
-    const res = await axios.post(
-      `${API_URL}/api/consultations/create`,
-      {
-        expertUserId: expert.userId,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
-    const consultationId = res.data.consultationId;
-
-    navigate(`/chat/${consultationId}`);
-
-  } catch (error) {
-
-    console.log(error);
-    setErrorPopup(true);
-
-  } finally {
-
-    setLoadingConsultation(false);
-
-  }
-};
+    navigate(`/payment?expertId=${expert.userId}`);
+  };
 
   const fetchExpert = useCallback(async () => {
     try {
@@ -161,10 +134,10 @@ const ExpertProfile = () => {
 
                 <button
                   onClick={startConsultation}
-                  disabled={loadingConsultation || !expert.isActive}
+                  disabled={!expert.isActive}
                   className="w-full bg-[#1E3A8A] text-white py-2.5 sm:py-3 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-[#1E3A8A]/90 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {loadingConsultation ? "Starting..." : !expert.isActive ? "Expert Unavailable" : "Start Consultation"}
+                  {!expert.isActive ? "Expert Unavailable" : "Start Consultation"}
                 </button>
               </div>
             </div>
@@ -296,13 +269,6 @@ const ExpertProfile = () => {
           </div>
         </div>
       </div>
-      <AlertPopup
-        show={errorPopup}
-        title="Unable to Start Consultation"
-        message="Something went wrong. Please try again later."
-        type="error"
-        onClose={() => setErrorPopup(false)}
-      />
       <BackToTopButton />
     </>
   );

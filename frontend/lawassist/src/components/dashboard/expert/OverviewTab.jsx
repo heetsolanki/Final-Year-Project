@@ -1,7 +1,7 @@
 import DashboardCard from "../DashboardCard";
 import StatsGrid from "../StatsGrid";
 import { getStatusClass } from "../../../data";
-import { Eye, LayoutDashboard, FolderOpen, Clock, CheckCircle } from "lucide-react";
+import { Eye, LayoutDashboard, FolderOpen, Clock, CheckCircle, IndianRupee } from "lucide-react";
 
 const ExpertOverviewTab = ({
   queries,
@@ -37,6 +37,13 @@ const ExpertOverviewTab = ({
       icon: CheckCircle,
       color: "text-green-600",
       bg: "bg-green-50",
+    },
+    {
+      title: "Total Earnings",
+      value: `₹${stats.totalEarnings || 0}`,
+      icon: IndianRupee,
+      color: "text-emerald-600",
+      bg: "bg-emerald-50",
     },
   ];
 
