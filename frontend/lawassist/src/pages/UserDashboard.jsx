@@ -12,6 +12,7 @@ import SavedTopics from "../components/dashboard/user/SavedTopics";
 import UserProfileTab from "../components/dashboard/user/UserProfileTab";
 import UserNotificationsTab from "../components/dashboard/user/NotificationsTab";
 import QueryTrackTab from "../components/dashboard/user/QueryTrackTab";
+import PaymentHistoryTab from "../components/dashboard/user/PaymentHistoryTab";
 
 import QueryDetailsModal from "../components/queries/QueryDetailsModal";
 import ReviewModal from "../components/queries/ReviewModal";
@@ -23,6 +24,7 @@ const USER_TABS = [
   { id: "queries", label: "All Queries" },
   { id: "track", label: "Track Status" },
   { id: "consultations", label: "Consultations" },
+  { id: "payments", label: "Payments" },
   { id: "saved", label: "Saved Topics" },
   { id: "notifications", label: "Notifications" },
 ];
@@ -170,6 +172,9 @@ const UserDashboard = () => {
 
       case "consultations":
         return <UserConsultations />;
+
+      case "payments":
+        return <PaymentHistoryTab />;
 
       case "saved":
         return <SavedTopics />;
