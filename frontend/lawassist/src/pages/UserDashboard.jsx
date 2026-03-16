@@ -18,6 +18,7 @@ import QueryDetailsModal from "../components/queries/QueryDetailsModal";
 import ReviewModal from "../components/queries/ReviewModal";
 import AskQueryForm from "../components/queries/AskQueryForm";
 import BackToTopButton from "../components/layout/BackToTopButton";
+import { useConfirmModal } from "../context/ConfirmModalContext";
 
 const USER_TABS = [
   { id: "overview", label: "Overview" },
@@ -53,6 +54,7 @@ const UserDashboard = () => {
   // Pending query from localStorage (non-logged-in user)
   const [pendingQuery, setPendingQuery] = useState(null);
   const [showAskQueryModal, setShowAskQueryModal] = useState(false);
+  const { openConfirmModal } = useConfirmModal();
 
   // Check for pending query on mount
   useEffect(() => {
@@ -137,6 +139,21 @@ const UserDashboard = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (!showDeleteModal) return;
+
+    openConfirmModal({
+      title: "Delete Query?",
+      description: "Are you sure you want to delete this query? This action cannot be undone.",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      type: "danger",
+      onConfirm: handleDelete,
+    });
+
+    setShowDeleteModal(false);
+  }, [showDeleteModal, openConfirmModal]);
 
   const renderTab = () => {
     switch (activeTab) {
@@ -261,33 +278,6 @@ const UserDashboard = () => {
               setShowReviewModal(true);
             }}
           />
-        )}
-
-        {/* Delete Modal */}
-        {showDeleteModal && (
-          <div className="delete-overlay">
-            <div className="delete-modal">
-              <h3 className="delete-title">Delete Query?</h3>
-
-              <p className="delete-text">
-                Are you sure you want to delete this query? This action cannot
-                be undone.
-              </p>
-
-              <div className="delete-actions">
-                <button
-                  onClick={() => setShowDeleteModal(false)}
-                  className="delete-cancel-btn"
-                >
-                  Cancel
-                </button>
-
-                <button onClick={handleDelete} className="delete-confirm-btn">
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
         )}
 
         {/* Review Modal */}

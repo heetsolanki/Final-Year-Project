@@ -32,18 +32,6 @@ const welcomeEmailTemplate = (name, userId) => {
           </p>
         </div>
 
-        <a href="https://lawassist.vercel.app/login" target="_blank"
-           style="display:inline-block;
-           margin-top:10px;
-           background:#2563eb;
-           color:white;
-           padding:12px 22px;
-           text-decoration:none;
-           border-radius:6px;
-           font-weight:600;">
-           Visit LawAssist
-        </a>
-
         <p style="margin-top:30px; color:#111827;">
           — Team LawAssist
         </p>

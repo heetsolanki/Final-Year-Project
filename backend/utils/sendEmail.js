@@ -36,25 +36,19 @@ const sendEmail = async (to, subject, text, options = {}) => {
       subject,
       html: text,
     };
-    const info = await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
 
-    console.log(`Email sent [${category}]:`, info.response);
+    console.log(`Email sent [${category}]`);
 
     await logActivity("Email sent", performedBy, targetId, {
       category,
-      to: String(to).trim(),
-      subject,
-      response: info.response,
       ...details,
     });
   } catch (error) {
-    console.error("Email error:", error);
+    console.error(`Email failed [${options.category || "general"}]`);
 
     await logActivity("Email failed", options.performedBy || "SYSTEM", options.targetId || null, {
       category: options.category || "general",
-      to: to ? String(to).trim() : null,
-      subject,
-      error: error.message,
       ...(options.details || {}),
     });
   }

@@ -34,13 +34,14 @@ function Navbar() {
           const decoded = jwtDecode(token);
           setIsLoggedIn(true);
           setUserRole(decoded.role);
-          if (userRole === "consumer") {
+
+          if (decoded.role === "consumer") {
             const res = await axios.get(`${API_URL}/api/users/profile`, {
               headers: { Authorization: `Bearer ${token}` },
             });
 
             setUserName(res.data.name);
-          } else if (userRole === "legalExpert") {
+          } else if (decoded.role === "legalExpert") {
             const res = await axios.get(`${API_URL}/api/expert/profile`, {
               headers: { Authorization: `Bearer ${token}` },
             });
@@ -59,7 +60,11 @@ function Navbar() {
     };
 
     checkAuth();
-  }, [location, userRole]);
+  }, [location]);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -77,8 +82,7 @@ function Navbar() {
   return (
     <div className="nav-wrapper">
       <nav className="navbar">
-        {/* LEFT LINKS */}
-        <div className="nav-links">
+        <div className="nav-links nav-links-left">
           <Link
             to="/"
             className="nav-link"
@@ -102,18 +106,16 @@ function Navbar() {
           </Link>
         </div>
 
-        {/* LOGO */}
         <Link
           to="/"
-          className="flex items-center gap-2 whitespace-nowrap text-[#0A1F44] hover:text-[#C9A227] transition cursor-pointer"
+          className="nav-brand"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-          <Scale size={28} className="nav-logo" />
+          <Scale size={28} className="nav-logo-icon" />
           <span className="nav-logo-text">LawAssist</span>
         </Link>
 
-        {/* RIGHT LINKS */}
-        <div className="nav-links">
+        <div className="nav-links nav-links-right">
           {userRole !== "legalExpert" && (
             <Link
               to="/experts"
@@ -153,25 +155,25 @@ function Navbar() {
               {userRole === "consumer" && (
                 <Link
                   to="/user-dashboard"
-                  className="nav-login px-3 py-2 flex items-center align-center gap-1 rounded-full border border-[#0A1F44] hover:bg-[#0A1F44] hover:text-white transition"
+                  className="nav-profile-link"
                   onClick={() =>
                     window.scrollTo({ top: 0, behavior: "smooth" })
                   }
                 >
                   <User2Icon size={18} />
-                  <span className="text-sm font-medium">{userName}</span>
+                  <span className="nav-profile-name">{userName}</span>
                 </Link>
               )}
               {userRole === "legalExpert" && (
                 <Link
                   to="/legal-expert-dashboard"
-                  className="nav-login px-3 py-2 flex items-center align-center gap-1 rounded-full border border-[#0A1F44] hover:bg-[#0A1F44] hover:text-white transition"
+                  className="nav-profile-link"
                   onClick={() =>
                     window.scrollTo({ top: 0, behavior: "smooth" })
                   }
                 >
                   <User2Icon size={18} />
-                  <span className="text-sm font-medium">{userName}</span>
+                  <span className="nav-profile-name">{userName}</span>
                 </Link>
               )}
               <button className="nav-btn nav-register" onClick={handleLogout}>
@@ -181,10 +183,15 @@ function Navbar() {
           )}
         </div>
 
-        {/* HAMBURGER */}
-        <div className="nav-hamburger" onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <X size={26} /> : <Menu size={26} />}
-        </div>
+        <button
+          type="button"
+          className="nav-hamburger"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={isOpen}
+        >
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </nav>
 
       {/* MOBILE MENU */}

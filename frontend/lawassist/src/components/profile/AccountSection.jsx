@@ -1,10 +1,51 @@
 import { useState } from "react";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 import ChangePasswordModal from "./ChangePasswordModal";
-import DeleteAccountModal from "./DeleteAccountModal";
+import API_URL from "../../api";
+import AlertPopup from "../ui/AlertPopup";
+import { useConfirmModal } from "../../context/ConfirmModalContext";
 
 const AccountSection = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [error, setError] = useState(null);
+  const { openConfirmModal } = useConfirmModal();
+
+  const handleDeleteAccount = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      let endpoint = `${API_URL}/api/users/delete-account`;
+
+      try {
+        const decoded = jwtDecode(token);
+        if (decoded.role === "legalExpert") {
+          endpoint = `${API_URL}/api/expert/delete-account`;
+        }
+      } catch {
+        // Fallback to consumer endpoint when token decoding fails
+      }
+
+      await axios.delete(endpoint, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      localStorage.removeItem("token");
+      window.location.href = "/";
+    } catch {
+      setError("Failed to delete account. Please try again.");
+    }
+  };
+
+  const requestDeleteAccount = () => {
+    openConfirmModal({
+      title: "Delete Account?",
+      description: "This action is permanent. All your data and queries will be removed.",
+      confirmText: "Delete Permanently",
+      cancelText: "Cancel",
+      type: "danger",
+      onConfirm: handleDeleteAccount,
+    });
+  };
 
   return (
     <div className="mt-10 space-y-8">
@@ -39,16 +80,20 @@ const AccountSection = () => {
         </p>
 
         <button
-          onClick={() => setShowDeleteModal(true)}
+          onClick={requestDeleteAccount}
           className="mt-5 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
         >
           Delete Account
         </button>
-
-        {showDeleteModal && (
-          <DeleteAccountModal onClose={() => setShowDeleteModal(false)} />
-        )}
       </div>
+
+      <AlertPopup
+        show={!!error}
+        title="Error"
+        message={error || ""}
+        type="error"
+        onClose={() => setError(null)}
+      />
     </div>
   );
 };

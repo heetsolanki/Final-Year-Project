@@ -12,7 +12,7 @@ const DashboardTopCard = ({
   headerExtra = null,
 }) => {
   return (
-    <div className="relative rounded-2xl px-6 md:px-12 py-8 md:py-10 mt-6 mb-10 shadow-md overflow-hidden bg-gradient-to-r from-blue-50 via-white to-blue-50">
+    <div className="relative rounded-2xl px-6 md:px-12 py-8 md:py-10 mt-6 mb-10 shadow-md overflow-visible bg-gradient-to-r from-blue-50 via-white to-blue-50">
       {/* background accent */}
       <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-40" />
 

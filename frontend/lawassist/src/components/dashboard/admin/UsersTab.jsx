@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import API_URL from "../../../api";
-import { Search, Users, Filter, Trash2 } from "lucide-react";
+import { Search, Users, Filter } from "lucide-react";
 import UserTable from "../../users/UserTable";
 import AlertPopup from "../../ui/AlertPopup";
 import { useNavigate } from "react-router-dom";
+import { useConfirmModal } from "../../../context/ConfirmModalContext";
 
 const AdminUsersTab = ({ refreshKey }) => {
   const navigate = useNavigate();
@@ -14,8 +15,9 @@ const AdminUsersTab = ({ refreshKey }) => {
   const [statusFilter, setStatusFilter] = useState("All");
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [pendingAction, setPendingAction] = useState(null);
   const [alertPopup, setAlertPopup] = useState({ show: false, title: "", message: "", type: "success" });
+  const { openConfirmModal } = useConfirmModal();
 
   const token = localStorage.getItem("token");
   const headers = { Authorization: `Bearer ${token}` };
@@ -48,9 +50,8 @@ const AdminUsersTab = ({ refreshKey }) => {
   }, [refreshKey]);
 
   const handleAction = async (action, userId, isExpert) => {
-    // Intercept delete to show confirmation
-    if (action === "delete") {
-      setDeleteConfirm({ userId, isExpert });
+    if (["delete", "block", "unblock", "promote", "demote"].includes(action)) {
+      setPendingAction({ action, userId, isExpert });
       return;
     }
 
@@ -99,25 +100,112 @@ const AdminUsersTab = ({ refreshKey }) => {
     }
   };
 
-  const handleDeleteUser = async () => {
-    if (!deleteConfirm) return;
-    setActionLoading(`delete-${deleteConfirm.userId}`);
+  const executeConfirmedAction = async ({ action, userId, isExpert }) => {
+    if (!action || !userId) return;
+    setActionLoading(`${action}-${userId}`);
+
     try {
-      await axios.delete(
-        `${API_URL}/api/admin/users/${deleteConfirm.userId}`,
-        { headers },
-      );
-      setDeleteConfirm(null);
-      setAlertPopup({ show: true, title: "User Deleted", message: "User account has been permanently deleted.", type: "success" });
+      if (action === "delete") {
+        await axios.delete(`${API_URL}/api/admin/users/${userId}`, { headers });
+        setAlertPopup({ show: true, title: "User Deleted", message: "User account has been permanently deleted.", type: "success" });
+      } else if (isExpert && ["block", "unblock", "promote", "demote"].includes(action)) {
+        await axios.put(`${API_URL}/api/admin/experts/${action}/${userId}`, {}, { headers });
+      } else {
+        await axios.put(`${API_URL}/api/admin/${action}/${userId}`, {}, { headers });
+      }
+
+      if (action === "demote") {
+        const currentUserId = getCurrentUserId();
+        if (currentUserId === userId) {
+          localStorage.removeItem("token");
+          setAlertPopup({
+            show: true,
+            title: "Demoted",
+            message: "You have been demoted from admin. Redirecting to homepage...",
+            type: "info",
+            redirectTo: "/",
+          });
+          setTimeout(() => navigate("/"), 2000);
+          return;
+        }
+      }
+
       fetchUsers();
     } catch (err) {
-      console.error("Failed to delete user:", err);
-      setDeleteConfirm(null);
-      setAlertPopup({ show: true, title: "Error", message: err.response?.data?.message || "Failed to delete user.", type: "error" });
+      console.error(`Failed to ${action} user:`, err);
+      setAlertPopup({
+        show: true,
+        title: "Error",
+        message: err.response?.data?.message || `Failed to ${action} user.`,
+        type: "error",
+      });
     } finally {
       setActionLoading(null);
     }
   };
+
+  const getActionModalConfig = () => {
+    if (!pendingAction) return null;
+
+    const noun = pendingAction.isExpert ? "expert" : "user";
+
+    const config = {
+      delete: {
+        title: `Delete ${pendingAction.isExpert ? "Expert" : "User"}?`,
+        description: `This will permanently delete the ${noun} account and all associated data.`,
+        confirmText: "Delete",
+        type: "danger",
+      },
+      block: {
+        title: `Block ${pendingAction.isExpert ? "Expert" : "User"}?`,
+        description: `The ${noun} will no longer be able to access the platform.`,
+        confirmText: "Block",
+        type: "block",
+      },
+      unblock: {
+        title: `Unblock ${pendingAction.isExpert ? "Expert" : "User"}?`,
+        description: `The ${noun} will regain access to the platform.`,
+        confirmText: "Unblock",
+        type: "success",
+      },
+      promote: {
+        title: `Promote ${pendingAction.isExpert ? "Expert" : "User"}?`,
+        description: `This ${noun} will gain administrator access.`,
+        confirmText: "Promote",
+        type: "info",
+      },
+      demote: {
+        title: `Demote ${pendingAction.isExpert ? "Expert Admin" : "Admin"}?`,
+        description: `Administrator privileges will be removed from this ${noun}.`,
+        confirmText: "Demote",
+        type: "warning",
+      },
+    };
+
+    return config[pendingAction.action];
+  };
+
+  useEffect(() => {
+    if (!pendingAction) return;
+
+    const config = getActionModalConfig();
+    if (!config) {
+      setPendingAction(null);
+      return;
+    }
+
+    const actionPayload = { ...pendingAction };
+    openConfirmModal({
+      title: config.title,
+      description: config.description,
+      confirmText: config.confirmText,
+      cancelText: "Cancel",
+      type: config.type,
+      onConfirm: () => executeConfirmedAction(actionPayload),
+    });
+
+    setPendingAction(null);
+  }, [pendingAction, openConfirmModal]);
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -240,37 +328,6 @@ const AdminUsersTab = ({ refreshKey }) => {
           actionLoading={actionLoading}
         />
       </div>
-
-      {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4">
-          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="bg-red-100 p-3 rounded-full">
-                <Trash2 className="text-red-600 w-7 h-7" />
-              </div>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Delete User?</h3>
-            <p className="text-gray-500 text-sm mb-6">
-              This will permanently delete this user account and all their associated data. This action cannot be undone.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="flex-1 border border-gray-300 rounded-lg py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteUser}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-lg py-2.5 text-sm font-medium transition"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Alert Popup */}
       <AlertPopup

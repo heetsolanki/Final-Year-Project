@@ -92,11 +92,19 @@ body {
 }
 
 .navbar {
-  @apply relative flex items-center justify-between px-8 py-4 rounded-full bg-white/70 backdrop-blur-xl shadow-lg border border-white/40;
+  @apply relative grid grid-cols-[1fr_auto_1fr] items-center gap-4 px-8 py-4 rounded-full bg-white/70 backdrop-blur-xl shadow-lg border border-white/40;
 }
 
 .nav-links {
-  @apply flex items-center gap-8 cursor-pointer;
+  @apply flex items-center gap-8 min-w-0;
+}
+
+.nav-links-left {
+  @apply justify-self-start;
+}
+
+.nav-links-right {
+  @apply justify-self-end;
 }
 
 .nav-link {
@@ -124,7 +132,7 @@ body {
 }
 
 .nav-btn {
-  @apply px-6 py-2 rounded-full text-sm transition;
+  @apply px-6 py-2 rounded-full text-sm transition whitespace-nowrap;
 }
 
 .nav-login {
@@ -135,22 +143,34 @@ body {
   @apply bg-[#0A1F44] text-white hover:bg-[#123A6F];
 }
 
-.nav-logo {
-  @apply absolute left-1/2 -translate-x-1/2 flex items-center gap-2 whitespace-nowrap;
+.nav-brand {
+  @apply flex items-center justify-center gap-2 whitespace-nowrap text-[#0A1F44] hover:text-[#C9A227] transition cursor-pointer justify-self-center min-w-0;
 }
 
 .nav-logo-text {
-  @apply hidden font-semibold text-[18px] leading-none;
+  @apply font-semibold text-[18px] leading-none;
+}
+
+.nav-logo-icon {
+  @apply shrink-0;
+}
+
+.nav-profile-link {
+  @apply border border-[#0A1F44] text-[#0A1F44] hover:bg-[#0A1F44] hover:text-white transition rounded-full px-3 py-2 flex items-center gap-1 min-w-0 max-w-[210px];
+}
+
+.nav-profile-name {
+  @apply text-sm font-medium truncate;
 }
 
 /* MOBILE NAVBAR */
 
 .nav-hamburger {
-  @apply hidden text-[#0A1F44] cursor-pointer;
+  @apply hidden text-[#0A1F44] cursor-pointer justify-self-end;
 }
 
 .mobile-menu {
-  @apply hidden flex-col items-center gap-6 mt-4 px-6 py-6 rounded-2xl bg-white/90 backdrop-blur-xl shadow-xl border border-white/40;
+  @apply hidden flex-col items-center gap-6 mt-4 px-6 py-6 rounded-2xl bg-white/90 backdrop-blur-xl shadow-xl border border-white/40 max-h-[calc(100vh-7rem)] overflow-y-auto;
 }
 
 .mobile-menu.active {
@@ -159,35 +179,60 @@ body {
 
 /* RESPONSIVE */
 
-@media (max-width: 768px) {
-
-  .nav-wrapper {
-    @apply top-4 w-[95%];
-  }
-
+@media (max-width: 1100px) {
   .navbar {
-    @apply relative px-6 py-5 rounded-2xl;
+    @apply grid-cols-[auto_1fr_auto] rounded-full;
   }
 
   .nav-links {
     @apply hidden;
   }
 
+  .nav-brand {
+    @apply justify-self-start;
+  }
+
+  .nav-logo-text {
+    @apply inline-block;
+  }
+
   .nav-hamburger {
     @apply block;
   }
+}
 
-  .nav-logo {
-    @apply flex items-center justify-center gap-[10px] font-semibold text-[18px];
-    animation: none;
+@media (max-width: 768px) {
+  .nav-wrapper {
+    @apply top-4 w-[95%];
   }
 
-  .nav-logo-icon {
-    @apply flex items-center justify-center;
+  .navbar {
+    @apply px-6 py-5 rounded-2xl;
   }
 
   .nav-logo-text {
     @apply inline-block leading-none;
+  }
+
+  .nav-btn,
+  .mobile-menu .nav-link,
+  .mobile-menu .nav-login,
+  .mobile-menu .nav-register {
+    @apply w-full text-center justify-center;
+  }
+}
+
+@media (max-width: 420px) {
+  .nav-wrapper {
+    @apply w-[calc(100%-0.75rem)];
+  }
+
+  .nav-brand {
+    @apply max-w-[calc(100vw-7rem)];
+  }
+
+  .nav-logo-text {
+    @apply truncate;
   }
 }
 

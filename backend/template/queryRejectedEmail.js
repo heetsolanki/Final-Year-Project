@@ -39,18 +39,6 @@ const queryRejectedEmail = (name, title, reason) => {
           You may submit a new query after addressing the concerns mentioned above. Please ensure your query follows our community guidelines.
         </p>
 
-        <a href="https://lawassist.vercel.app/queries" target="_blank"
-           style="display:inline-block;
-           margin-top:10px;
-           background:#2563eb;
-           color:white;
-           padding:12px 22px;
-           text-decoration:none;
-           border-radius:6px;
-           font-weight:600;">
-           View Queries
-        </a>
-
         <p style="margin-top:30px; color:#111827;">
           — Team LawAssist
         </p>

@@ -56,8 +56,14 @@ const DashboardNotificationBell = ({ onOpenNotifications }) => {
         )}
       </button>
 
-      {isOpen && (
-        <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
+      <div
+        className={`absolute right-0 mt-3 w-80 rounded-xl border border-gray-200 bg-white shadow-xl z-[70] transition-all duration-200 ease-out ${
+          isOpen
+            ? "translate-y-0 opacity-100 pointer-events-auto"
+            : "-translate-y-2 opacity-0 pointer-events-none"
+        }`}
+      >
+        <div className="overflow-hidden rounded-xl bg-white">
           <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
             <p className="text-sm font-semibold text-[#1E3A8A]">Notifications</p>
             <span className="text-xs text-gray-500">{unreadCount} unread</span>
@@ -102,7 +108,7 @@ const DashboardNotificationBell = ({ onOpenNotifications }) => {
             <ChevronRight size={16} />
           </button>
         </div>
-      )}
+      </div>
     </div>
   );
 };

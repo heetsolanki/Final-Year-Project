@@ -28,17 +28,6 @@ const queryStatusUpdateEmail = (name, title, status) => {
           <p><strong>New Status:</strong> ${status}</p>
         </div>
 
-        <a href="https://lawassist.vercel.app/dashboard"
-        style="display:inline-block;
-        background:#2563eb;
-        color:white;
-        padding:12px 22px;
-        text-decoration:none;
-        border-radius:6px;
-        font-weight:600;">
-        View Your Query
-        </a>
-
         <p style="margin-top:30px;color:#111827;">
           — Team LawAssist
         </p>

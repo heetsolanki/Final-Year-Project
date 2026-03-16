@@ -4,6 +4,7 @@ import API_URL from "../../../api";
 import { Search, Eye, Trash2, FileSearch, Filter, CheckCircle, XCircle } from "lucide-react";
 import QueryDetailsModal from "../../queries/QueryDetailsModal";
 import AlertPopup from "../../ui/AlertPopup";
+import { useConfirmModal } from "../../../context/ConfirmModalContext";
 
 const STATUS_FILTERS = ["All", "Pending", "In Review", "Assigned", "Answered", "Resolved", "Rejected"];
 
@@ -36,8 +37,8 @@ const AdminQueriesTab = ({ refreshKey }) => {
   // Modals
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [rejectModal, setRejectModal] = useState(null);
-  const [rejectReason, setRejectReason] = useState("");
   const [alertPopup, setAlertPopup] = useState({ show: false, title: "", message: "", type: "success" });
+  const { openConfirmModal } = useConfirmModal();
 
   const token = localStorage.getItem("token");
   const headers = { Authorization: `Bearer ${token}` };
@@ -57,15 +58,13 @@ const AdminQueriesTab = ({ refreshKey }) => {
     fetchQueries();
   }, [refreshKey]);
 
-  const handleDelete = async () => {
-    if (!deleteConfirm) return;
+  const handleDelete = async (queryId) => {
+    if (!queryId) return;
     try {
-      await axios.delete(`${API_URL}/api/admin/query/${deleteConfirm}`, { headers });
-      setDeleteConfirm(null);
+      await axios.delete(`${API_URL}/api/admin/query/${queryId}`, { headers });
       fetchQueries();
     } catch (err) {
       console.error("Failed to delete query:", err);
-      setDeleteConfirm(null);
       setAlertPopup({ show: true, title: "Error", message: "Failed to delete query.", type: "error" });
     }
   };
@@ -81,25 +80,54 @@ const AdminQueriesTab = ({ refreshKey }) => {
     }
   };
 
-  const handleReject = async () => {
-    if (!rejectModal) return;
+  const handleReject = async (queryId) => {
+    if (!queryId) return;
     try {
       await axios.put(
-        `${API_URL}/api/admin/query/reject/${rejectModal}`,
-        { reason: rejectReason },
+        `${API_URL}/api/admin/query/reject/${queryId}`,
+        { reason: "Rejected by admin" },
         { headers },
       );
-      setRejectModal(null);
-      setRejectReason("");
       setAlertPopup({ show: true, title: "Query Rejected", message: "Query has been rejected and the user has been notified.", type: "success" });
       fetchQueries();
     } catch (err) {
       console.error("Failed to reject query:", err);
-      setRejectModal(null);
-      setRejectReason("");
       setAlertPopup({ show: true, title: "Error", message: err.response?.data?.message || "Failed to reject query.", type: "error" });
     }
   };
+
+  useEffect(() => {
+    if (!deleteConfirm) return;
+
+    const queryId = deleteConfirm;
+
+    openConfirmModal({
+      title: "Delete Query?",
+      description: "This will permanently remove the query from the platform. This action cannot be undone.",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      type: "danger",
+      onConfirm: () => handleDelete(queryId),
+    });
+
+    setDeleteConfirm(null);
+  }, [deleteConfirm, openConfirmModal]);
+
+  useEffect(() => {
+    if (!rejectModal) return;
+
+    const queryId = rejectModal;
+    openConfirmModal({
+      title: "Reject Query?",
+      description: "This query will be rejected and sent back to the user.",
+      confirmText: "Reject Query",
+      cancelText: "Cancel",
+      type: "danger",
+      onConfirm: () => handleReject(queryId),
+    });
+
+    setRejectModal(null);
+  }, [rejectModal, openConfirmModal]);
 
   const categories = [
     "All",
@@ -293,7 +321,6 @@ const AdminQueriesTab = ({ refreshKey }) => {
                               <button
                                 onClick={() => {
                                   setRejectModal(query._id);
-                                  setRejectReason("");
                                 }}
                                 title="Reject Query"
                                 className="p-2 rounded-lg text-red-500 hover:bg-red-50 hover:text-red-700 active:scale-95 transition-all duration-200"
@@ -328,74 +355,6 @@ const AdminQueriesTab = ({ refreshKey }) => {
           onClose={() => setSelectedQuery(null)}
           refreshQueries={fetchQueries}
         />
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4">
-          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="bg-red-100 p-3 rounded-full">
-                <Trash2 className="text-red-600 w-7 h-7" />
-              </div>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Delete Query?</h3>
-            <p className="text-gray-500 text-sm mb-6">
-              Are you sure you want to delete this query? This action cannot be undone.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="flex-1 border border-gray-300 rounded-lg py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-lg py-2.5 text-sm font-medium transition"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Reject Query Modal */}
-      {rejectModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-1">Reject Query</h3>
-            <p className="text-gray-500 text-sm mb-4">
-              Please provide a reason for rejecting this query. The user will be notified.
-            </p>
-            <textarea
-              rows="3"
-              placeholder="Enter rejection reason..."
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
-              className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:border-red-300 focus:ring-1 focus:ring-red-200 transition"
-            />
-            <div className="flex gap-3 mt-4">
-              <button
-                onClick={() => {
-                  setRejectModal(null);
-                  setRejectReason("");
-                }}
-                className="flex-1 border border-gray-300 rounded-lg py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleReject}
-                disabled={!rejectReason.trim()}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-lg py-2.5 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Reject Query
-              </button>
-            </div>
-          </div>
-        </div>
       )}
 
       {/* Alert Popup */}
