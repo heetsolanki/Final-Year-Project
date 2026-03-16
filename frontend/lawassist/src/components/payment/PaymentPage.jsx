@@ -278,7 +278,7 @@ export const PaymentReceipt = ({
     },
     { label: "Amount Paid", value: `₹${amount}`, highlight: true },
     { label: "Expert", value: expertName },
-    { label: "Duration", value: "30 Minutes" },
+    { label: "Duration", value: "4 Hours" },
     { label: "Status", value: "Success", badge: true },
   ];
 
@@ -425,7 +425,7 @@ const ExpertConsultationCard = ({ expert }) => (
       <div className="flex items-center justify-between text-sm">
         <span className="text-gray-500">Duration</span>
         <span className="font-medium text-gray-700 flex items-center gap-1">
-          <Clock size={14} /> 30 minutes
+          <Clock size={14} /> 4 hours
         </span>
       </div>
     </div>

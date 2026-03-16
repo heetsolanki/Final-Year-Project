@@ -46,7 +46,7 @@ const generateInvoice = ({
   cardLast4,
   userName,
   userEmail,
-  consultationDuration = "30 Minutes",
+  consultationDuration = "4 Hours",
 }) => {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
 

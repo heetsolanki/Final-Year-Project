@@ -36,9 +36,19 @@ const chatSocket = (io) => {
 
     socket.on("sendMessage", async (data) => {
       try {
-        const { consultationId, message } = data;
+        const {
+          consultationId,
+          message,
+          fileUrl,
+          fileName,
+          fileType,
+          fileSize,
+        } = data;
 
-        if (!message || message.trim() === "") {
+        const hasText = message && message.trim() !== "";
+        const hasFile = !!fileUrl;
+
+        if (!hasText && !hasFile) {
           return socket.emit("error", "Message cannot be empty");
         }
 
@@ -68,7 +78,11 @@ const chatSocket = (io) => {
           consultationId,
           senderId: user.userId,
           receiverId,
-          message,
+          message: hasText ? message.trim() : null,
+          fileUrl: fileUrl || null,
+          fileName: fileName || null,
+          fileType: fileType || null,
+          fileSize: fileSize || null,
         });
 
         io.to(consultationId).emit("receiveMessage", newMessage);
