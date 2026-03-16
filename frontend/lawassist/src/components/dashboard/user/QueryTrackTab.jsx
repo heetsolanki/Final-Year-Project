@@ -1,10 +1,121 @@
-import { ClipboardList, CheckCircle, Clock, XCircle, Circle } from "lucide-react";
+import { ClipboardList, CheckCircle, Clock, XCircle, Circle, Edit3, X } from "lucide-react";
 import { useState } from "react";
+import axios from "axios";
+import API_URL from "../../../api";
+import AlertPopup from "../../ui/AlertPopup";
 
 const STEPS = ["Pending", "In Review", "Assigned", "Answered", "Resolved"];
 const STEP_INDEX = { Pending: 0, "In Review": 1, Assigned: 2, Answered: 3, Resolved: 4 };
 
-const QueryTrackCard = ({ query }) => {
+const ReAppealModal = ({ query, onClose, onSuccess }) => {
+  const [formData, setFormData] = useState({
+    title: query.title,
+    description: query.description,
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.title.trim() || !formData.description.trim()) {
+      setError("Title and description are required");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `${API_URL}/api/queries/re-appeal/${query._id}`,
+        formData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      onSuccess();
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to re-submit query");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 animate-fadeInScale">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-lg font-semibold text-gray-800">Edit & Re-Appeal Query</h3>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-lg transition">
+            <X size={20} className="text-gray-500" />
+          </button>
+        </div>
+
+        <p className="text-sm text-gray-500 mb-4">
+          Modify your query and submit it again for admin review.
+        </p>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Query Title
+            </label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              placeholder="Enter query title"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              rows={4}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-none"
+              placeholder="Describe your issue in detail"
+            />
+          </div>
+
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <p className="text-xs text-amber-700">
+              <span className="font-medium">Note:</span> Category and subcategory cannot be changed.
+              Please ensure your updated query follows our guidelines to avoid another rejection.
+            </p>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+            >
+              {loading ? "Submitting..." : "Re-Submit for Review"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+const QueryTrackCard = ({ query, onReAppeal }) => {
   const isRejected = query.status === "Rejected";
   const currentIndex = STEP_INDEX[query.status] ?? -1;
 
@@ -57,6 +168,15 @@ const QueryTrackCard = ({ query }) => {
             </p>
           </div>
         )}
+
+        {/* Edit & Re-Appeal Button */}
+        <button
+          onClick={() => onReAppeal(query)}
+          className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition"
+        >
+          <Edit3 size={14} />
+          Edit & Re-Appeal
+        </button>
       </div>
     );
   }
@@ -149,15 +269,23 @@ const QueryTrackCard = ({ query }) => {
   );
 };
 
-const QueryTrackTab = ({ queries }) => {
+const QueryTrackTab = ({ queries, refreshQueries }) => {
   const [filter, setFilter] = useState("All");
+  const [reAppealQuery, setReAppealQuery] = useState(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
-  const STATUS_FILTERS = ["All", "Pending", "In Review", "Assigned", "Answered", "Resolved"];
+  const STATUS_FILTERS = ["All", "Pending", "In Review", "Assigned", "Answered", "Resolved", "Rejected"];
 
   const filteredQueries = queries.filter((q) => {
     if (filter === "All") return true;
     return q.status === filter;
   });
+
+  const handleReAppealSuccess = () => {
+    setReAppealQuery(null);
+    setShowSuccessPopup(true);
+    if (refreshQueries) refreshQueries();
+  };
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -186,7 +314,9 @@ const QueryTrackTab = ({ queries }) => {
               onClick={() => setFilter(status)}
               className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 ${
                 filter === status
-                  ? "bg-blue-50 text-blue-700 border-blue-200 shadow-sm"
+                  ? status === "Rejected"
+                    ? "bg-red-50 text-red-700 border-red-200 shadow-sm"
+                    : "bg-blue-50 text-blue-700 border-blue-200 shadow-sm"
                   : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
               }`}
             >
@@ -204,11 +334,33 @@ const QueryTrackTab = ({ queries }) => {
         ) : (
           <div className="space-y-4">
             {filteredQueries.map((query) => (
-              <QueryTrackCard key={query._id} query={query} />
+              <QueryTrackCard
+                key={query._id}
+                query={query}
+                onReAppeal={setReAppealQuery}
+              />
             ))}
           </div>
         )}
       </div>
+
+      {/* Re-Appeal Modal */}
+      {reAppealQuery && (
+        <ReAppealModal
+          query={reAppealQuery}
+          onClose={() => setReAppealQuery(null)}
+          onSuccess={handleReAppealSuccess}
+        />
+      )}
+
+      {/* Success Popup */}
+      <AlertPopup
+        show={showSuccessPopup}
+        type="success"
+        title="Query Re-Submitted"
+        description="Your query has been re-submitted and is pending admin review."
+        onClose={() => setShowSuccessPopup(false)}
+      />
     </div>
   );
 };

@@ -19,6 +19,8 @@ const {
   rejectExpert,
   blockExpert,
   unblockExpert,
+  promoteExpertToAdmin,
+  demoteExpertAdmin,
   getActivityLogs,
   getNotifications,
   getDetailedStats,
@@ -115,6 +117,22 @@ router.put(
   verifyToken,
   authorizeRole("admin"),
   unblockExpert,
+);
+
+router.put(
+  "/experts/promote/:userId",
+  verifyToken,
+  authorizeRole("admin"),
+  verifyMasterAdmin,
+  promoteExpertToAdmin,
+);
+
+router.put(
+  "/experts/demote/:userId",
+  verifyToken,
+  authorizeRole("admin"),
+  verifyMasterAdmin,
+  demoteExpertAdmin,
 );
 
 router.get("/activity", verifyToken, authorizeRole("admin"), getActivityLogs);

@@ -29,8 +29,8 @@ const UserActionButtons = ({ user, onAction, actionLoading }) => {
 
   return (
     <div className="flex items-center gap-1.5 whitespace-nowrap">
-      {/* Promote — only for consumers, not blocked, not experts */}
-      {!isExpert && user.role !== "admin" && !isBlocked && (
+      {/* Promote — for consumers or active experts, not blocked, not already admin */}
+      {user.role !== "admin" && !isBlocked && (!isExpert || user.verificationStatus === "active") && (
         <button
           onClick={() => onAction("promote", user.userId, isExpert)}
           disabled={actionLoading === `promote-${user.userId}`}
@@ -41,12 +41,12 @@ const UserActionButtons = ({ user, onAction, actionLoading }) => {
           Promote
         </button>
       )}
-      {/* Demote — only for admins (never experts) */}
-      {!isExpert && user.role === "admin" && (
+      {/* Demote — for admins (both regular users and experts) */}
+      {user.role === "admin" && (
         <button
           onClick={() => onAction("demote", user.userId, isExpert)}
           disabled={actionLoading === `demote-${user.userId}`}
-          title="Demote Admin"
+          title={isExpert ? "Demote Expert Admin" : "Demote Admin"}
           className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-amber-100 hover:border-amber-300 hover:shadow-sm active:scale-95 transition-all duration-200 disabled:opacity-50"
         >
           <ShieldMinus size={13} />

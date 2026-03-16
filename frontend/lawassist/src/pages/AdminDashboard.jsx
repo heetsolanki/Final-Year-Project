@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import API_URL from "../api";
 import {
   LayoutDashboard,
   Users,
@@ -32,11 +34,56 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    const verifyAdminRole = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/auth/check-status`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        // If user was demoted, logout and redirect
+        if (res.data.role && res.data.role !== "admin") {
+          localStorage.removeItem("token");
+          localStorage.removeItem("name");
+          localStorage.removeItem("email");
+          localStorage.removeItem("role");
+          sessionStorage.setItem("showLogoutToast", "true");
+          navigate("/");
+          return;
+        }
+
+        // If user is blocked, logout
+        if (res.data.status === "blocked") {
+          localStorage.removeItem("token");
+          localStorage.removeItem("name");
+          localStorage.removeItem("email");
+          localStorage.removeItem("role");
+          sessionStorage.setItem("showLogoutToast", "true");
+          navigate("/");
+          return;
+        }
+      } catch (err) {
+        // Token error or user deleted - logout
+        if (err.response?.status === 401 || err.response?.status === 404) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("name");
+          localStorage.removeItem("email");
+          localStorage.removeItem("role");
+          navigate("/");
+        }
+      }
+    };
+
     const interval = setInterval(() => {
       setRefreshKey((prev) => prev + 1);
+      verifyAdminRole();
     }, 5000);
+
+    // Initial verification
+    verifyAdminRole();
+
     return () => clearInterval(interval);
-  }, []);
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
 import API_URL from "../../api";
-import { useNavigate } from "react-router-dom";
 import AlertPopup from "../ui/AlertPopup";
 import { categories } from "../../data";
 
@@ -10,19 +9,19 @@ const AskQueryForm = ({
   onSuccess,
   defaultCategory = "",
   defaultSubcategory = "",
+  initialData = null,
 }) => {
   const [formData, setFormData] = useState({
-    title: "",
-    category: defaultCategory,
-    subcategory: defaultSubcategory,
-    description: "",
+    title: initialData?.title || "",
+    category: initialData?.category || defaultCategory,
+    subcategory: initialData?.subcategory || defaultSubcategory,
+    description: initialData?.description || "",
   });
 
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [showErrorPopup, setShowErrorPopup] = useState(false);
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -38,6 +37,14 @@ const AskQueryForm = ({
       setLoading(true);
       const token = localStorage.getItem("token");
       if (!token) {
+        // Save query data to localStorage for later restoration
+        localStorage.setItem("pendingQuery", JSON.stringify({
+          title: formData.title,
+          category: formData.category,
+          subcategory: formData.subcategory,
+          description: formData.description,
+          savedAt: new Date().toISOString(),
+        }));
         setShowLoginPopup(true);
         return;
       }
@@ -54,6 +61,8 @@ const AskQueryForm = ({
         { headers: { Authorization: `Bearer ${token}` } },
       );
       setShowSuccessModal(true);
+      // Clear pending query from localStorage if it exists
+      localStorage.removeItem("pendingQuery");
       setFormData({
         title: "",
         category: "",
@@ -66,11 +75,6 @@ const AskQueryForm = ({
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleLoginRedirect = () => {
-    setShowLoginPopup(false);
-    navigate("/login");
   };
 
   return (
@@ -156,7 +160,7 @@ const AskQueryForm = ({
       <AlertPopup
         show={showSuccessModal}
         title="Query Submitted"
-        message="Your query has been submitted and is pending admin review. You can track its progress from your dashboard."
+        description="Your query has been submitted and is pending admin review. You can track its progress from your dashboard."
         onClose={() => {
           setShowSuccessModal(false);
           if (onClose) onClose();
@@ -166,14 +170,15 @@ const AskQueryForm = ({
       <AlertPopup
         show={showLoginPopup}
         title="Please Login"
-        message="You need to be logged in to submit a query."
+        description="You need to be logged in to submit a query."
         type="warning"
-        onClose={handleLoginRedirect}
+        redirectTo="/login"
+        onClose={() => setShowLoginPopup(false)}
       />
       <AlertPopup
         show={showErrorPopup}
         title="Something went wrong"
-        message="Failed to submit your query. Please try again."
+        description="Failed to submit your query. Please try again."
         type="error"
         onClose={() => setShowErrorPopup(false)}
       />

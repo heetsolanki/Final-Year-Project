@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import API_URL from "../api";
-import { useNavigate } from "react-router-dom";
 import { Scale, CheckCircle, XCircle, EyeOff, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import AuthInput from "../components/auth/AuthInput";
@@ -12,9 +11,8 @@ function Register() {
   const [role, setRole] = useState("consumer");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = useState(false);
-  const [countdown, setCountdown] = useState(3);
+  const [redirectPath, setRedirectPath] = useState("/user-dashboard");
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
@@ -131,26 +129,14 @@ function Register() {
           localStorage.setItem("token", data.token);
         }
 
-        setCountdown(3);
+        if (data.role === "legalExpert") {
+          setRedirectPath("/legal-expert-dashboard");
+        } else {
+          setRedirectPath("/user-dashboard");
+        }
+
         setShowSuccess(true);
         setLoading(false);
-
-        let counter = 3;
-
-        const interval = setInterval(() => {
-          counter -= 1;
-          setCountdown(counter);
-
-          if (counter === 0) {
-            clearInterval(interval);
-
-            if (data.role === "legalExpert") {
-              navigate("/legal-expert-dashboard");
-            } else {
-              navigate("/user-dashboard");
-            }
-          }
-        }, 1000);
 
         setForm({
           fullName: "",
@@ -349,10 +335,10 @@ function Register() {
             {showSuccess && (
               <AlertPopup
                 show={showSuccess}
+                type="success"
                 title="Registration Successful!"
-                message={`Redirecting in ${countdown} seconds...`}
-                showButton={false}
-                buttonText="OK"
+                description="You are being redirected to your dashboard."
+                redirectTo={redirectPath}
                 onClose={() => setShowSuccess(false)}
               />
             )}

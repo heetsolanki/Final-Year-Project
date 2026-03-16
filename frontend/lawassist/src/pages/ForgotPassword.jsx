@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
 import API_URL from "../api";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { XCircle, Eye, EyeOff } from "lucide-react";
 import AuthInput from "../components/auth/AuthInput";
 import AuthButton from "../components/auth/AuthButton";
 import AlertPopup from "../components/ui/AlertPopup";
 
 function ForgotPassword() {
-  const navigate = useNavigate();
-
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +20,6 @@ function ForgotPassword() {
 
   const [timer, setTimer] = useState(120);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [countdown, setCountdown] = useState(3);
 
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -56,22 +53,6 @@ function ForgotPassword() {
 
     return () => clearInterval(interval);
   }, [step]);
-
-  useEffect(() => {
-    if (!showSuccess) return;
-
-    const interval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev === 1) {
-          clearInterval(interval);
-          navigate("/login");
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [showSuccess, navigate]);
 
   const formatTime = (time) => {
     const m = Math.floor(time / 60);
@@ -397,10 +378,10 @@ function ForgotPassword() {
         {showSuccess && (
           <AlertPopup
             show={showSuccess}
+            type="success"
             title="Password Reset Successful!"
-            message={`Redirecting to login in ${countdown} seconds...`}
-            showButton={false}
-            buttonText="OK"
+            description="You will be redirected to the login page."
+            redirectTo="/login"
             onClose={() => setShowSuccess(false)}
           />
         )}

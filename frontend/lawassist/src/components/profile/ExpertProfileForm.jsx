@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import API_URL from "../../api";
-import SuccessModal from "../ui/SuccessModal";
+import AlertPopup from "../ui/AlertPopup";
 import { states } from "../../data";
 
 const ProfileForm = ({ user, refresh }) => {
@@ -208,8 +208,11 @@ const ProfileForm = ({ user, refresh }) => {
       </div>
 
       {showSuccess && (
-        <SuccessModal
-          message="Profile updated successfully."
+        <AlertPopup
+          show={showSuccess}
+          type="success"
+          title="Profile Updated"
+          description="Profile updated successfully."
           onClose={() => setShowSuccess(false)}
         />
       )}

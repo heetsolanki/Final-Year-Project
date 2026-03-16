@@ -28,7 +28,7 @@ const expertSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["legalExpert"],
+      enum: ["legalExpert", "admin"],
       default: "legalExpert",
     },
 

@@ -7,11 +7,15 @@ const {
   createQuery,
   getPublicQueries,
   getSingleQuery,
-  deleteQuery
+  deleteQuery,
+  reAppealQuery
 } = require("../controllers/queryController");
 
 /* ================= CREATE QUERY ================= */
 router.post("/", verifyToken, authorizeRole("consumer"), createQuery);
+
+/* ================= RE-APPEAL REJECTED QUERY ================= */
+router.put("/re-appeal/:id", verifyToken, authorizeRole("consumer"), reAppealQuery);
 
 /* ================= GET ALL PUBLIC QUERIES ================= */
 router.get("/public", getPublicQueries);

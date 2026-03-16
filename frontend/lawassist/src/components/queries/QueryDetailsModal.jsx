@@ -17,6 +17,7 @@ const QueryDetailsModal = ({
   const [expert, setExpert] = useState(null);
   const [isActive, setIsActive] = useState(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [acceptingCase, setAcceptingCase] = useState(false);
   const [errorPopup, setErrorPopup] = useState({ show: false, title: "", message: "" });
 
   const decoded = token ? jwtDecode(token) : null;
@@ -63,6 +64,7 @@ const QueryDetailsModal = ({
     }
 
     try {
+      setAcceptingCase(true);
       const token = localStorage.getItem("token");
 
       await axios.patch(
@@ -82,6 +84,7 @@ const QueryDetailsModal = ({
       }
     } catch (error) {
       console.log(error);
+      setAcceptingCase(false);
       setErrorPopup({ show: true, title: "Case Unavailable", message: "Case already taken by another expert." });
     }
   };
@@ -224,17 +227,17 @@ const QueryDetailsModal = ({
 
               <button
                 disabled={
-                  expert?.verificationStatus !== "active" || !isActive
+                  expert?.verificationStatus !== "active" || !isActive || acceptingCase
                 }
                 className={`mt-4 px-4 py-2 text-sm font-medium rounded-lg transition
       ${
-        expert?.verificationStatus !== "active" || !isActive
+        expert?.verificationStatus !== "active" || !isActive || acceptingCase
           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
           : "bg-emerald-600 text-white hover:bg-emerald-700"
       }`}
                 onClick={handleAcceptCase}
               >
-                Accept Case
+                {acceptingCase ? "Accepting Case..." : "Accept Case"}
               </button>
             </>
           )}
@@ -287,8 +290,9 @@ const QueryDetailsModal = ({
         />
         <AlertPopup
           show={showSuccessPopup}
-          title="Success"
-          message="Case accepted successfully!"
+          title="Case Accepted"
+          message="Case accepted successfully! Redirecting to dashboard..."
+          redirectTo="/legal-expert-dashboard"
           onClose={() => setShowSuccessPopup(false)}
         />
         <AlertPopup

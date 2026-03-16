@@ -105,7 +105,8 @@ exports.loginUser = async (req, res) => {
       else role = dbRole;
     } else {
       user = await Expert.findOne({ email });
-      role = "legalExpert";
+      // Use the expert's actual role from DB (could be "admin" if promoted)
+      role = user ? user.role : "legalExpert";
     }
 
     if (!user) {
@@ -117,8 +118,8 @@ exports.loginUser = async (req, res) => {
       return res.status(403).json({ message: "Your account has been blocked. Please contact the administrator." });
     }
 
-    // Check if expert is blocked
-    if (role === "legalExpert" && user.verificationStatus === "blocked") {
+    // Check if expert is blocked (applies to experts even if promoted to admin)
+    if (user.verificationStatus === "blocked") {
       return res.status(403).json({ message: "Your account has been blocked. Please contact the administrator." });
     }
 
@@ -261,10 +262,10 @@ exports.checkUserStatus = async (req, res) => {
       return res.json({ status: user.status || "active" });
     }
 
-    const expert = await Expert.findOne({ userId }).select("verificationStatus");
+    const expert = await Expert.findOne({ userId }).select("verificationStatus role");
     if (expert) {
       const status = expert.verificationStatus === "blocked" ? "blocked" : "active";
-      return res.json({ status });
+      return res.json({ status, role: expert.role });
     }
 
     return res.json({ status: "deleted" });

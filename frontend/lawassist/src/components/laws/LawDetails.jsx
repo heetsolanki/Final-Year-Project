@@ -293,11 +293,10 @@ const LawDetails = () => {
         <AlertPopup
           show={showBookmarkPopup}
           title={popupTitle}
-          message={popupMessage}
-          onClose={() => {
-            setShowBookmarkPopup(false);
-            navigate("/login");
-          }}
+          description={popupMessage}
+          type="warning"
+          redirectTo="/login"
+          onClose={() => setShowBookmarkPopup(false)}
         />
         <ToastPopup show={showToast} message={toastMessage} type={toastType} />
       </div>

@@ -4,8 +4,10 @@ import API_URL from "../../../api";
 import { Search, Users, Filter, Trash2 } from "lucide-react";
 import UserTable from "../../users/UserTable";
 import AlertPopup from "../../ui/AlertPopup";
+import { useNavigate } from "react-router-dom";
 
 const AdminUsersTab = ({ refreshKey }) => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("All");
@@ -17,6 +19,18 @@ const AdminUsersTab = ({ refreshKey }) => {
 
   const token = localStorage.getItem("token");
   const headers = { Authorization: `Bearer ${token}` };
+
+  // Helper function to decode JWT and get userId
+  const getCurrentUserId = () => {
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.userId;
+    } catch (err) {
+      console.error("Failed to decode token:", err);
+      return null;
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -42,8 +56,8 @@ const AdminUsersTab = ({ refreshKey }) => {
 
     setActionLoading(`${action}-${userId}`);
     try {
-      // Route expert block/unblock to expert-specific endpoints
-      if (isExpert && (action === "block" || action === "unblock")) {
+      // Route expert block/unblock/promote/demote to expert-specific endpoints
+      if (isExpert && (action === "block" || action === "unblock" || action === "promote" || action === "demote")) {
         await axios.put(
           `${API_URL}/api/admin/experts/${action}/${userId}`,
           {},
@@ -56,9 +70,30 @@ const AdminUsersTab = ({ refreshKey }) => {
           { headers }
         );
       }
+
+      // If current user is demoted, logout and redirect
+      if (action === "demote") {
+        const currentUserId = getCurrentUserId();
+        if (currentUserId === userId) {
+          localStorage.removeItem("token");
+          setAlertPopup({
+            show: true,
+            title: "Demoted",
+            message: "You have been demoted from admin. Redirecting to homepage...",
+            type: "info",
+            redirectTo: "/"
+          });
+          setTimeout(() => navigate("/"), 2000);
+          return;
+        }
+      }
+
       fetchUsers();
     } catch (err) {
       console.error(`Failed to ${action} user:`, err);
+      if ((action === "promote" || action === "demote") && isExpert) {
+        setAlertPopup({ show: true, title: "Error", message: err.response?.data?.message || `Failed to ${action} expert.`, type: "error" });
+      }
     } finally {
       setActionLoading(null);
     }

@@ -22,7 +22,7 @@ import {
 } from "../data";
 
 const ID_DOCUMENT_TYPES = [
-  { value: "aadhaar", label: "Aadhaar Card", placeholder: "123456789012", hint: "12 digits" },
+  { value: "aadhaar", label: "Aadhaar Card", placeholder: "1234-5678-9012", hint: "12 digits (auto-formatted)" },
   { value: "pan", label: "PAN Card", placeholder: "ABCDE1234F", hint: "Format: ABCDE1234F" },
   { value: "passport", label: "Passport", placeholder: "A1234567", hint: "Format: A1234567" },
   { value: "voter_id", label: "Voter ID", placeholder: "ABC1234567", hint: "Format: ABC1234567" },
@@ -30,11 +30,25 @@ const ID_DOCUMENT_TYPES = [
 ];
 
 const idValidationRules = {
-  aadhaar: { regex: /^\d{12}$/, msg: "Aadhaar must be exactly 12 digits" },
+  aadhaar: { regex: /^\d{4}-\d{4}-\d{4}$/, msg: "Aadhaar must be exactly 12 digits" },
   pan: { regex: /^[A-Z]{5}\d{4}[A-Z]$/, msg: "PAN must be in format: ABCDE1234F" },
   passport: { regex: /^[A-Z]\d{7}$/, msg: "Passport must be in format: A1234567" },
   voter_id: { regex: /^[A-Z]{3}\d{7}$/, msg: "Voter ID must be in format: ABC1234567" },
   driving_license: { regex: /^[A-Z]{2}\d{2}\s?\d{11}$/, msg: "Driving License must be in format: MH02 12345678901" },
+};
+
+// Format Aadhaar number with hyphens: XXXX-XXXX-XXXX
+const formatAadhaar = (value) => {
+  // Remove all non-digits
+  const digits = value.replace(/\D/g, "");
+  // Limit to 12 digits
+  const limited = digits.slice(0, 12);
+  // Add hyphens after every 4 digits
+  const parts = [];
+  for (let i = 0; i < limited.length; i += 4) {
+    parts.push(limited.slice(i, i + 4));
+  }
+  return parts.join("-");
 };
 
 const ExpertProfile = () => {
@@ -76,6 +90,12 @@ const ExpertProfile = () => {
       setVerificationStatus(data.verificationStatus || "");
       setRejectionReason(data.rejectionReason || "");
 
+      // Format Aadhaar number if it exists and is not already formatted
+      let idNumber = data.idNumber || "";
+      if (data.idDocumentType === "aadhaar" && idNumber && !idNumber.includes("-")) {
+        idNumber = formatAadhaar(idNumber);
+      }
+
       setFormData({
         barCouncilId: data.barCouncilId || "",
         specialization: data.specialization || "",
@@ -88,7 +108,7 @@ const ExpertProfile = () => {
         expertiseAreas: data.expertiseAreas || [],
         bio: data.bio || "",
         idDocumentType: data.idDocumentType || "",
-        idNumber: data.idNumber || "",
+        idNumber: idNumber,
         idProofUrl: data.idProofUrl || "",
       });
     } catch (err) {
@@ -114,6 +134,10 @@ const ExpertProfile = () => {
     } else if (name === "idDocumentType") {
       // Reset ID number when type changes
       setFormData({ ...formData, idDocumentType: value, idNumber: "" });
+    } else if (name === "idNumber" && formData.idDocumentType === "aadhaar") {
+      // Format Aadhaar number with hyphens
+      const formatted = formatAadhaar(value);
+      setFormData({ ...formData, idNumber: formatted });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -221,10 +245,16 @@ const ExpertProfile = () => {
 
     setSubmitting(true);
     try {
+      // Strip hyphens from Aadhaar before sending to backend
+      const idNumberToSend = formData.idDocumentType === "aadhaar"
+        ? formData.idNumber.replace(/-/g, "")
+        : formData.idNumber;
+
       await axios.post(
         `${API_URL}/api/expert/complete-profile`,
         {
           ...formData,
+          idNumber: idNumberToSend,
           specialization:
             formData.specialization === "Other"
               ? formData.otherSpecialization
@@ -243,11 +273,6 @@ const ExpertProfile = () => {
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const handleClosePopup = () => {
-    setShowProfilePopup(false);
-    navigate("/legal-expert-dashboard");
   };
 
   const selectedDocType = ID_DOCUMENT_TYPES.find(
@@ -599,6 +624,7 @@ const ExpertProfile = () => {
                     value={formData.idNumber}
                     onChange={handleChange}
                     disabled={!formData.idDocumentType}
+                    maxLength={formData.idDocumentType === "aadhaar" ? 14 : undefined}
                     className={`${inputClass("idNumber")} disabled:bg-gray-100 disabled:cursor-not-allowed`}
                   />
                   {selectedDocType && (
@@ -642,9 +668,11 @@ const ExpertProfile = () => {
             </div>
             <AlertPopup
               show={showProfilePopup}
+              type="success"
               title="Profile Updated"
-              message="Your profile has been updated successfully."
-              onClose={handleClosePopup}
+              description="Your profile has been updated successfully."
+              redirectTo="/legal-expert-dashboard"
+              onClose={() => setShowProfilePopup(false)}
             />
           </form>
         </div>

@@ -130,6 +130,17 @@ exports.blockUser = async (req, res) => {
       { new: true },
     );
 
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Send email notification to the blocked user
+    sendEmail(
+      user.email,
+      "Account Blocked – LawAssist",
+      accountBlockedEmail(user.name),
+    ).catch((err) => console.error("Block email error:", err));
+
     res.json({
       message: "User blocked",
       user,
@@ -348,6 +359,13 @@ exports.blockExpert = async (req, res) => {
 
     await logActivity("Expert blocked", req.user.userId, userId);
 
+    // Send email notification to the blocked expert
+    sendEmail(
+      expert.email,
+      "Account Blocked – LawAssist",
+      accountBlockedEmail(expert.name),
+    ).catch((err) => console.error("Block email error:", err));
+
     res.json({
       message: "Expert blocked successfully",
       expert,
@@ -386,6 +404,118 @@ exports.unblockExpert = async (req, res) => {
       expert,
     });
   } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/* ================= PROMOTE EXPERT TO ADMIN ================= */
+
+exports.promoteExpertToAdmin = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Find the expert
+    const expert = await Expert.findOne({ userId });
+    if (!expert) {
+      return res.status(404).json({ message: "Expert not found" });
+    }
+
+    // Only allow promotion of active experts
+    if (expert.verificationStatus !== "active") {
+      return res.status(400).json({
+        message: "Only verified active experts can be promoted to admin"
+      });
+    }
+
+    // Update the Expert's role to admin
+    expert.role = "admin";
+    await expert.save();
+
+    await logActivity("Expert promoted to admin", req.user.userId, userId);
+
+    // Send email notification
+    sendEmail(
+      expert.email,
+      "You've Been Promoted to Admin – LawAssist",
+      `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #1E3A8A;">Congratulations, ${expert.name}!</h2>
+          <p>You have been promoted to an <strong>Administrator</strong> role on LawAssist.</p>
+          <p>As an admin, you now have access to:</p>
+          <ul>
+            <li>User and expert management</li>
+            <li>Query approval and rejection</li>
+            <li>Platform statistics and activity logs</li>
+          </ul>
+          <p>You can access the admin dashboard by logging into your account.</p>
+          <p style="margin-top: 20px; color: #666;">Thank you for being a valued member of our team!</p>
+          <p style="color: #1E3A8A; font-weight: bold;">– The LawAssist Team</p>
+        </div>
+      `
+    ).catch((err) => console.error("Promotion email error:", err));
+
+    res.json({
+      message: "Expert promoted to admin successfully",
+      expert,
+    });
+  } catch (error) {
+    console.error("Promote expert error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/* ================= DEMOTE EXPERT ADMIN ================= */
+
+exports.demoteExpertAdmin = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Find the expert
+    const expert = await Expert.findOne({ userId });
+    if (!expert) {
+      return res.status(404).json({ message: "Expert not found" });
+    }
+
+    // Only allow demotion of admin experts
+    if (expert.role !== "admin") {
+      return res.status(400).json({
+        message: "This expert is not an admin"
+      });
+    }
+
+    // Update the Expert's role back to legalExpert
+    expert.role = "legalExpert";
+    await expert.save();
+
+    await logActivity("Expert demoted from admin", req.user.userId, userId);
+
+    // Send email notification
+    sendEmail(
+      expert.email,
+      "Admin Role Removed – LawAssist",
+      `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #1E3A8A;">Hello, ${expert.name}</h2>
+          <p>Your <strong>Administrator</strong> privileges on LawAssist have been removed.</p>
+          <p>You will continue to have access to your legal expert features:</p>
+          <ul>
+            <li>Accept and answer consumer queries</li>
+            <li>Manage your expert profile</li>
+            <li>View your case history</li>
+          </ul>
+          <p>If you have any questions, please contact the platform administrator.</p>
+          <p style="margin-top: 20px; color: #666;">Thank you for your contributions!</p>
+          <p style="color: #1E3A8A; font-weight: bold;">– The LawAssist Team</p>
+        </div>
+      `
+    ).catch((err) => console.error("Demotion email error:", err));
+
+    res.json({
+      message: "Expert demoted from admin successfully",
+      expert,
+    });
+  } catch (error) {
+    console.error("Demote expert error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

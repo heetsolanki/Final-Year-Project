@@ -36,6 +36,63 @@ exports.createQuery = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+/* ================= RE-APPEAL REJECTED QUERY ================= */
+exports.reAppealQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid Query ID" });
+    }
+
+    const query = await Query.findById(id);
+
+    if (!query) {
+      return res.status(404).json({ message: "Query not found" });
+    }
+
+    // Verify ownership
+    if (query.userId.toString() !== req.user.userId) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    // Only allow re-appeal for rejected queries
+    if (query.status !== "Rejected") {
+      return res.status(400).json({ message: "Only rejected queries can be re-appealed" });
+    }
+
+    // Update query with new data and reset status to Pending
+    query.title = title || query.title;
+    query.description = description || query.description;
+    query.status = "Pending";
+    query.rejectionReason = null;
+    query.rejectionCount = (query.rejectionCount || 0); // Keep rejection count for tracking
+    await query.save();
+
+    // Send confirmation email
+    const user = await User.findOne({ userId: req.user.userId });
+    if (user) {
+      sendEmail(
+        user.email,
+        "Query Re-Submitted for Review - LawAssist",
+        querySubmittedEmail(
+          user.name,
+          query.title,
+          query.category,
+          query.subcategory,
+        ),
+      ).catch((err) => console.error("Email sending error:", err));
+    }
+
+    res.status(200).json({ message: "Query re-submitted for review", query });
+  } catch (error) {
+    console.error("Re-Appeal Query Error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 /* ================= GET ALL PUBLIC QUERIES ================= */
 exports.getPublicQueries = async (req, res) => {
   try {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import API_URL from "../api";
-import { User } from "lucide-react";
+import { User, MessageSquare, X } from "lucide-react";
 
 import DashboardTopCard from "../components/dashboard/DashboardTopCard";
 
@@ -15,6 +15,7 @@ import QueryTrackTab from "../components/dashboard/user/QueryTrackTab";
 
 import QueryDetailsModal from "../components/queries/QueryDetailsModal";
 import ReviewModal from "../components/queries/ReviewModal";
+import AskQueryForm from "../components/queries/AskQueryForm";
 import BackToTopButton from "../components/layout/BackToTopButton";
 
 const USER_TABS = [
@@ -46,6 +47,47 @@ const UserDashboard = () => {
   const [reviewQuery, setReviewQuery] = useState(null);
 
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Pending query from localStorage (non-logged-in user)
+  const [pendingQuery, setPendingQuery] = useState(null);
+  const [showAskQueryModal, setShowAskQueryModal] = useState(false);
+
+  // Check for pending query on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("pendingQuery");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        // Only show if saved within the last 24 hours
+        const savedAt = new Date(parsed.savedAt);
+        const now = new Date();
+        const hoursDiff = (now - savedAt) / (1000 * 60 * 60);
+        if (hoursDiff < 24) {
+          setPendingQuery(parsed);
+        } else {
+          localStorage.removeItem("pendingQuery");
+        }
+      } catch {
+        localStorage.removeItem("pendingQuery");
+      }
+    }
+  }, []);
+
+  const handleContinueQuery = () => {
+    setShowAskQueryModal(true);
+  };
+
+  const handleDismissBanner = () => {
+    localStorage.removeItem("pendingQuery");
+    setPendingQuery(null);
+  };
+
+  const handleQuerySuccess = () => {
+    localStorage.removeItem("pendingQuery");
+    setPendingQuery(null);
+    setShowAskQueryModal(false);
+    fetchDashboard();
+  };
 
   const fetchDashboard = async () => {
     try {
@@ -124,7 +166,7 @@ const UserDashboard = () => {
         );
 
       case "track":
-        return <QueryTrackTab queries={queries} />;
+        return <QueryTrackTab queries={queries} refreshQueries={fetchDashboard} />;
 
       case "consultations":
         return <UserConsultations />;
@@ -156,6 +198,45 @@ const UserDashboard = () => {
             tabs={USER_TABS}
             avatarIcon={User}
           />
+
+          {/* Pending Query Banner */}
+          {pendingQuery && (
+            <div className="mt-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 animate-fadeIn">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg shrink-0">
+                  <MessageSquare size={20} className="text-blue-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-semibold text-gray-800">
+                    Continue with your query?
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-0.5 truncate">
+                    You have a saved query: "{pendingQuery.title}"
+                  </p>
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={handleContinueQuery}
+                      className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
+                    >
+                      Continue Query
+                    </button>
+                    <button
+                      onClick={handleDismissBanner}
+                      className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+                <button
+                  onClick={handleDismissBanner}
+                  className="p-1 hover:bg-white/50 rounded-lg transition shrink-0"
+                >
+                  <X size={16} className="text-gray-400" />
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Tab Content */}
           <div className="mt-6">{renderTab()}</div>
@@ -213,6 +294,19 @@ const UserDashboard = () => {
               setReviewQuery(null);
             }}
           />
+        )}
+
+        {/* Ask Query Modal (for pending query continuation) */}
+        {showAskQueryModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+            <AskQueryForm
+              onClose={() => setShowAskQueryModal(false)}
+              onSuccess={handleQuerySuccess}
+              defaultCategory={pendingQuery?.category || ""}
+              defaultSubcategory={pendingQuery?.subcategory || ""}
+              initialData={pendingQuery}
+            />
+          </div>
         )}
       </div>
 

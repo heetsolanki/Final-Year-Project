@@ -1,6 +1,5 @@
 import API_URL from "../api";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Scale, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import AuthInput from "../components/auth/AuthInput";
@@ -9,11 +8,10 @@ import AlertPopup from "../components/ui/AlertPopup";
 import BlockedUserPopup from "../components/users/BlockedUserPopup";
 
 function Login() {
-  const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = useState(false);
   const [showBlocked, setShowBlocked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [countdown, setCountdown] = useState(3);
+  const [redirectPath, setRedirectPath] = useState("/user-dashboard");
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     email: "",
@@ -63,21 +61,6 @@ function Login() {
     }
   }, [form.email, form.password]);
 
-  useEffect(() => {
-    if (!showSuccess) return;
-
-    if (countdown === 0) {
-      navigate("/dashboard");
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setCountdown((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [showSuccess, countdown, navigate]);
-
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
 
   const passwordValid =
@@ -124,24 +107,21 @@ function Login() {
 
         localStorage.setItem("token", data.token);
 
+        if (data.role === "consumer") {
+          setRedirectPath("/user-dashboard");
+        } else if (data.role === "legalExpert") {
+          setRedirectPath("/legal-expert-dashboard");
+        } else if (data.role === "admin") {
+          setRedirectPath("/admin-dashboard");
+        }
+
         setShowSuccess(true);
-        setCountdown(3);
         setLoading(false);
 
         setForm({
           email: "",
           password: "",
         });
-
-        setTimeout(() => {
-          if (data.role === "consumer") {
-            navigate("/user-dashboard");
-          } else if (data.role === "legalExpert") {
-            navigate("/legal-expert-dashboard");
-          } else if (data.role === "admin") {
-            navigate("/admin-dashboard");
-          }
-        }, 3000);
       } catch (error) {
         console.error("Login error:", error);
         setLoading(false);
@@ -233,10 +213,10 @@ function Login() {
             </form>
             <AlertPopup
               show={showSuccess}
+              type="success"
               title="Login Successful!"
-              message={`Redirecting in ${countdown} seconds...`}
-              showButton={false}
-              buttonText="OK"
+              description="You are being redirected to your dashboard."
+              redirectTo={redirectPath}
               onClose={() => setShowSuccess(false)}
             />
             {showBlocked && <BlockedUserPopup onClose={() => {
