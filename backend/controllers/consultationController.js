@@ -2,6 +2,7 @@ const Consultation = require("../models/Consultation");
 const Expert = require("../models/Expert");
 const sendEmail = require("../utils/sendEmail");
 const newConsultationEmail = require("../template/newConsultationEmail");
+const { createNotification, NOTIFICATION_TYPES } = require("../services/notificationService");
 
 exports.createConsultation = async (req, res) => {
   try {
@@ -28,11 +29,28 @@ exports.createConsultation = async (req, res) => {
       paymentStatus: "paid",
     });
 
+    await createNotification({
+      userId: req.user.userId,
+      title: "Consultation Booked",
+      message: "Your consultation booking has been confirmed.",
+      type: NOTIFICATION_TYPES.CONSULTATION_BOOKED,
+      relatedId: consultationId,
+    });
+
+    await createNotification({
+      expertId: expertUserId,
+      title: "Consultation Booked",
+      message: "A consumer has booked a consultation with you.",
+      type: NOTIFICATION_TYPES.CONSULTATION_BOOKED,
+      relatedId: consultationId,
+    });
+
     // Send email notification to expert
     await sendEmail(
       expert.email,
       "New Consultation on LawAssist",
       newConsultationEmail(expert.name, consultationId, req.user.userId),
+      { category: "new_consultation", targetId: consultationId },
     );
 
     res.status(201).json(consultation);

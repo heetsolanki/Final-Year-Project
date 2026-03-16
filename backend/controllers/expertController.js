@@ -1,9 +1,9 @@
 const Query = require("../models/Query");
 const Expert = require("../models/Expert");
 const User = require("../models/User");
-const Notification = require("../models/Notification");
 const queryStatusUpdateEmail = require("../template/queryStatusUpdateEmail");
 const sendEmail = require("../utils/sendEmail");
+const { createNotification, NOTIFICATION_TYPES } = require("../services/notificationService");
 
 exports.completeExpertProfile = async (req, res) => {
   try {
@@ -109,9 +109,11 @@ exports.completeExpertProfile = async (req, res) => {
       previousStatus !== "under_review" &&
       expert.verificationStatus === "under_review"
     ) {
-      await Notification.create({
-        message: `Expert ${expert.name} requested verification`,
-        type: "expert_request",
+      await createNotification({
+        title: "Expert Verification Request",
+        message: `Expert ${expert.name} requested verification.`,
+        type: NOTIFICATION_TYPES.SYSTEM,
+        relatedId: expert.userId,
       });
     }
 
@@ -226,10 +228,19 @@ exports.acceptCase = async (req, res) => {
     const user = await User.findOne({ userId: query.userId });
 
     if (user) {
+      await createNotification({
+        userId: user.userId,
+        title: "Your Query Has Been Accepted",
+        message: "An expert has accepted your query and will assist you shortly.",
+        type: NOTIFICATION_TYPES.QUERY_ACCEPTED,
+        relatedId: query._id.toString(),
+      });
+
       await sendEmail(
         user.email,
         "Your query has been accepted",
         queryStatusUpdateEmail(user.name, query.title, "Accepted"),
+        { category: "query_accepted", targetId: query._id.toString() },
       );
     }
 
@@ -287,6 +298,7 @@ exports.answerQuery = async (req, res) => {
         user.email,
         "Your query has been answered",
         queryStatusUpdateEmail(user.name, query.title, "Answered"),
+        { category: "query_answered", targetId: query._id.toString() },
       );
     }
 

@@ -52,6 +52,7 @@ exports.registerUser = async (req, res) => {
         email,
         "Welcome to LawAssist - Legal Expert",
         expertWelcomeEmail(name, userId),
+        { category: "register_expert", targetId: userId },
       );
     } else {
       newUser = await User.create({
@@ -66,6 +67,7 @@ exports.registerUser = async (req, res) => {
         email,
         "Welcome to LawAssist",
         welcomeEmailTemplate(name, userId),
+        { category: "register_user", targetId: userId },
       );
     }
 
@@ -176,6 +178,7 @@ exports.sendResetOTP = async (req, res) => {
       email,
       "Password Reset OTP",
       `Your password reset OTP is ${otp}. It expires in 2 minutes.`,
+      { category: "password_reset_otp", targetId: user.userId },
     );
 
     res.json({ message: "OTP sent successfully" });

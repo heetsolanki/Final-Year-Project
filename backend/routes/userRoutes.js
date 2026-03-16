@@ -128,9 +128,16 @@ router.get(
   authorizeRole("consumer"),
   async (req, res) => {
     try {
+      const page = Math.max(Number(req.query.page) || 1, 1);
+      const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
+      const skip = (page - 1) * limit;
+
       const notifications = await Notification.find({
-        targetUserId: req.user.userId,
-      }).sort({ createdAt: -1 });
+        userId: req.user.userId,
+      })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
 
       res.status(200).json(notifications);
     } catch (error) {

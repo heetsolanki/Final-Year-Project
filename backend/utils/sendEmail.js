@@ -1,8 +1,16 @@
 const nodemailer = require("nodemailer");
+const logActivity = require("./logActivity");
 
-const sendEmail = async (to, subject, text) => {
+const sendEmail = async (to, subject, text, options = {}) => {
   try {
-    console.log("Preparing email...");
+    const {
+      category = "general",
+      performedBy = "SYSTEM",
+      targetId = null,
+      details = {},
+    } = options;
+
+    console.log(`Preparing email [${category}]...`);
 
     if (!to) {
       console.log("No recipient email provided.");
@@ -30,9 +38,25 @@ const sendEmail = async (to, subject, text) => {
     };
     const info = await transporter.sendMail(mailOptions);
 
-    console.log("Email sent:", info.response);
+    console.log(`Email sent [${category}]:`, info.response);
+
+    await logActivity("Email sent", performedBy, targetId, {
+      category,
+      to: String(to).trim(),
+      subject,
+      response: info.response,
+      ...details,
+    });
   } catch (error) {
     console.error("Email error:", error);
+
+    await logActivity("Email failed", options.performedBy || "SYSTEM", options.targetId || null, {
+      category: options.category || "general",
+      to: to ? String(to).trim() : null,
+      subject,
+      error: error.message,
+      ...(options.details || {}),
+    });
   }
 };
 

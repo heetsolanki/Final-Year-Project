@@ -3,6 +3,7 @@ const Consultation = require("../models/Consultation");
 const Expert = require("../models/Expert");
 const sendEmail = require("../utils/sendEmail");
 const newConsultationEmail = require("../template/newConsultationEmail");
+const { createNotification, NOTIFICATION_TYPES } = require("../services/notificationService");
 
 // GET /api/payments/expert-info/:expertId - Get expert info for payment page
 exports.getExpertPaymentInfo = async (req, res) => {
@@ -80,6 +81,30 @@ exports.processPayment = async (req, res) => {
         paymentStatus: "paid",
       });
 
+      await createNotification({
+        userId: req.user.userId,
+        title: "Payment Successful",
+        message: "Your consultation payment was successful.",
+        type: NOTIFICATION_TYPES.PAYMENT_SUCCESS,
+        relatedId: paymentId,
+      });
+
+      await createNotification({
+        userId: req.user.userId,
+        title: "Consultation Booked",
+        message: "Your consultation booking has been confirmed.",
+        type: NOTIFICATION_TYPES.CONSULTATION_BOOKED,
+        relatedId: consultationId,
+      });
+
+      await createNotification({
+        expertId,
+        title: "Consultation Booked",
+        message: "A new paid consultation has been booked with you.",
+        type: NOTIFICATION_TYPES.CONSULTATION_BOOKED,
+        relatedId: consultationId,
+      });
+
       // Link consultation to payment
       payment.consultationId = consultationId;
       await payment.save();
@@ -90,6 +115,7 @@ exports.processPayment = async (req, res) => {
           expert.email,
           "New Consultation on LawAssist",
           newConsultationEmail(expert.name, consultationId, req.user.userId),
+          { category: "payment_consultation_created", targetId: consultationId },
         );
       } catch (emailError) {
         console.log("Email send failed:", emailError.message);

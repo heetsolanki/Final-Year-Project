@@ -10,6 +10,7 @@ const path = require("path");
 const { Server } = require("socket.io");
 const chatSocket = require("./sockets/chatSocket");
 const startAutoCloseJob = require("./jobs/consultationAutoClose");
+const { setNotificationSocketServer } = require("./services/notificationService");
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use("/api/consultations", require("./routes/consultationRoutes"));
 app.use("/api/payments", require("./routes/paymentRoutes"));
 app.use("/api/chat", require("./routes/chatRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
+app.use("/api/notifications", require("./routes/notificationRoutes"));
 app.use("/api/upload", require("./routes/uploadRoutes"));
 app.use("/api/ai", require("./routes/aiRoutes"));
 
@@ -53,6 +55,8 @@ const io = new Server(server, {
     origin: "*",
   },
 });
+
+setNotificationSocketServer(io);
 
 chatSocket(io);
 startAutoCloseJob(io);

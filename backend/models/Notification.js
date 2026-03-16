@@ -2,6 +2,24 @@ const mongoose = require("mongoose");
 
 const notificationSchema = new mongoose.Schema(
   {
+    userId: {
+      type: String,
+      default: null,
+      index: true,
+    },
+
+    expertId: {
+      type: String,
+      default: null,
+      index: true,
+    },
+
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
     message: {
       type: String,
       required: true,
@@ -9,20 +27,31 @@ const notificationSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ["expert_request", "query_flag", "system", "expert_approved", "expert_rejected", "query_approved", "query_rejected", "query_warning", "account_deleted", "account_blocked"],
+      enum: [
+        "QUERY_POSTED",
+        "QUERY_ACCEPTED",
+        "QUERY_REJECTED",
+        "CONSULTATION_BOOKED",
+        "PAYMENT_SUCCESS",
+        "ACCOUNT_STATUS",
+        "SYSTEM",
+      ],
+      default: "SYSTEM",
     },
 
-    targetUserId: {
+    relatedId: {
       type: String,
       default: null,
     },
 
-    read: {
+    isRead: {
       type: Boolean,
       default: false,
     },
   },
   { timestamps: true },
 );
+
+notificationSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model("Notification", notificationSchema);

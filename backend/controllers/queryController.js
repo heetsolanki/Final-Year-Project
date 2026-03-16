@@ -3,6 +3,12 @@ const Query = require("../models/Query");
 const sendEmail = require("../utils/sendEmail");
 const querySubmittedEmail = require("../template/querySubmittedEmail");
 const User = require("../models/User");
+const Expert = require("../models/Expert");
+const {
+  createNotification,
+  notifyExpertsBulk,
+  NOTIFICATION_TYPES,
+} = require("../services/notificationService");
 
 exports.createQuery = async (req, res) => {
   try {
@@ -14,6 +20,18 @@ exports.createQuery = async (req, res) => {
       category,
       subcategory,
       description,
+    });
+
+    const experts = await Expert.find(
+      { verificationStatus: "active", isActive: true },
+      { userId: 1 },
+    ).lean();
+
+    await notifyExpertsBulk({
+      expertIds: experts.map((expert) => expert.userId),
+      title: "New Consumer Query Posted",
+      message: "A new consumer query has been posted on the platform.",
+      relatedId: newQuery._id.toString(),
     });
 
     // Send confirmation email to the consumer (query starts as "Pending" — admin must approve)
@@ -28,6 +46,7 @@ exports.createQuery = async (req, res) => {
           newQuery.category,
           newQuery.subcategory,
         ),
+        { category: "new_query", targetId: newQuery._id.toString() },
       ).catch((err) => console.error("Email sending error:", err));
     }
 
@@ -71,6 +90,14 @@ exports.reAppealQuery = async (req, res) => {
     query.rejectionCount = (query.rejectionCount || 0); // Keep rejection count for tracking
     await query.save();
 
+    await createNotification({
+      userId: req.user.userId,
+      title: "Query Re-Submitted",
+      message: "Your query has been re-submitted and is waiting for review.",
+      type: NOTIFICATION_TYPES.SYSTEM,
+      relatedId: query._id.toString(),
+    });
+
     // Send confirmation email
     const user = await User.findOne({ userId: req.user.userId });
     if (user) {
@@ -83,6 +110,7 @@ exports.reAppealQuery = async (req, res) => {
           query.category,
           query.subcategory,
         ),
+        { category: "query_reappeal", targetId: query._id.toString() },
       ).catch((err) => console.error("Email sending error:", err));
     }
 

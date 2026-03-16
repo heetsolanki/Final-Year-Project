@@ -13,6 +13,7 @@ const queryWarningEmail = require("../template/queryWarningEmail");
 const queryStatusUpdateEmail = require("../template/queryStatusUpdateEmail");
 const expertQueryNotification = require("../template/expertQueryNotification");
 const accountBlockedEmail = require("../template/accountBlockedEmail");
+const { createNotification, NOTIFICATION_TYPES } = require("../services/notificationService");
 
 /* ================= ADMIN DASHBOARD STATS ================= */
 
@@ -139,6 +140,7 @@ exports.blockUser = async (req, res) => {
       user.email,
       "Account Blocked – LawAssist",
       accountBlockedEmail(user.name),
+      { category: "user_blocked", targetId: userId, performedBy: req.user.userId },
     ).catch((err) => console.error("Block email error:", err));
 
     res.json({
@@ -217,10 +219,12 @@ exports.verifyExpert = async (req, res) => {
 
     await expert.save();
 
-    await Notification.create({
-      message: `Your profile has been verified. You can now accept cases.`,
-      type: "expert_approved",
-      targetUserId: userId,
+    await createNotification({
+      expertId: userId,
+      title: "Profile Verified",
+      message: "Your profile has been verified. You can now accept cases.",
+      type: NOTIFICATION_TYPES.ACCOUNT_STATUS,
+      relatedId: userId,
     });
 
     await logActivity("Expert verified", req.user.userId, userId);
@@ -230,6 +234,7 @@ exports.verifyExpert = async (req, res) => {
       expert.email,
       "Your LawAssist Profile Has Been Verified",
       expertVerifiedEmail(expert.name),
+      { category: "expert_verified", targetId: userId, performedBy: req.user.userId },
     );
 
     res.json({
@@ -264,10 +269,12 @@ exports.rejectExpert = async (req, res) => {
 
     await expert.save();
 
-    await Notification.create({
+    await createNotification({
+      expertId: userId,
+      title: "Profile Rejected",
       message: `Your profile verification was rejected. Reason: ${reason || "Not specified"}`,
-      type: "expert_rejected",
-      targetUserId: userId,
+      type: NOTIFICATION_TYPES.ACCOUNT_STATUS,
+      relatedId: userId,
     });
 
     await logActivity("Expert rejected", req.user.userId, userId, { reason });
@@ -277,6 +284,7 @@ exports.rejectExpert = async (req, res) => {
       expert.email,
       "Profile Rejected – LawAssist",
       expertRejectedEmail(expert.name, reason || "Not specified"),
+      { category: "expert_rejected", targetId: userId, performedBy: req.user.userId },
     );
 
     res.json({
@@ -364,6 +372,7 @@ exports.blockExpert = async (req, res) => {
       expert.email,
       "Account Blocked – LawAssist",
       accountBlockedEmail(expert.name),
+      { category: "expert_blocked", targetId: userId, performedBy: req.user.userId },
     ).catch((err) => console.error("Block email error:", err));
 
     res.json({
@@ -451,7 +460,8 @@ exports.promoteExpertToAdmin = async (req, res) => {
           <p style="margin-top: 20px; color: #666;">Thank you for being a valued member of our team!</p>
           <p style="color: #1E3A8A; font-weight: bold;">– The LawAssist Team</p>
         </div>
-      `
+      `,
+      { category: "expert_promoted_admin", targetId: userId, performedBy: req.user.userId },
     ).catch((err) => console.error("Promotion email error:", err));
 
     res.json({
@@ -507,7 +517,8 @@ exports.demoteExpertAdmin = async (req, res) => {
           <p style="margin-top: 20px; color: #666;">Thank you for your contributions!</p>
           <p style="color: #1E3A8A; font-weight: bold;">– The LawAssist Team</p>
         </div>
-      `
+      `,
+      { category: "expert_demoted_admin", targetId: userId, performedBy: req.user.userId },
     ).catch((err) => console.error("Demotion email error:", err));
 
     res.json({
@@ -538,7 +549,7 @@ exports.getActivityLogs = async (req, res) => {
 
 exports.getNotifications = async (req, res) => {
   try {
-    const notifications = await Notification.find().sort({ createdAt: -1 });
+    const notifications = await Notification.find().sort({ createdAt: -1 }).limit(50);
 
     res.json(notifications);
   } catch (error) {
@@ -684,16 +695,19 @@ exports.approveQuery = async (req, res) => {
     // Notify the consumer
     const user = await User.findOne({ userId: query.userId });
     if (user) {
-      await Notification.create({
+      await createNotification({
+        userId: query.userId,
+        title: "Query Approved",
         message: `Your query "${query.title}" has been approved and is now under review.`,
-        type: "query_approved",
-        targetUserId: query.userId,
+        type: NOTIFICATION_TYPES.SYSTEM,
+        relatedId: query._id.toString(),
       });
 
       sendEmail(
         user.email,
         "Query Approved – LawAssist",
         queryStatusUpdateEmail(user.name, query.title, "In Review"),
+        { category: "query_approved", targetId: query._id.toString(), performedBy: req.user.userId },
       ).catch((err) => console.error("Email error:", err));
     }
 
@@ -711,6 +725,7 @@ exports.approveQuery = async (req, res) => {
             query.category,
             query.description,
           ),
+          { category: "new_query_for_expert", targetId: query._id.toString(), performedBy: req.user.userId },
         ),
       ),
     ).catch((err) => console.error("Expert email error:", err));
@@ -746,48 +761,57 @@ exports.rejectQuery = async (req, res) => {
     // Notify the consumer
     const user = await User.findOne({ userId: query.userId });
     if (user) {
-      await Notification.create({
+      await createNotification({
+        userId: query.userId,
+        title: "Your Query Has Been Rejected",
         message: `Your query "${query.title}" has been rejected. Reason: ${reason || "Not specified"}`,
-        type: "query_rejected",
-        targetUserId: query.userId,
+        type: NOTIFICATION_TYPES.QUERY_REJECTED,
+        relatedId: query._id.toString(),
       });
 
       sendEmail(
         user.email,
         "Query Rejected – LawAssist",
         queryRejectedEmail(user.name, query.title, reason || "Not specified"),
+        { category: "query_rejected", targetId: query._id.toString(), performedBy: req.user.userId },
       ).catch((err) => console.error("Email error:", err));
 
       // Increment reject count and check for warning / block
       user.queryRejectCount = (user.queryRejectCount || 0) + 1;
 
       if (user.queryRejectCount >= 3) {
-        await Notification.create({
+        await createNotification({
+          userId: query.userId,
+          title: "Account Warning",
           message: "Warning: Your account has received multiple query rejections. Further violations may lead to account termination.",
-          type: "query_warning",
-          targetUserId: query.userId,
+          type: NOTIFICATION_TYPES.ACCOUNT_STATUS,
+          relatedId: query._id.toString(),
         });
 
         sendEmail(
           user.email,
           "Account Warning – LawAssist",
           queryWarningEmail(user.name),
+          { category: "query_warning", targetId: query._id.toString(), performedBy: req.user.userId },
         ).catch((err) => console.error("Warning email error:", err));
       }
 
       if (user.queryRejectCount > 3) {
         user.status = "blocked";
 
-        await Notification.create({
+        await createNotification({
+          userId: query.userId,
+          title: "Account Blocked",
           message: "Your account has been blocked due to excessive query rejections.",
-          type: "account_blocked",
-          targetUserId: query.userId,
+          type: NOTIFICATION_TYPES.ACCOUNT_STATUS,
+          relatedId: query._id.toString(),
         });
 
         sendEmail(
           user.email,
           "Account Blocked – LawAssist",
           accountBlockedEmail(user.name),
+          { category: "user_blocked", targetId: query._id.toString(), performedBy: req.user.userId },
         ).catch((err) => console.error("Block email error:", err));
       }
 

@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const Consultation = require("../models/Consultation");
 const Message = require("../models/Message");
+const { registerSocket, unregisterSocket } = require("./socketRegistry");
 
 const chatSocket = (io) => {
   io.on("connection", async (socket) => {
@@ -21,6 +22,12 @@ const chatSocket = (io) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       user = decoded;
       socket.user = decoded;
+
+      registerSocket({
+        role: decoded.role,
+        userId: decoded.userId,
+        socketId: socket.id,
+      });
     } catch (err) {
       console.log("Socket rejected: Invalid token");
       return socket.disconnect();
@@ -106,6 +113,11 @@ const chatSocket = (io) => {
     /* ================= DISCONNECT ================= */
 
     socket.on("disconnect", () => {
+      unregisterSocket({
+        role: socket.user?.role,
+        userId: socket.user?.userId,
+        socketId: socket.id,
+      });
       console.log("Socket disconnected:", socket.id);
     });
 

@@ -1,5 +1,6 @@
 import { Settings, User } from "lucide-react";
 import DashboardTabs from "./DashboardTabs";
+import DashboardNotificationBell from "./notifications/DashboardNotificationBell";
 
 const DashboardTopCard = ({
   userName,
@@ -38,16 +39,21 @@ const DashboardTopCard = ({
         </div>
 
         {/* Manage Profile Button */}
-        <button
-          onClick={() => setActiveTab("profile")}
-          className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium
-          bg-white border border-gray-200 rounded-lg shadow-sm
-          hover:bg-blue-50 hover:border-blue-300 transition
-          w-full md:w-auto"
-        >
-          <Settings size={16} />
-          Manage Profile
-        </button>
+        <div className="flex w-full md:w-auto items-center justify-end gap-2">
+          <DashboardNotificationBell
+            onOpenNotifications={() => setActiveTab("notifications")}
+          />
+          <button
+            onClick={() => setActiveTab("profile")}
+            className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium
+            bg-white border border-gray-200 rounded-lg shadow-sm
+            hover:bg-blue-50 hover:border-blue-300 transition
+            w-full md:w-auto"
+          >
+            <Settings size={16} />
+            Manage Profile
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
