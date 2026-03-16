@@ -1,0 +1,15 @@
+const express = require("express");
+const router = express.Router();
+const {
+  generateExpertBioController,
+  summarizeLawController,
+} = require("../controllers/aiController");
+const { verifyToken } = require("../middleware/authMiddleware");
+
+// POST /api/ai/generate-bio  — requires login (any authenticated role)
+router.post("/generate-bio", verifyToken, generateExpertBioController);
+
+// POST /api/ai/summarize-law — public
+router.post("/summarize-law", summarizeLawController);
+
+module.exports = router;

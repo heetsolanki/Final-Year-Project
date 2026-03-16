@@ -3,6 +3,7 @@ import axios from "axios";
 import API_URL from "../api";
 import { useNavigate } from "react-router-dom";
 import AlertPopup from "../components/ui/AlertPopup";
+import { generateBio } from "../services/aiService";
 import {
   Scale,
   MapPin,
@@ -55,6 +56,8 @@ const ExpertProfile = () => {
   const navigate = useNavigate();
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [generatingBio, setGeneratingBio] = useState(false);
+  const [bioError, setBioError] = useState("");
   const token = localStorage.getItem("token");
 
   const [formData, setFormData] = useState({
@@ -272,6 +275,34 @@ const ExpertProfile = () => {
       setServerError(msg);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleGenerateBio = async () => {
+    setBioError("");
+    if (!formData.specialization || !formData.experience) {
+      setBioError("Please fill in Specialization and Experience before generating a bio.");
+      return;
+    }
+    try {
+      setGeneratingBio(true);
+      const bio = await generateBio({
+        name: formData.name || "Legal Expert",
+        specialization:
+          formData.specialization === "Other"
+            ? formData.otherSpecialization
+            : formData.specialization,
+        expertiseAreas: formData.expertiseAreas,
+        languages: formData.languages,
+        experience: formData.experience,
+        city: formData.city,
+        state: formData.state,
+      });
+      setFormData((prev) => ({ ...prev, bio }));
+    } catch {
+      setBioError("Failed to generate bio. Please try again.");
+    } finally {
+      setGeneratingBio(false);
     }
   };
 
@@ -580,6 +611,26 @@ const ExpertProfile = () => {
                   onChange={handleChange}
                   className={inputClass("bio")}
                 />
+
+                <button
+                  type="button"
+                  onClick={handleGenerateBio}
+                  disabled={generatingBio}
+                  className="mt-2 flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm transition disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {generatingBio ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Generating bio...
+                    </>
+                  ) : (
+                    <>✨ Generate with AI</>
+                  )}
+                </button>
+
+                {bioError && (
+                  <p className="mt-1 text-xs text-red-500">{bioError}</p>
+                )}
               </div>
             </div>
 

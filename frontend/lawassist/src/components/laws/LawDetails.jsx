@@ -3,12 +3,13 @@ import { jwtDecode } from "jwt-decode";
 import API_URL from "../../api";
 import axios from "axios";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { ChevronDown, ArrowLeft, Scale, BookmarkIcon } from "lucide-react";
+import { ChevronDown, ArrowLeft, Scale, BookmarkIcon, Sparkles, RefreshCw } from "lucide-react";
 
 import AskQueryForm from "../queries/AskQueryForm";
 import AlertPopup from "../ui/AlertPopup";
 import ToastPopup from "../ui/ToastPopup";
 import BackToTopButton from "../layout/BackToTopButton";
+import { summarizeLaw } from "../../services/aiService";
 
 const LawDetails = () => {
   const { id } = useParams();
@@ -28,6 +29,11 @@ const LawDetails = () => {
   const [popupTitle, setPopupTitle] = useState("");
   const [popupMessage, setPopupMessage] = useState("");
   const [showBookmarkPopup, setShowBookmarkPopup] = useState(false);
+
+  // AI summarization — keyed by section index
+  const [summaries, setSummaries] = useState({});
+  const [loadingIndex, setLoadingIndex] = useState(null);
+  const [summaryErrors, setSummaryErrors] = useState({});
 
   const token = localStorage.getItem("token");
 
@@ -143,6 +149,22 @@ const LawDetails = () => {
 
   const toggleCard = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
+  };
+
+  const handleSummarize = async (index, technicalText) => {
+    setSummaryErrors((prev) => ({ ...prev, [index]: "" }));
+    setLoadingIndex(index);
+    try {
+      const summary = await summarizeLaw(technicalText);
+      setSummaries((prev) => ({ ...prev, [index]: summary }));
+    } catch {
+      setSummaryErrors((prev) => ({
+        ...prev,
+        [index]: "Failed to generate summary. Please try again.",
+      }));
+    } finally {
+      setLoadingIndex(null);
+    }
   };
 
   useEffect(() => {
@@ -265,6 +287,54 @@ const LawDetails = () => {
                         <p className="text-sm text-gray-600">
                           {section.description.technical}
                         </p>
+                      </div>
+
+                      {/* ── AI Summarization ── */}
+                      <div>
+                        {!summaries[index] && loadingIndex !== index && (
+                          <button
+                            onClick={() =>
+                              handleSummarize(index, section.description.technical)
+                            }
+                            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm transition"
+                          >
+                            <Sparkles size={15} />
+                            Summarize with AI
+                          </button>
+                        )}
+
+                        {loadingIndex === index && (
+                          <div className="flex items-center gap-2 text-sm text-indigo-600">
+                            <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                            Generating summary...
+                          </div>
+                        )}
+
+                        {summaryErrors[index] && (
+                          <p className="text-xs text-red-500 mt-1">
+                            {summaryErrors[index]}
+                          </p>
+                        )}
+
+                        {summaries[index] && loadingIndex !== index && (
+                          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                            <h4 className="font-semibold text-indigo-800 mb-2 text-sm">
+                              ✨ AI Summary
+                            </h4>
+                            <p className="text-sm text-indigo-900">
+                              {summaries[index]}
+                            </p>
+                            <button
+                              onClick={() =>
+                                handleSummarize(index, section.description.technical)
+                              }
+                              className="mt-3 flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 transition"
+                            >
+                              <RefreshCw size={12} />
+                              Regenerate Summary
+                            </button>
+                          </div>
+                        )}
                       </div>
 
                       {!showForm && userRole !== "legalExpert" && (
