@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   FileSearch,
   Activity,
+  ChartNoAxesCombined,
   LogOut,
 } from "lucide-react";
 
@@ -17,6 +18,7 @@ import AdminUsersTab from "../components/dashboard/admin/UsersTab";
 import AdminExpertsTab from "../components/dashboard/admin/ExpertsTab";
 import AdminQueriesTab from "../components/dashboard/admin/QueriesTab";
 import AdminLogsTab from "../components/dashboard/admin/LogsTab";
+import AdminAnalytics from "../components/admin/analytics/AdminAnalytics";
 import ToastPopup from "../components/ui/ToastPopup";
 
 const ADMIN_TABS = [
@@ -25,11 +27,12 @@ const ADMIN_TABS = [
   { id: "experts", label: "Experts", icon: ShieldCheck },
   { id: "queries", label: "Query Moderation", icon: FileSearch },
   { id: "logs", label: "Activity Logs", icon: Activity },
+  { id: "analytics", label: "Analytics", icon: ChartNoAxesCombined },
 ];
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [refreshKey] = useState(0);
   const [showLogoutToast, setShowLogoutToast] = useState(false);
   const navigate = useNavigate();
 
@@ -75,9 +78,8 @@ const AdminDashboard = () => {
     };
 
     const interval = setInterval(() => {
-      setRefreshKey((prev) => prev + 1);
       verifyAdminRole();
-    }, 5000);
+    }, 60000);
 
     // Initial verification
     verifyAdminRole();
@@ -106,6 +108,8 @@ const AdminDashboard = () => {
         return <AdminQueriesTab refreshKey={refreshKey} />;
       case "logs":
         return <AdminLogsTab refreshKey={refreshKey} />;
+      case "analytics":
+        return <AdminAnalytics refreshKey={refreshKey} />;
       default:
         return null;
     }
