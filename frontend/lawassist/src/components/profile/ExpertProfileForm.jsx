@@ -3,10 +3,13 @@ import axios from "axios";
 import API_URL from "../../api";
 import AlertPopup from "../ui/AlertPopup";
 import { states } from "../../data";
+import { generateBio } from "../../services/aiService";
 
 const ProfileForm = ({ user, refresh }) => {
   const [formData, setFormData] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
+  const [generatingBio, setGeneratingBio] = useState(false);
+  const [bioError, setBioError] = useState("");
   const token = localStorage.getItem("token");
   const selectedState = formData.state || "";
 
@@ -24,6 +27,31 @@ const ProfileForm = ({ user, refresh }) => {
 
     refresh();
     setShowSuccess(true);
+  };
+
+  const handleGenerateBio = async () => {
+    setBioError("");
+    if (!user.specialization || !user.experience) {
+      setBioError("Specialization and experience are needed to generate a bio.");
+      return;
+    }
+    try {
+      setGeneratingBio(true);
+      const bio = await generateBio({
+        name: user.name,
+        specialization: user.specialization,
+        expertiseAreas: user.expertiseAreas || [],
+        languages: user.languages || [],
+        experience: user.experience,
+        city: formData.city || user.city || "",
+        state: formData.state || user.state || "",
+      });
+      setFormData((prev) => ({ ...prev, bio }));
+    } catch {
+      setBioError("Failed to generate bio. Please try again.");
+    } finally {
+      setGeneratingBio(false);
+    }
   };
 
   return (
@@ -162,6 +190,26 @@ const ProfileForm = ({ user, refresh }) => {
               rows="3"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             />
+
+            <button
+              type="button"
+              onClick={handleGenerateBio}
+              disabled={generatingBio}
+              className="mt-2 flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm transition disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {generatingBio ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Generating bio...
+                </>
+              ) : (
+                <>✨ Generate with AI</>
+              )}
+            </button>
+
+            {bioError && (
+              <p className="mt-1 text-xs text-red-500">{bioError}</p>
+            )}
           </div>
         </div>
       </div>
