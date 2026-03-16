@@ -714,7 +714,7 @@ const ExpertProfile = () => {
                 disabled={submitting}
                 className="w-full rounded-lg bg-[#1E3A8A] py-3 text-sm sm:text-base font-medium text-white hover:bg-[#162e6d] transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {submitting ? "Saving..." : "Save Profile"}
+                {submitting ? "Saving Profile..." : "Save Profile"}
               </button>
             </div>
             <AlertPopup

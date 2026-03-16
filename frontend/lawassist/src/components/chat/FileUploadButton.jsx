@@ -76,7 +76,7 @@ const FileUploadButton = ({ onUploadSuccess, onError, disabled }) => {
         type="button"
         onClick={() => fileRef.current.click()}
         disabled={disabled || uploading}
-        title="Attach file"
+        title={uploading ? "Uploading file..." : "Attach file"}
         className={`p-2 rounded-xl transition ${
           disabled || uploading
             ? "text-gray-300 cursor-not-allowed"

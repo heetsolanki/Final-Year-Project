@@ -289,7 +289,12 @@ function Register() {
 
               <input type="hidden" value={role} name="role" />
 
-              <AuthButton text={loading ? "Creating Account..." : "Create Account"} disabled={!formValid || loading} />
+              <AuthButton
+                text="Create Account"
+                isLoading={loading}
+                loadingText="Creating Account..."
+                disabled={!formValid}
+              />
 
               <p className="auth-switch">
                 Already have an account?

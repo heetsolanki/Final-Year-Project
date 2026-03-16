@@ -1,11 +1,20 @@
-function AuthButton({ text, disabled, type = "submit" }) {
+function AuthButton({
+  text,
+  disabled,
+  type = "submit",
+  isLoading = false,
+  loadingText = "Please wait...",
+}) {
+  const buttonText = isLoading ? loadingText : text;
+
   return (
     <button
       type={type}
-      disabled={disabled}
-      className={`auth-btn ${disabled ? "auth-btn-disabled" : ""}`}
+      disabled={disabled || isLoading}
+      aria-busy={isLoading}
+      className={`auth-btn ${disabled || isLoading ? "auth-btn-disabled" : ""}`}
     >
-      {text}
+      {buttonText}
     </button>
   );
 }

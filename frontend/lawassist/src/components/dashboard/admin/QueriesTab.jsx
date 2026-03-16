@@ -33,6 +33,7 @@ const AdminQueriesTab = ({ refreshKey }) => {
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [selectedQuery, setSelectedQuery] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(null);
 
   // Modals
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -60,16 +61,20 @@ const AdminQueriesTab = ({ refreshKey }) => {
 
   const handleDelete = async (queryId) => {
     if (!queryId) return;
+    setActionLoading(`delete-${queryId}`);
     try {
       await axios.delete(`${API_URL}/api/admin/query/${queryId}`, { headers });
       fetchQueries();
     } catch (err) {
       console.error("Failed to delete query:", err);
       setAlertPopup({ show: true, title: "Error", message: "Failed to delete query.", type: "error" });
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const handleApprove = async (queryId) => {
+    setActionLoading(`approve-${queryId}`);
     try {
       await axios.put(`${API_URL}/api/admin/query/approve/${queryId}`, {}, { headers });
       setAlertPopup({ show: true, title: "Query Approved", message: "Query has been approved and is now under review.", type: "success" });
@@ -77,11 +82,14 @@ const AdminQueriesTab = ({ refreshKey }) => {
     } catch (err) {
       console.error("Failed to approve query:", err);
       setAlertPopup({ show: true, title: "Error", message: err.response?.data?.message || "Failed to approve query.", type: "error" });
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const handleReject = async (queryId) => {
     if (!queryId) return;
+    setActionLoading(`reject-${queryId}`);
     try {
       await axios.put(
         `${API_URL}/api/admin/query/reject/${queryId}`,
@@ -93,6 +101,8 @@ const AdminQueriesTab = ({ refreshKey }) => {
     } catch (err) {
       console.error("Failed to reject query:", err);
       setAlertPopup({ show: true, title: "Error", message: err.response?.data?.message || "Failed to reject query.", type: "error" });
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -300,6 +310,12 @@ const AdminQueriesTab = ({ refreshKey }) => {
                         </span>
                       </td>
                       <td className="px-5 py-4">
+                        {(() => {
+                          const isApproving = actionLoading === `approve-${query._id}`;
+                          const isRejecting = actionLoading === `reject-${query._id}`;
+                          const isDeleting = actionLoading === `delete-${query._id}`;
+
+                          return (
                         <div className="flex items-center gap-1.5 whitespace-nowrap">
                           <button
                             onClick={() => setSelectedQuery(query)}
@@ -313,31 +329,48 @@ const AdminQueriesTab = ({ refreshKey }) => {
                             <>
                               <button
                                 onClick={() => handleApprove(query._id)}
-                                title="Approve Query"
-                                className="p-2 rounded-lg text-green-500 hover:bg-green-50 hover:text-green-700 active:scale-95 transition-all duration-200"
+                                disabled={isApproving}
+                                title={isApproving ? "Approving..." : "Approve Query"}
+                                className="p-2 rounded-lg text-green-500 hover:bg-green-50 hover:text-green-700 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
-                                <CheckCircle size={16} />
+                                {isApproving ? (
+                                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                  <CheckCircle size={16} />
+                                )}
                               </button>
                               <button
                                 onClick={() => {
                                   setRejectModal(query._id);
                                 }}
-                                title="Reject Query"
-                                className="p-2 rounded-lg text-red-500 hover:bg-red-50 hover:text-red-700 active:scale-95 transition-all duration-200"
+                                disabled={isRejecting}
+                                title={isRejecting ? "Rejecting..." : "Reject Query"}
+                                className="p-2 rounded-lg text-red-500 hover:bg-red-50 hover:text-red-700 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
-                                <XCircle size={16} />
+                                {isRejecting ? (
+                                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                  <XCircle size={16} />
+                                )}
                               </button>
                             </>
                           )}
 
                           <button
                             onClick={() => setDeleteConfirm(query._id)}
-                            title="Delete Query"
-                            className="p-2 rounded-lg text-red-500 hover:bg-red-50 hover:text-red-700 active:scale-95 transition-all duration-200"
+                            disabled={isDeleting}
+                            title={isDeleting ? "Deleting..." : "Delete Query"}
+                            className="p-2 rounded-lg text-red-500 hover:bg-red-50 hover:text-red-700 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <Trash2 size={16} />
+                            {isDeleting ? (
+                              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <Trash2 size={16} />
+                            )}
                           </button>
                         </div>
+                          );
+                        })()}
                       </td>
                     </tr>
                   ))

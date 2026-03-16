@@ -150,7 +150,7 @@ const ChangePasswordModal = ({ onClose }) => {
           disabled={loading}
           className="profile-btn w-full mt-8 disabled:opacity-50"
         >
-          {loading ? "Updating..." : "Update Password"}
+          {loading ? "Updating Password..." : "Update Password"}
         </button>
       </div>
       <AlertPopup

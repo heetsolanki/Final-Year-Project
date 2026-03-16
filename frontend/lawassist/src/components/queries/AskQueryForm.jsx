@@ -153,7 +153,7 @@ const AskQueryForm = ({
         />
 
         <button type="submit" className="primary-btn" disabled={loading}>
-          {loading ? "Posting..." : "Post Question"}
+          {loading ? "Submitting..." : "Post Question"}
         </button>
       </form>
 

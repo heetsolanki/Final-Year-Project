@@ -178,38 +178,43 @@ const AdminExpertsTab = ({ refreshKey }) => {
   const renderActionButtons = (expert) => {
     const status = expert.verificationStatus;
     const uid = expert.userId;
+    const isApproving = actionLoading === `approve-${uid}`;
+    const isRejecting = actionLoading === `reject-${uid}`;
+    const isBlocking = actionLoading === `block-${uid}`;
+    const isUnblocking = actionLoading === `unblock-${uid}`;
 
     return (
       <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
         {/* View Profile — always shown */}
         <button
           onClick={() => handleViewProfile(uid)}
+          disabled={viewLoading}
           className="inline-flex items-center gap-1.5 border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-50 hover:border-gray-300 active:scale-95 transition-all duration-200"
         >
           <Eye size={14} />
-          View
+          {viewLoading ? "Loading..." : "View"}
         </button>
 
         {status === "under_review" && (
           <>
             <button
               onClick={() => handleApprove(uid)}
-              disabled={actionLoading === `approve-${uid}`}
+              disabled={isApproving}
               className="inline-flex items-center gap-1.5 bg-green-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-green-600 hover:shadow-md active:scale-95 transition-all duration-200 disabled:opacity-50"
             >
               <ShieldCheck size={14} />
-              {actionLoading === `approve-${uid}` ? "..." : "Approve"}
+              {isApproving ? "Approving..." : "Approve"}
             </button>
             <button
               onClick={() => {
                 setRejectExpert(expert);
                 setRejectReason("");
               }}
-              disabled={actionLoading === `reject-${uid}`}
+              disabled={isRejecting}
               className="inline-flex items-center gap-1.5 bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-600 hover:shadow-md active:scale-95 transition-all duration-200 disabled:opacity-50"
             >
               <ShieldX size={14} />
-              Reject
+              {isRejecting ? "Rejecting..." : "Reject"}
             </button>
           </>
         )}
@@ -217,33 +222,33 @@ const AdminExpertsTab = ({ refreshKey }) => {
         {status === "active" && (
           <button
             onClick={() => handleBlock(uid)}
-            disabled={actionLoading === `block-${uid}`}
+            disabled={isBlocking}
             className="inline-flex items-center gap-1.5 bg-gray-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-700 hover:shadow-md active:scale-95 transition-all duration-200 disabled:opacity-50"
           >
             <ShieldOff size={14} />
-            {actionLoading === `block-${uid}` ? "..." : "Block"}
+            {isBlocking ? "Blocking..." : "Block"}
           </button>
         )}
 
         {status === "rejected" && (
           <button
             onClick={() => handleApprove(uid)}
-            disabled={actionLoading === `approve-${uid}`}
+            disabled={isApproving}
             className="inline-flex items-center gap-1.5 bg-green-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-green-600 hover:shadow-md active:scale-95 transition-all duration-200 disabled:opacity-50"
           >
             <ShieldCheck size={14} />
-            {actionLoading === `approve-${uid}` ? "..." : "Approve"}
+            {isApproving ? "Approving..." : "Approve"}
           </button>
         )}
 
         {status === "blocked" && (
           <button
             onClick={() => handleUnblock(uid)}
-            disabled={actionLoading === `unblock-${uid}`}
+            disabled={isUnblocking}
             className="inline-flex items-center gap-1.5 bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-600 hover:shadow-md active:scale-95 transition-all duration-200 disabled:opacity-50"
           >
             <Unlock size={14} />
-            {actionLoading === `unblock-${uid}` ? "..." : "Unblock"}
+            {isUnblocking ? "Unblocking..." : "Unblock"}
           </button>
         )}
       </div>

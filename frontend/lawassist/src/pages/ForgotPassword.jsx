@@ -226,8 +226,10 @@ function ForgotPassword() {
 
                   <div className="mt-4">
                     <AuthButton
-                      text={loading ? "Sending..." : "Send OTP"}
-                      disabled={!emailValid || loading}
+                      text="Send OTP"
+                      isLoading={loading}
+                      loadingText="Sending..."
+                      disabled={!emailValid}
                     />
                   </div>
                 </>
@@ -271,15 +273,18 @@ function ForgotPassword() {
                       type="button"
                       className="text-blue-900 text-sm font-medium mt-2"
                       onClick={resendOTP}
+                      disabled={loading}
                     >
-                      Resend OTP
+                      {loading ? "Resending..." : "Resend OTP"}
                     </button>
                   )}
 
                   <div className="mt-4">
                     <AuthButton
-                      text={loading ? "Verifying..." : "Verify OTP"}
-                      disabled={otp.join("").length !== 6 || loading}
+                      text="Verify OTP"
+                      isLoading={loading}
+                      loadingText="Verifying..."
+                      disabled={otp.join("").length !== 6}
                     />
                   </div>
                 </>
@@ -360,8 +365,9 @@ function ForgotPassword() {
 
                   <div className="mt-4">
                     <AuthButton
-                      text={loading ? "Resetting..." : "Reset Password"}
-                      disabled={loading}
+                      text="Reset Password"
+                      isLoading={loading}
+                      loadingText="Resetting..."
                     />
                   </div>
                 </>

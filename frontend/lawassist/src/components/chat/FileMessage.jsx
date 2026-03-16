@@ -82,7 +82,7 @@ const FileMessage = ({ fileUrl, fileName, fileType, isMine }) => {
           ) : (
             <Download size={12} />
           )}
-          {downloading ? "Saving..." : "Download"}
+          {downloading ? "Downloading..." : "Download"}
         </button>
       </div>
     </div>

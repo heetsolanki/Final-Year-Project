@@ -196,7 +196,12 @@ function Login() {
                 </Link>
               </div>
 
-              <AuthButton text={loading ? "Logging in..." : "Login"} disabled={!formValid || loading} />
+              <AuthButton
+                text="Login"
+                isLoading={loading}
+                loadingText="Logging in..."
+                disabled={!formValid}
+              />
 
               <p className="auth-switch">
                 Don't have an account?
