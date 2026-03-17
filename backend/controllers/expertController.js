@@ -1,9 +1,15 @@
 const Query = require("../models/Query");
 const Expert = require("../models/Expert");
 const User = require("../models/User");
+const ExpertNotifyRequest = require("../models/ExpertNotifyRequest");
 const queryStatusUpdateEmail = require("../template/queryStatusUpdateEmail");
+const expertAvailableEmail = require("../template/expertAvailableEmail");
 const sendEmail = require("../utils/sendEmail");
-const { createNotification, NOTIFICATION_TYPES } = require("../services/notificationService");
+const { createNotification, notifyAdmins, NOTIFICATION_TYPES } = require("../services/notificationService");
+const {
+  isValidAvailabilityRange,
+  isWithinAvailability,
+} = require("../utils/availability");
 
 exports.completeExpertProfile = async (req, res) => {
   try {
@@ -109,8 +115,9 @@ exports.completeExpertProfile = async (req, res) => {
       previousStatus !== "under_review" &&
       expert.verificationStatus === "under_review"
     ) {
-      await createNotification({
-        title: "Expert Verification Request",
+      await notifyAdmins({
+        senderId: req.user.userId,
+        senderRole: "expert",
         message: `Expert ${expert.name} requested verification.`,
         type: NOTIFICATION_TYPES.SYSTEM,
         relatedId: expert.userId,
@@ -229,9 +236,21 @@ exports.acceptCase = async (req, res) => {
 
     if (user) {
       await createNotification({
-        userId: user.userId,
-        title: "Your Query Has Been Accepted",
+        receiverId: user.userId,
+        receiverRole: "user",
+        senderId: req.user.userId,
+        senderRole: "expert",
         message: "An expert has accepted your query and will assist you shortly.",
+        type: NOTIFICATION_TYPES.QUERY_ACCEPTED,
+        relatedId: query._id.toString(),
+      });
+
+      await createNotification({
+        receiverId: req.user.userId,
+        receiverRole: "expert",
+        senderId: user.userId,
+        senderRole: "user",
+        message: `You accepted query \"${query.title}\" successfully.`,
         type: NOTIFICATION_TYPES.QUERY_ACCEPTED,
         relatedId: query._id.toString(),
       });
@@ -294,6 +313,16 @@ exports.answerQuery = async (req, res) => {
     const user = await User.findOne({ userId: query.userId });
 
     if (user) {
+      await createNotification({
+        receiverId: user.userId,
+        receiverRole: "user",
+        senderId: req.user.userId,
+        senderRole: "expert",
+        message: `Your query \"${query.title}\" has been answered by an expert.`,
+        type: NOTIFICATION_TYPES.QUERY_ANSWERED,
+        relatedId: query._id.toString(),
+      });
+
       await sendEmail(
         user.email,
         "Your query has been answered",
@@ -308,6 +337,54 @@ exports.answerQuery = async (req, res) => {
     });
   } catch {
     res.status(500).json({ message: "Error answering query" });
+  }
+};
+
+exports.resolveCase = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const query = await Query.findById(id);
+    if (!query) {
+      return res.status(404).json({ message: "Query not found" });
+    }
+
+    if (query.expertId !== req.user.userId) {
+      return res.status(403).json({ message: "You are not assigned to this case" });
+    }
+
+    if (query.status === "Resolved") {
+      return res.status(400).json({ message: "Query already resolved" });
+    }
+
+    query.resolvedByExpert = true;
+    query.status = "Resolved";
+    query.resolvedAt = new Date();
+    await query.save();
+
+    await createNotification({
+      receiverId: query.userId,
+      receiverRole: "user",
+      senderId: req.user.userId,
+      senderRole: "expert",
+      message: `Your case "${query.title}" was marked as resolved by the expert.`,
+      type: NOTIFICATION_TYPES.QUERY_RESOLVED_BY_EXPERT,
+      relatedId: query._id.toString(),
+    });
+
+    await createNotification({
+      receiverId: req.user.userId,
+      receiverRole: "expert",
+      senderId: query.userId,
+      senderRole: "user",
+      message: `You marked case "${query.title}" as resolved.`,
+      type: NOTIFICATION_TYPES.QUERY_RESOLVED,
+      relatedId: query._id.toString(),
+    });
+
+    return res.status(200).json({ message: "Case resolved successfully", query });
+  } catch (error) {
+    return res.status(500).json({ message: "Error resolving case" });
   }
 };
 
@@ -378,5 +455,66 @@ exports.toggleExpertStatus = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.updateAvailability = async (req, res) => {
+  try {
+    const { startTime, endTime } = req.body;
+
+    if (!isValidAvailabilityRange(startTime, endTime)) {
+      return res.status(400).json({
+        message: "Invalid availability range. Use HH:mm and keep start and end different.",
+      });
+    }
+
+    const expert = await Expert.findOne({ userId: req.user.userId });
+    if (!expert) {
+      return res.status(404).json({ message: "Expert not found" });
+    }
+
+    expert.availability = { startTime, endTime };
+    await expert.save();
+
+    if (isWithinAvailability(expert.availability)) {
+      const notifyRequests = await ExpertNotifyRequest.find({
+        expertId: expert.userId,
+      }).lean();
+
+      const users = await User.find(
+        { userId: { $in: notifyRequests.map((item) => item.userId) } },
+        { userId: 1, name: 1, email: 1 },
+      ).lean();
+
+      await Promise.all(
+        users.map(async (user) => {
+          await createNotification({
+            receiverId: user.userId,
+            receiverRole: "user",
+            senderId: expert.userId,
+            senderRole: "expert",
+            type: NOTIFICATION_TYPES.EXPERT_AVAILABLE,
+            message: `${expert.name} is now available for consultation (${startTime} - ${endTime}).`,
+            relatedId: expert.userId,
+          });
+
+          await sendEmail(
+            user.email,
+            "Expert Available - LawAssist",
+            expertAvailableEmail(user.name, expert.name, startTime, endTime),
+            { category: "expert_available", targetId: expert.userId },
+          );
+        }),
+      );
+
+      await ExpertNotifyRequest.deleteMany({ expertId: expert.userId });
+    }
+
+    res.status(200).json({
+      message: "Availability updated successfully",
+      availability: expert.availability,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating availability" });
   }
 };

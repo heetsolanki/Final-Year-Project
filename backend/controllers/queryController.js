@@ -7,6 +7,7 @@ const Expert = require("../models/Expert");
 const {
   createNotification,
   notifyExpertsBulk,
+  notifyAdmins,
   NOTIFICATION_TYPES,
 } = require("../services/notificationService");
 
@@ -31,6 +32,16 @@ exports.createQuery = async (req, res) => {
       expertIds: experts.map((expert) => expert.userId),
       title: "New Consumer Query Posted",
       message: "A new consumer query has been posted on the platform.",
+      relatedId: newQuery._id.toString(),
+      senderId: req.user.userId,
+      senderRole: "user",
+    });
+
+    await notifyAdmins({
+      senderId: req.user.userId,
+      senderRole: "user",
+      type: NOTIFICATION_TYPES.QUERY_SUBMITTED,
+      message: `A new query "${newQuery.title}" was submitted and is pending admin review.`,
       relatedId: newQuery._id.toString(),
     });
 
@@ -91,10 +102,20 @@ exports.reAppealQuery = async (req, res) => {
     await query.save();
 
     await createNotification({
-      userId: req.user.userId,
-      title: "Query Re-Submitted",
+      receiverId: req.user.userId,
+      receiverRole: "user",
+      senderId: req.user.userId,
+      senderRole: "user",
       message: "Your query has been re-submitted and is waiting for review.",
       type: NOTIFICATION_TYPES.SYSTEM,
+      relatedId: query._id.toString(),
+    });
+
+    await notifyAdmins({
+      senderId: req.user.userId,
+      senderRole: "user",
+      type: NOTIFICATION_TYPES.QUERY_SUBMITTED,
+      message: `Query "${query.title}" was re-submitted for admin review.`,
       relatedId: query._id.toString(),
     });
 

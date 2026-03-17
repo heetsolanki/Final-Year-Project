@@ -14,6 +14,10 @@ const ExpertManageProfile = ({
   profileCompletion,
 }) => {
   const [expert, setExpert] = useState(null);
+  const [availability, setAvailability] = useState({ startTime: "09:00", endTime: "18:00" });
+  const [availabilityError, setAvailabilityError] = useState("");
+  const [availabilityMessage, setAvailabilityMessage] = useState("");
+  const [savingAvailability, setSavingAvailability] = useState(false);
   const token = localStorage.getItem("token");
 
   const fetchProfile = useCallback(async () => {
@@ -22,10 +26,42 @@ const ExpertManageProfile = ({
         headers: { Authorization: `Bearer ${token}` },
       });
       setExpert(res.data);
+      setAvailability({
+        startTime: res.data?.availability?.startTime || "09:00",
+        endTime: res.data?.availability?.endTime || "18:00",
+      });
     } catch (err) {
       console.log(err);
     }
   }, [token]);
+
+  const saveAvailability = async () => {
+    setAvailabilityError("");
+    setAvailabilityMessage("");
+
+    if (!availability.startTime || !availability.endTime || availability.startTime === availability.endTime) {
+      setAvailabilityError("Please select a valid start and end time.");
+      return;
+    }
+
+    try {
+      setSavingAvailability(true);
+      const res = await axios.patch(
+        `${API_URL}/api/expert/availability`,
+        availability,
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      setAvailabilityMessage(res.data?.message || "Availability updated successfully.");
+      fetchProfile();
+    } catch (error) {
+      setAvailabilityError(
+        error?.response?.data?.message || "Failed to update availability.",
+      );
+    } finally {
+      setSavingAvailability(false);
+    }
+  };
 
   useEffect(() => {
     fetchProfile();
@@ -70,6 +106,52 @@ const ExpertManageProfile = ({
       <DashboardCard title="Manage Profile">
         <ProfileHeader user={expert} setActiveTab={setActiveTab} />
         <ProfileForm user={expert} refresh={fetchProfile} />
+
+        <div className="mt-8 rounded-xl border border-gray-200 bg-gray-50 p-4">
+          <h3 className="text-sm font-semibold text-gray-800">Set Availability</h3>
+          <p className="mt-1 text-xs text-gray-500">
+            Users can start consultations only during this time window.
+          </p>
+
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="text-sm text-gray-700">
+              <span className="mb-1 block text-xs font-medium text-gray-500">Start Time</span>
+              <input
+                type="time"
+                value={availability.startTime}
+                onChange={(e) => setAvailability((prev) => ({ ...prev, startTime: e.target.value }))}
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+              />
+            </label>
+
+            <label className="text-sm text-gray-700">
+              <span className="mb-1 block text-xs font-medium text-gray-500">End Time</span>
+              <input
+                type="time"
+                value={availability.endTime}
+                onChange={(e) => setAvailability((prev) => ({ ...prev, endTime: e.target.value }))}
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
+              />
+            </label>
+          </div>
+
+          <button
+            onClick={saveAvailability}
+            disabled={savingAvailability}
+            className="mt-4 rounded-lg bg-[#1E3A8A] px-4 py-2 text-sm font-medium text-white hover:bg-[#17306f] disabled:opacity-60"
+          >
+            {savingAvailability ? "Saving..." : "Update Availability"}
+          </button>
+
+          {availabilityError && (
+            <p className="mt-2 text-xs text-red-600">{availabilityError}</p>
+          )}
+
+          {availabilityMessage && (
+            <p className="mt-2 text-xs text-green-700">{availabilityMessage}</p>
+          )}
+        </div>
+
         <AccountSection />
 
         <div className="mt-10 md:mt-12 text-xs md:text-sm text-gray-500 border-t pt-6 text-center leading-relaxed flex items-center justify-center gap-2">

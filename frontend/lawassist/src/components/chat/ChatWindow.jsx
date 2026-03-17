@@ -61,7 +61,7 @@ const ChatWindow = ({
         </h2>
 
         <div className="flex gap-3 items-center justify-between">
-        {!chatClosed && role !== "legalExpert" && (
+        {!chatClosed && (
           <button
             onClick={endChat}
             className="text-xs sm:text-sm bg-red-500 text-white px-2 sm:px-3 py-1 rounded-lg hover:bg-red-600 transition"

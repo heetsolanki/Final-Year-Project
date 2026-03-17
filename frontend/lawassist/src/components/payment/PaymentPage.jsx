@@ -246,6 +246,7 @@ export const PaymentReceipt = ({
   paymentMethod,
   amount,
   expertName,
+  availabilityWindow,
   upiId,
   cardLast4,
   onStart,
@@ -278,7 +279,7 @@ export const PaymentReceipt = ({
     },
     { label: "Amount Paid", value: `₹${amount}`, highlight: true },
     { label: "Expert", value: expertName },
-    { label: "Duration", value: "4 Hours" },
+    { label: "Availability", value: availabilityWindow || "Not set" },
     { label: "Status", value: "Success", badge: true },
   ];
 
@@ -423,9 +424,12 @@ const ExpertConsultationCard = ({ expert }) => (
         </span>
       </div>
       <div className="flex items-center justify-between text-sm">
-        <span className="text-gray-500">Duration</span>
+        <span className="text-gray-500">Availability</span>
         <span className="font-medium text-gray-700 flex items-center gap-1">
-          <Clock size={14} /> 4 hours
+          <Clock size={14} />
+          {expert?.availability?.startTime && expert?.availability?.endTime
+            ? `${expert.availability.startTime} - ${expert.availability.endTime}`
+            : "Not set"}
         </span>
       </div>
     </div>
@@ -472,6 +476,7 @@ const PaymentPage = () => {
   const token = localStorage.getItem("token");
 
   const [expert, setExpert] = useState(null);
+  const [expertError, setExpertError] = useState("");
   const [loading, setLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState("UPI");
   const [processing, setProcessing] = useState(false);
@@ -510,8 +515,9 @@ const PaymentPage = () => {
         { headers: { Authorization: `Bearer ${token}` } },
       );
       setExpert(res.data);
+      setExpertError("");
     } catch (error) {
-      console.log(error);
+      setExpertError(error?.response?.data?.message || "Expert not found or unavailable.");
     } finally {
       setLoading(false);
     }
@@ -610,6 +616,10 @@ const PaymentPage = () => {
           paymentMethod,
           amount: expert.consultationCharges,
           expertName: expert.name,
+          availabilityWindow:
+            expert?.availability?.startTime && expert?.availability?.endTime
+              ? `${expert.availability.startTime} - ${expert.availability.endTime}`
+              : "Not set",
           expertSpecialization: expert.specialization || "Legal Expert",
           upiId: paymentMethod === "UPI" ? upiId.trim() : undefined,
           cardLast4:
@@ -653,7 +663,7 @@ const PaymentPage = () => {
   if (!expert) {
     return (
       <div className="min-h-screen bg-gray-50 pt-28 flex flex-col items-center justify-center gap-4">
-        <p className="text-gray-600">Expert not found or unavailable.</p>
+        <p className="text-gray-600">{expertError || "Expert not found or unavailable."}</p>
         <button
           onClick={() => navigate("/experts")}
           className="text-[#1E3A8A] font-medium hover:underline"

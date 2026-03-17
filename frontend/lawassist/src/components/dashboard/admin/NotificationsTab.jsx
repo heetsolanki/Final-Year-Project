@@ -51,7 +51,7 @@ const AdminNotificationsTab = ({ refreshKey }) => {
               Notifications
             </h2>
             <p className="text-xs text-gray-400">
-              {notifications.filter((n) => !n.read).length} unread of{" "}
+              {notifications.filter((n) => !n.isRead).length} unread of{" "}
               {notifications.length} total
             </p>
           </div>
@@ -69,19 +69,19 @@ const AdminNotificationsTab = ({ refreshKey }) => {
               <div
                 key={n._id}
                 className={`group bg-gray-50 border border-gray-100 p-4 rounded-xl hover:bg-white hover:border-gray-200 hover:shadow-sm transition-all duration-200 ${
-                  !n.read ? "border-l-4 border-l-[#C9A227]" : ""
+                  !n.isRead ? "border-l-4 border-l-[#C9A227]" : ""
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <div
                     className={`p-2 rounded-lg shrink-0 group-hover:scale-105 transition-transform duration-200 ${
-                      !n.read ? "bg-amber-50" : "bg-gray-100"
+                      !n.isRead ? "bg-amber-50" : "bg-gray-100"
                     }`}
                   >
                     <Bell
                       size={16}
                       className={
-                        !n.read ? "text-[#C9A227]" : "text-gray-400"
+                        !n.isRead ? "text-[#C9A227]" : "text-gray-400"
                       }
                     />
                   </div>
@@ -94,7 +94,7 @@ const AdminNotificationsTab = ({ refreshKey }) => {
                           {new Date(n.createdAt).toLocaleString()}
                         </span>
                       </div>
-                      {!n.read && (
+                      {!n.isRead && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#C9A227]/10 text-[#C9A227] border border-[#C9A227]/20">
                           <span className="w-1.5 h-1.5 rounded-full bg-[#C9A227]" />
                           Unread

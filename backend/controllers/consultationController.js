@@ -3,6 +3,10 @@ const Expert = require("../models/Expert");
 const sendEmail = require("../utils/sendEmail");
 const newConsultationEmail = require("../template/newConsultationEmail");
 const { createNotification, NOTIFICATION_TYPES } = require("../services/notificationService");
+const {
+  formatAvailabilityWindow,
+  isWithinAvailability,
+} = require("../utils/availability");
 
 exports.createConsultation = async (req, res) => {
   try {
@@ -18,6 +22,12 @@ exports.createConsultation = async (req, res) => {
       return res.status(400).json({ message: "Expert unavailable" });
     }
 
+    if (!isWithinAvailability(expert.availability)) {
+      return res.status(400).json({
+        message: `Expert is currently offline. Available between ${formatAvailabilityWindow(expert.availability)}.`,
+      });
+    }
+
     const consultationId =
       "CONS_" + Math.floor(100000 + Math.random() * 900000);
 
@@ -30,18 +40,32 @@ exports.createConsultation = async (req, res) => {
     });
 
     await createNotification({
-      userId: req.user.userId,
-      title: "Consultation Booked",
+      receiverId: req.user.userId,
+      receiverRole: "user",
+      senderId: expertUserId,
+      senderRole: "expert",
       message: "Your consultation booking has been confirmed.",
       type: NOTIFICATION_TYPES.CONSULTATION_BOOKED,
       relatedId: consultationId,
     });
 
     await createNotification({
-      expertId: expertUserId,
-      title: "Consultation Booked",
+      receiverId: expertUserId,
+      receiverRole: "expert",
+      senderId: req.user.userId,
+      senderRole: "user",
       message: "A consumer has booked a consultation with you.",
       type: NOTIFICATION_TYPES.CONSULTATION_BOOKED,
+      relatedId: consultationId,
+    });
+
+    await createNotification({
+      receiverId: req.user.userId,
+      receiverRole: "user",
+      senderId: expertUserId,
+      senderRole: "expert",
+      message: `Consultation ${consultationId} is now active. You can start chatting with your expert.`,
+      type: NOTIFICATION_TYPES.CONSULTATION_STARTED,
       relatedId: consultationId,
     });
 
@@ -60,40 +84,61 @@ exports.createConsultation = async (req, res) => {
 };
 
 exports.closeConsultation = async (req, res) => {
-  const { consultationId } = req.params;
+  try {
+    const { consultationId } = req.params;
 
-  const consultation = await Consultation.findOne({ consultationId });
+    const consultation = await Consultation.findOne({ consultationId });
 
-  if (!consultation) {
-    return res.status(404).json({ message: "Consultation not found" });
+    if (!consultation) {
+      return res.status(404).json({ message: "Consultation not found" });
+    }
+
+    const isUser = consultation.userId === req.user.userId;
+    const isExpert = consultation.expertId === req.user.userId;
+    if (!isUser && !isExpert) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    if (consultation.status === "closed") {
+      return res.status(400).json({ message: "Consultation already resolved" });
+    }
+
+    if (isUser) consultation.resolvedByUser = true;
+    if (isExpert) consultation.resolvedByExpert = true;
+
+    consultation.status = "closed";
+    consultation.closedAt = new Date();
+    await consultation.save();
+
+    const senderRole = isUser ? "user" : "expert";
+    const senderId = req.user.userId;
+    const receiverId = isUser ? consultation.expertId : consultation.userId;
+    const receiverRole = isUser ? "expert" : "user";
+
+    await createNotification({
+      receiverId,
+      receiverRole,
+      senderId,
+      senderRole,
+      message: `Consultation ${consultation.consultationId} has been ended by the ${isUser ? "consumer" : "expert"}.`,
+      type: NOTIFICATION_TYPES.CONSULTATION_ENDED,
+      relatedId: consultation.consultationId,
+    });
+
+    await createNotification({
+      receiverId: req.user.userId,
+      receiverRole: isUser ? "user" : "expert",
+      senderId,
+      senderRole,
+      message: `Consultation ${consultation.consultationId} has been closed successfully.`,
+      type: NOTIFICATION_TYPES.CONSULTATION_ENDED,
+      relatedId: consultation.consultationId,
+    });
+
+    return res.json({ message: "Consultation closed", consultation });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to close consultation" });
   }
-
-  if (consultation.userId !== req.user.userId) {
-    return res.status(403).json({ message: "Unauthorized" });
-  }
-
-  consultation.status = "closed";
-  consultation.closedAt = new Date();
-
-  await consultation.save();
-
-  await createNotification({
-    userId: consultation.userId,
-    title: "Consultation Closed",
-    message: `Consultation ${consultation.consultationId} has been closed.`,
-    type: NOTIFICATION_TYPES.SYSTEM,
-    relatedId: consultation.consultationId,
-  });
-
-  await createNotification({
-    expertId: consultation.expertId,
-    title: "Consultation Closed",
-    message: `Consultation ${consultation.consultationId} has been closed by the consumer.`,
-    type: NOTIFICATION_TYPES.SYSTEM,
-    relatedId: consultation.consultationId,
-  });
-
-  res.json({ message: "Consultation closed" });
 };
 
 exports.getUserConsultations = async (req, res) => {

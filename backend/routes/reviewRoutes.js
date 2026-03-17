@@ -3,6 +3,7 @@ const router = express.Router();
 const Review = require("../models/Review");
 const User = require("../models/User");
 const { verifyToken } = require("../middleware/authMiddleware");
+const { createNotification, NOTIFICATION_TYPES } = require("../services/notificationService");
 
 /* ================= SUBMIT REVIEW ================= */
 
@@ -22,6 +23,26 @@ router.post("/add", verifyToken, async (req, res) => {
     });
 
     await review.save();
+
+    await createNotification({
+      receiverId: req.user.userId,
+      receiverRole: "user",
+      senderId: req.user.userId,
+      senderRole: "user",
+      type: NOTIFICATION_TYPES.REVIEW_SUBMITTED,
+      message: "Your review was submitted successfully.",
+      relatedId: review._id.toString(),
+    });
+
+    await createNotification({
+      receiverId: expertId,
+      receiverRole: "expert",
+      senderId: req.user.userId,
+      senderRole: "user",
+      type: NOTIFICATION_TYPES.NEW_REVIEW,
+      message: "You have received a new client review.",
+      relatedId: review._id.toString(),
+    });
 
     res.status(201).json({ message: "Review submitted successfully" });
   } catch (err) {

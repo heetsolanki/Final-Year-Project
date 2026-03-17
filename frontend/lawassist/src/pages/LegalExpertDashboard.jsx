@@ -9,6 +9,7 @@ import ExpertQueriesTab from "../components/dashboard/expert/QueriesTab";
 import ExpertConsultationsTab from "../components/dashboard/expert/Consultations";
 import ExpertManageProfile from "../components/dashboard/expert/ExpertProfileTab";
 import ExpertNotificationsTab from "../components/dashboard/expert/NotificationsTab";
+import ClientReviewsTab from "../components/dashboard/expert/ClientReviewsTab";
 import QueryDetailsModal from "../components/queries/QueryDetailsModal";
 import BackToTopButton from "../components/layout/BackToTopButton";
 
@@ -17,6 +18,7 @@ const EXPERT_TABS = [
   { id: "overview", label: "Overview" },
   { id: "queries", label: "Assigned Queries" },
   { id: "consultations", label: "Consultations" },
+  { id: "reviews", label: "Client Reviews" },
   { id: "notifications", label: "Notifications" },
 ];
 
@@ -227,6 +229,8 @@ const LegalExpertDashboard = () => {
           )}
 
           {activeTab === "consultations" && <ExpertConsultationsTab />}
+
+          {activeTab === "reviews" && <ClientReviewsTab expertUserId={expert.userId} />}
 
           {activeTab === "notifications" && <ExpertNotificationsTab refreshKey={refreshKey} />}
 

@@ -4,6 +4,7 @@ const { verifyToken, authorizeRole } = require("../middleware/authMiddleware");
 const Query = require("../models/Query");
 const User = require("../models/User");
 const Notification = require("../models/Notification");
+const { createNotification, NOTIFICATION_TYPES } = require("../services/notificationService");
 const bcrypt = require("bcryptjs");
 
 /* ================= GET PROFILE ================= */
@@ -110,9 +111,41 @@ router.patch(
         return res.status(404).json({ message: "Query not found" });
       }
 
+      if (query.userId !== req.user.userId) {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+
+      if (query.status === "Resolved") {
+        return res.status(400).json({ message: "Query already resolved" });
+      }
+
+      query.resolvedByUser = true;
       query.status = "Resolved";
+      query.resolvedAt = new Date();
 
       await query.save();
+
+      if (query.expertId) {
+        await createNotification({
+          receiverId: query.expertId,
+          receiverRole: "expert",
+          senderId: req.user.userId,
+          senderRole: "user",
+          message: "The user has marked this case as resolved.",
+          type: NOTIFICATION_TYPES.QUERY_RESOLVED_BY_USER,
+          relatedId: query._id.toString(),
+        });
+      }
+
+      await createNotification({
+        receiverId: req.user.userId,
+        receiverRole: "user",
+        senderId: query.expertId || null,
+        senderRole: query.expertId ? "expert" : null,
+        message: "You marked this case as resolved.",
+        type: NOTIFICATION_TYPES.QUERY_RESOLVED,
+        relatedId: query._id.toString(),
+      });
 
       res.json({ message: "Query resolved successfully", query });
     } catch (error) {
@@ -133,7 +166,10 @@ router.get(
       const skip = (page - 1) * limit;
 
       const notifications = await Notification.find({
-        userId: req.user.userId,
+        $or: [
+          { receiverId: req.user.userId, receiverRole: "user" },
+          { userId: req.user.userId },
+        ],
       })
         .sort({ createdAt: -1 })
         .skip(skip)

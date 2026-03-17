@@ -73,7 +73,7 @@ export const NotificationCenterProvider = ({ children }) => {
   const markAllAsRead = useCallback(async () => {
     if (!token) return;
     try {
-      await axios.patch(`${API_URL}/api/notifications/read-all`, {}, authHeaders);
+      await axios.patch(`${API_URL}/api/notifications/mark-all-read`, {}, authHeaders);
       setUnreadCount(0);
       setLatestNotifications((prev) => prev.map((item) => ({ ...item, isRead: true })));
     } catch (error) {

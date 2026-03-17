@@ -4,6 +4,10 @@ const Expert = require("../models/Expert");
 const sendEmail = require("../utils/sendEmail");
 const newConsultationEmail = require("../template/newConsultationEmail");
 const { createNotification, NOTIFICATION_TYPES } = require("../services/notificationService");
+const {
+  formatAvailabilityWindow,
+  isWithinAvailability,
+} = require("../utils/availability");
 
 // GET /api/payments/expert-info/:expertId - Get expert info for payment page
 exports.getExpertPaymentInfo = async (req, res) => {
@@ -14,6 +18,12 @@ exports.getExpertPaymentInfo = async (req, res) => {
       return res.status(400).json({ message: "Expert unavailable" });
     }
 
+    if (!isWithinAvailability(expert.availability)) {
+      return res.status(400).json({
+        message: `Expert is currently offline. Available between ${formatAvailabilityWindow(expert.availability)}.`,
+      });
+    }
+
     res.json({
       name: expert.name,
       specialization: expert.specialization || "Legal Expert",
@@ -21,6 +31,7 @@ exports.getExpertPaymentInfo = async (req, res) => {
       experience: expert.experience,
       city: expert.city,
       state: expert.state,
+      availability: expert.availability,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -37,6 +48,12 @@ exports.processPayment = async (req, res) => {
     const expert = await Expert.findOne({ userId: expertId });
     if (!expert || !expert.isActive || expert.verificationStatus !== "active") {
       return res.status(400).json({ message: "Expert unavailable" });
+    }
+
+    if (!isWithinAvailability(expert.availability)) {
+      return res.status(400).json({
+        message: `Expert is currently offline. Available between ${formatAvailabilityWindow(expert.availability)}.`,
+      });
     }
 
     // Generate payment ID
@@ -82,27 +99,53 @@ exports.processPayment = async (req, res) => {
       });
 
       await createNotification({
-        userId: req.user.userId,
-        title: "Payment Successful",
+        receiverId: req.user.userId,
+        receiverRole: "user",
+        senderId: expertId,
+        senderRole: "expert",
         message: "Your consultation payment was successful.",
         type: NOTIFICATION_TYPES.PAYMENT_SUCCESS,
         relatedId: paymentId,
       });
 
       await createNotification({
-        userId: req.user.userId,
-        title: "Consultation Booked",
+        receiverId: req.user.userId,
+        receiverRole: "user",
+        senderId: expertId,
+        senderRole: "expert",
         message: "Your consultation booking has been confirmed.",
         type: NOTIFICATION_TYPES.CONSULTATION_BOOKED,
         relatedId: consultationId,
       });
 
       await createNotification({
-        expertId,
-        title: "Consultation Booked",
+        receiverId: expertId,
+        receiverRole: "expert",
+        senderId: req.user.userId,
+        senderRole: "user",
         message: "A new paid consultation has been booked with you.",
         type: NOTIFICATION_TYPES.CONSULTATION_BOOKED,
         relatedId: consultationId,
+      });
+
+      await createNotification({
+        receiverId: req.user.userId,
+        receiverRole: "user",
+        senderId: expertId,
+        senderRole: "expert",
+        message: `Consultation ${consultationId} is now active. You can start chatting with your expert.`,
+        type: NOTIFICATION_TYPES.CONSULTATION_STARTED,
+        relatedId: consultationId,
+      });
+
+      await createNotification({
+        receiverId: expertId,
+        receiverRole: "expert",
+        senderId: req.user.userId,
+        senderRole: "user",
+        message: `You received payment of ₹${amount} for consultation ${consultationId}.`,
+        type: NOTIFICATION_TYPES.PAYMENT_RECEIVED,
+        relatedId: paymentId,
       });
 
       // Link consultation to payment
@@ -134,10 +177,12 @@ exports.processPayment = async (req, res) => {
       await payment.save();
 
       await createNotification({
-        userId: req.user.userId,
-        title: "Payment Failed",
+        receiverId: req.user.userId,
+        receiverRole: "user",
+        senderId: expertId,
+        senderRole: "expert",
         message: "Your consultation payment failed. Please try again.",
-        type: NOTIFICATION_TYPES.SYSTEM,
+        type: NOTIFICATION_TYPES.PAYMENT_FAILED,
         relatedId: paymentId,
       });
 
