@@ -133,6 +133,14 @@ exports.processPayment = async (req, res) => {
       payment.paymentStatus = "Failed";
       await payment.save();
 
+      await createNotification({
+        userId: req.user.userId,
+        title: "Payment Failed",
+        message: "Your consultation payment failed. Please try again.",
+        type: NOTIFICATION_TYPES.SYSTEM,
+        relatedId: paymentId,
+      });
+
       return res.status(200).json({
         success: false,
         paymentId,

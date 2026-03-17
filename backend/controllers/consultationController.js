@@ -77,6 +77,22 @@ exports.closeConsultation = async (req, res) => {
 
   await consultation.save();
 
+  await createNotification({
+    userId: consultation.userId,
+    title: "Consultation Closed",
+    message: `Consultation ${consultation.consultationId} has been closed.`,
+    type: NOTIFICATION_TYPES.SYSTEM,
+    relatedId: consultation.consultationId,
+  });
+
+  await createNotification({
+    expertId: consultation.expertId,
+    title: "Consultation Closed",
+    message: `Consultation ${consultation.consultationId} has been closed by the consumer.`,
+    type: NOTIFICATION_TYPES.SYSTEM,
+    relatedId: consultation.consultationId,
+  });
+
   res.json({ message: "Consultation closed" });
 };
 

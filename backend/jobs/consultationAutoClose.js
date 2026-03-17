@@ -1,5 +1,6 @@
 const cron = require("node-cron");
 const Consultation = require("../models/Consultation");
+const { createNotification, NOTIFICATION_TYPES } = require("../services/notificationService");
 
 const CONSULTATION_DURATION_MS = 4 * 60 * 60 * 1000; // 4 hours
 
@@ -25,6 +26,22 @@ const startAutoCloseJob = (io) => {
         consultation.status = "closed";
         consultation.closedAt = new Date();
         await consultation.save();
+
+        await createNotification({
+          userId: consultation.userId,
+          title: "Consultation Auto-Closed",
+          message: `Consultation ${consultation.consultationId} was automatically closed after 4 hours.`,
+          type: NOTIFICATION_TYPES.SYSTEM,
+          relatedId: consultation.consultationId,
+        });
+
+        await createNotification({
+          expertId: consultation.expertId,
+          title: "Consultation Auto-Closed",
+          message: `Consultation ${consultation.consultationId} was automatically closed after 4 hours.`,
+          type: NOTIFICATION_TYPES.SYSTEM,
+          relatedId: consultation.consultationId,
+        });
 
         // Notify both participants via socket
         io.to(consultation.consultationId).emit(

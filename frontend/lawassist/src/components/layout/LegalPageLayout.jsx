@@ -30,7 +30,7 @@ const LegalPageLayout = ({ title, description, children }) => {
               </p>
               <p className="text-gray-600 text-sm mt-2">
                 Contact us at{" "}
-                <span className="font-semibold text-[#1E3A8A]">lawassist@gmail.com</span>
+                <span className="font-semibold text-[#1E3A8A]">mail.lawassist@gmail.com</span>
               </p>
             </div>
           </div>
