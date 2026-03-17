@@ -19,7 +19,7 @@ import {
   states,
   specializations,
   indianLanguages,
-  expertiseOptions,
+  expertiseBySpecialization,
 } from "../data";
 
 const ID_DOCUMENT_TYPES = [
@@ -136,6 +136,15 @@ const ExpertProfile = () => {
 
     if (name === "state") {
       setFormData({ ...formData, state: value, city: "" });
+    } else if (name === "specialization") {
+      const nextOptions = expertiseBySpecialization[value] || [];
+      setFormData((prev) => ({
+        ...prev,
+        specialization: value,
+        expertiseAreas: prev.expertiseAreas.filter((area) =>
+          nextOptions.includes(area),
+        ),
+      }));
     } else if (name === "idDocumentType") {
       // Reset ID number when type changes
       setFormData({ ...formData, idDocumentType: value, idNumber: "" });
@@ -322,6 +331,9 @@ const ExpertProfile = () => {
   const selectedDocType = ID_DOCUMENT_TYPES.find(
     (d) => d.value === formData.idDocumentType,
   );
+
+  const specializationExpertiseOptions =
+    expertiseBySpecialization[formData.specialization] || [];
 
   const FieldError = ({ field }) =>
     errors[field] ? (
@@ -618,7 +630,7 @@ const ExpertProfile = () => {
                   Areas of Expertise <span className="text-red-500">*</span>
                 </label>
                 <div className="mt-2 flex flex-wrap gap-2 sm:gap-3">
-                  {expertiseOptions.map((area) => (
+                  {specializationExpertiseOptions.map((area) => (
                     <button
                       type="button"
                       key={area}

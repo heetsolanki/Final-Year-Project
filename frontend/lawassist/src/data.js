@@ -42,16 +42,62 @@ export const specializations = [
   "Other",
 ];
 
-export const expertiseOptions = [
-  "Consumer Protection",
-  "Online Shopping Fraud",
-  "Banking Complaints",
-  "Insurance Claims",
-  "Defective Products",
-  "E-commerce Disputes",
-  "Service Deficiency",
-  "Cyber Fraud",
-];
+export const expertiseBySpecialization = {
+  "Consumer Law": [
+    "Consumer Protection",
+    "Defective Products",
+    "Service Deficiency",
+    "E-commerce Disputes",
+    "Online Shopping Fraud",
+  ],
+  "Cyber Law": [
+    "Cyber Fraud",
+    "Data Privacy",
+    "Online Defamation",
+    "Cyber Crime Complaints",
+    "Digital Evidence",
+  ],
+  "Banking Law": [
+    "Banking Complaints",
+    "Loan Disputes",
+    "Credit Card Disputes",
+    "Fraudulent Transactions",
+    "Account Freezing Issues",
+  ],
+  "Insurance Law": [
+    "Insurance Claims",
+    "Claim Rejection Appeals",
+    "Policy Interpretation",
+    "Motor Insurance Disputes",
+    "Health Insurance Disputes",
+  ],
+  "Corporate Law": [
+    "Company Compliance",
+    "Contract Drafting",
+    "Shareholder Disputes",
+    "Mergers and Acquisitions",
+    "Corporate Governance",
+  ],
+  "Family Law": [
+    "Divorce and Separation",
+    "Child Custody",
+    "Maintenance and Alimony",
+    "Domestic Violence Matters",
+    "Family Property Disputes",
+  ],
+  Other: [
+    "Consumer Protection",
+    "Cyber Fraud",
+    "Banking Complaints",
+    "Insurance Claims",
+    "Contract Drafting",
+    "Legal Notice Drafting",
+  ],
+};
+
+export const expertiseOptions = Array.from(
+  new Set(Object.values(expertiseBySpecialization).flat()),
+);
 
 export const indianLanguages = [
   "English",
@@ -64,6 +110,19 @@ export const indianLanguages = [
   "Malayalam",
   "Punjabi",
   "Bengali",
+  "Urdu",
+  "Odia",
+  "Assamese",
+  "Konkani",
+  "Sanskrit",
+  "Nepali",
+  "Maithili",
+  "Sindhi",
+  "Kashmiri",
+  "Manipuri",
+  "Bodo",
+  "Dogri",
+  "Santhali",
 ];
 
 export const states = {
@@ -75,6 +134,8 @@ export const states = {
     "Tirupati",
     "Kurnool",
     "Rajahmundry",
+    "Kakinada",
+    "Anantapur",
   ],
 
   "Arunachal Pradesh": [
@@ -175,6 +236,8 @@ export const states = {
     "Belgaum",
     "Davangere",
     "Shimoga",
+    "Udupi",
+    "Ballari",
   ],
 
   Kerala: [
@@ -205,6 +268,8 @@ export const states = {
     "Thane",
     "Aurangabad",
     "Kolhapur",
+    "Navi Mumbai",
+    "Solapur",
   ],
 
   Manipur: [
@@ -295,6 +360,8 @@ export const states = {
     "Tiruchirappalli",
     "Tirunelveli",
     "Erode",
+    "Vellore",
+    "Thoothukudi",
   ],
 
   Telangana: [
@@ -325,6 +392,8 @@ export const states = {
     "Agra",
     "Ghaziabad",
     "Meerut",
+    "Prayagraj",
+    "Gorakhpur",
   ],
 
   Uttarakhand: [
@@ -345,6 +414,69 @@ export const states = {
     "Asansol",
     "Kharagpur",
     "Haldia",
+    "Darjeeling",
+    "Malda",
+  ],
+
+  "Andaman and Nicobar Islands": [
+    "Port Blair",
+    "Car Nicobar",
+    "Mayabunder",
+    "Diglipur",
+    "Hut Bay",
+  ],
+
+  Chandigarh: [
+    "Chandigarh",
+  ],
+
+  "Dadra and Nagar Haveli and Daman and Diu": [
+    "Daman",
+    "Diu",
+    "Silvassa",
+  ],
+
+  Delhi: [
+    "New Delhi",
+    "Dwarka",
+    "Rohini",
+    "Saket",
+    "Karol Bagh",
+    "Lajpat Nagar",
+    "Janakpuri",
+  ],
+
+  "Jammu and Kashmir": [
+    "Srinagar",
+    "Jammu",
+    "Anantnag",
+    "Baramulla",
+    "Pulwama",
+    "Kupwara",
+    "Udhampur",
+  ],
+
+  Ladakh: [
+    "Leh",
+    "Kargil",
+    "Nubra",
+    "Zanskar",
+    "Drass",
+  ],
+
+  Lakshadweep: [
+    "Kavaratti",
+    "Agatti",
+    "Amini",
+    "Andrott",
+    "Kalpeni",
+  ],
+
+  Puducherry: [
+    "Puducherry",
+    "Karaikal",
+    "Mahe",
+    "Yanam",
   ],
 };
 
