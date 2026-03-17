@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import ReactDOM from "react-dom";
 import { CheckCircle, XCircle, AlertTriangle, Info } from "lucide-react";
 
 const typeConfig = {
@@ -115,48 +116,37 @@ function AlertPopup({
   const Icon = config.icon;
 
   return (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 transition-opacity duration-200 ${
-        exiting ? "opacity-0" : "opacity-100"
-      }`}
-    >
+    ReactDOM.createPortal(
       <div
-        className={`bg-white w-full max-w-[400px] rounded-2xl shadow-2xl p-6 sm:p-8 text-center transition-all duration-200 ${
-          exiting ? "scale-95 opacity-0" : "scale-100 opacity-100 animate-fadeInScale"
+        className={`fixed left-1/2 top-24 -translate-x-1/2 w-[92vw] max-w-md transition-all duration-200 ${
+          exiting ? "opacity-0 -translate-y-2" : "opacity-100 translate-y-0"
         }`}
+        style={{ zIndex: "var(--toast-z)" }}
       >
-        {/* Icon */}
-        <div className="flex justify-center mb-4">
-          <div className={`${config.bg} p-4 rounded-full`}>
-            <Icon className={`${config.text} w-8 h-8`} />
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-[0_16px_34px_rgba(15,23,42,0.14)] p-4 sm:p-5">
+          <div className="flex items-start gap-3">
+            <div className={`${config.bg} p-2.5 rounded-full shrink-0`}>
+              <Icon className={`${config.text} w-5 h-5`} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-sm sm:text-base font-semibold text-gray-800 truncate">{title}</h2>
+              <p className="text-gray-500 text-sm leading-relaxed mt-0.5 line-clamp-2">{desc}</p>
+              <p className="text-xs text-gray-400 mt-2">
+                Closing in <span className="font-semibold text-[#C9A227]">{countdown}s</span>
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-3 w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+            <div
+              className={`h-full rounded-full ${config.progressBg} transition-all duration-[50ms] ease-linear`}
+              style={{ width: `${Math.max(progress, 0)}%` }}
+            />
           </div>
         </div>
-
-        {/* Title */}
-        <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-2">
-          {title}
-        </h2>
-
-        {/* Description */}
-        <p className="text-gray-500 text-sm sm:text-base leading-relaxed mb-5 line-clamp-2">
-          {desc}
-        </p>
-
-        {/* Countdown */}
-        <p className="text-xs text-gray-400 mb-3">
-          Closing in{" "}
-          <span className="font-semibold text-[#C9A227]">{countdown}s</span>
-        </p>
-
-        {/* Progress Bar */}
-        <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-          <div
-            className={`h-full rounded-full ${config.progressBg} transition-all duration-[50ms] ease-linear`}
-            style={{ width: `${Math.max(progress, 0)}%` }}
-          />
-        </div>
-      </div>
-    </div>
+      </div>,
+      document.body
+    )
   );
 }
 

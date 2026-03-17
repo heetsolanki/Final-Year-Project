@@ -28,8 +28,9 @@ function ToastPopup({ show, message, type = "success" }) {
 
   return (
     <div
-      className={`fixed left-1/2 -translate-x-1/2 z-40 transition-all duration-500 ease-in-out
+      className={`fixed left-1/2 -translate-x-1/2 transition-all duration-500 ease-in-out
   ${show ? "top-28 opacity-100" : "top-16 opacity-0 pointer-events-none"}`}
+      style={{ zIndex: "var(--toast-z)" }}
     >
       <div
         className={`flex items-center gap-3 px-5 py-3 sm:px-8 sm:py-4 rounded-xl shadow-lg backdrop-blur-md

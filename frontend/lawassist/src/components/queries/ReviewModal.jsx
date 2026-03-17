@@ -37,8 +37,8 @@ const ReviewModal = ({ query, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-6 w-[90%] max-w-md shadow-xl relative">
+    <div className="global-modal-overlay">
+      <div className="global-modal-panel p-6 w-[90%] max-w-md relative">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-500"

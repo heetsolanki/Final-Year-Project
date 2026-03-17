@@ -40,8 +40,8 @@ const ReAppealModal = ({ query, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 animate-fadeInScale">
+    <div className="global-modal-overlay">
+      <div className="global-modal-panel w-full max-w-lg p-6 animate-fadeInScale">
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-lg font-semibold text-gray-800">Edit & Re-Appeal Query</h3>
           <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-lg transition">
