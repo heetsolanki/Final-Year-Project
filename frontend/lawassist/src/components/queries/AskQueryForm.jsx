@@ -1,8 +1,31 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import API_URL from "../../api";
 import AlertPopup from "../ui/AlertPopup";
 import { categories } from "../../data";
+import { rephraseUserText, suggestQuerySubcategory } from "../../services/aiService";
+
+const SparkleIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6L12 2z" />
+  </svg>
+);
+
+const SpinnerIcon = () => (
+  <svg
+    className="animate-spin"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
+    <path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" />
+  </svg>
+);
 
 const AskQueryForm = ({
   onClose,
@@ -22,6 +45,15 @@ const AskQueryForm = ({
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [categoryCorrection, setCategoryCorrection] = useState(null);
+  const [suggestedSubcategory, setSuggestedSubcategory] = useState("");
+  const [isSuggestingSubcategory, setIsSuggestingSubcategory] = useState(false);
+  const [isTitleRephrasing, setIsTitleRephrasing] = useState(false);
+  const [isDescriptionRephrasing, setIsDescriptionRephrasing] = useState(false);
+
+  const suggestionRequestCounter = useRef(0);
+  const lastSuggestedSubcategory = useRef("");
+  const isSubcategoryManuallyChanged = useRef(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -29,15 +61,117 @@ const AskQueryForm = ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+
+    if (name === "category" || name === "title" || name === "description") {
+      setCategoryCorrection(null);
+    }
+
+    if (name === "subcategory") {
+      isSubcategoryManuallyChanged.current = true;
+    }
+  };
+
+  const handleRephraseField = async (field) => {
+    const sourceText = String(formData[field] || "").trim();
+    if (!sourceText) return;
+
+    const setFieldLoading = field === "title" ? setIsTitleRephrasing : setIsDescriptionRephrasing;
+
+    try {
+      setFieldLoading(true);
+      const rewritten = await rephraseUserText(sourceText);
+      if (!rewritten || !rewritten.trim()) return;
+
+      setFormData((prev) => ({
+        ...prev,
+        [field]: rewritten.trim(),
+      }));
+    } catch (error) {
+      console.error(`Failed to rephrase ${field}:`, error);
+    } finally {
+      setFieldLoading(false);
+    }
+  };
+
+  const triggerSubcategorySuggestion = useCallback(
+    async ({ category, title, description, currentSubcategory }) => {
+      if (!category) return;
+
+      const requestId = ++suggestionRequestCounter.current;
+
+      try {
+        setIsSuggestingSubcategory(true);
+        const suggested = await suggestQuerySubcategory({
+          title,
+          description,
+          selectedCategory: category,
+          selectedSubcategory: currentSubcategory,
+        });
+
+        if (suggestionRequestCounter.current !== requestId) return;
+        if (!suggested) return;
+
+        setSuggestedSubcategory(suggested);
+
+        const shouldAutoFill =
+          !isSubcategoryManuallyChanged.current
+          || !currentSubcategory
+          || currentSubcategory === lastSuggestedSubcategory.current;
+
+        if (shouldAutoFill) {
+          setFormData((prev) => ({ ...prev, subcategory: suggested }));
+        }
+
+        lastSuggestedSubcategory.current = suggested;
+      } catch (error) {
+        if (suggestionRequestCounter.current !== requestId) return;
+        console.error("Subcategory suggestion failed:", error);
+      } finally {
+        if (suggestionRequestCounter.current === requestId) {
+          setIsSuggestingSubcategory(false);
+        }
+      }
+    },
+    [],
+  );
+
+  // Trigger subcategory suggestion when category changes (not on every description keystroke)
+  useEffect(() => {
+    if (!formData.category) {
+      setSuggestedSubcategory("");
+      setIsSuggestingSubcategory(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      triggerSubcategorySuggestion({
+        category: formData.category,
+        title: formData.title,
+        description: formData.description,
+        currentSubcategory: formData.subcategory,
+      });
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [formData.category, triggerSubcategorySuggestion]);
+
+  // Trigger subcategory suggestion on description blur (not on every keystroke)
+  const handleDescriptionBlur = () => {
+    triggerSubcategorySuggestion({
+      category: formData.category,
+      title: formData.title,
+      description: formData.description,
+      currentSubcategory: formData.subcategory,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
       if (!token) {
-        // Save query data to localStorage for later restoration
         localStorage.setItem("pendingQuery", JSON.stringify({
           title: formData.title,
           category: formData.category,
@@ -48,20 +182,32 @@ const AskQueryForm = ({
         setShowLoginPopup(true);
         return;
       }
-      await axios.post(
-        `${API_URL}/api/queries`,
+
+      const response = await axios.post(
+        `${API_URL}/api/queries/create`,
         {
           title: formData.title,
+          description: formData.description,
+          selectedCategory: formData.category,
+          selectedSubcategory: formData.subcategory,
           category: formData.category,
           subcategory: formData.subcategory,
-          description: formData.description,
           status: "Pending",
           consultRequested: false,
         },
         { headers: { Authorization: `Bearer ${token}` } },
       );
+
+      if (response?.data?.requiresCategoryChange) {
+        setCategoryCorrection({
+          selectedCategory: formData.category,
+          correctCategory: response.data.correctCategory,
+        });
+        return;
+      }
+
+      setCategoryCorrection(null);
       setShowSuccessModal(true);
-      // Clear pending query from localStorage if it exists
       localStorage.removeItem("pendingQuery");
       setFormData({
         title: "",
@@ -69,6 +215,9 @@ const AskQueryForm = ({
         subcategory: "",
         description: "",
       });
+      setSuggestedSubcategory("");
+      lastSuggestedSubcategory.current = "";
+      isSubcategoryManuallyChanged.current = false;
     } catch (error) {
       console.error(error);
       setShowErrorPopup(true);
@@ -87,32 +236,88 @@ const AskQueryForm = ({
       </div>
 
       <p className="form-subtitle">
-        Do not include personal details like phone number, order ID, or bank
-        details.
+        Do not include personal details like phone number, order ID, or bank details.
       </p>
 
-      <form className="query-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="title"
-          placeholder="Enter question title"
-          className="form-input"
-          value={formData.title}
-          onChange={handleChange}
-          required
-        />
+      {categoryCorrection && (
+        <div
+          style={{
+            background: "#fffbeb",
+            border: "1px solid #d97706",
+            borderRadius: "8px",
+            padding: "10px 14px",
+            marginBottom: "12px",
+            color: "#92400e",
+            fontSize: "0.875rem",
+            lineHeight: "1.4",
+          }}
+        >
+          This query seems to belong to{" "}
+          <strong style={{ color: "#78350f" }}>{categoryCorrection.correctCategory}</strong>.
+          Please change the category before submitting.
+        </div>
+      )}
 
+      <form className="query-form" onSubmit={handleSubmit}>
+        {/* Title with inline AI rephrase button */}
+        <div style={{ position: "relative" }}>
+          <input
+            type="text"
+            name="title"
+            placeholder="Enter question title"
+            className="form-input"
+            value={formData.title}
+            onChange={handleChange}
+            required
+            style={{ paddingRight: "44px" }}
+          />
+          <button
+            type="button"
+            style={{
+              position: "absolute",
+              right: "8px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              padding: "6px",
+              borderRadius: "6px",
+              border: "none",
+              background: "transparent",
+              color: "#1d4ed8",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              opacity: isTitleRephrasing || !formData.title.trim() ? 0.4 : 1,
+              transition: "background 0.15s, opacity 0.15s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#eff6ff")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+            onClick={() => handleRephraseField("title")}
+            disabled={isTitleRephrasing || !formData.title.trim()}
+            title="AI Rephrase"
+            aria-label="Rephrase title with AI"
+          >
+            {isTitleRephrasing ? <SpinnerIcon /> : <SparkleIcon />}
+          </button>
+        </div>
+
+        {/* Category select */}
         <select
           name="category"
           className="form-input"
           value={formData.category}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              category: e.target.value,
+          onChange={(e) => {
+            const nextCategory = e.target.value;
+            setCategoryCorrection(null);
+            setSuggestedSubcategory("");
+            lastSuggestedSubcategory.current = "";
+            isSubcategoryManuallyChanged.current = false;
+            setFormData((prev) => ({
+              ...prev,
+              category: nextCategory,
               subcategory: "",
-            })
-          }
+            }));
+          }}
           disabled={defaultCategory}
           required
         >
@@ -124,43 +329,107 @@ const AskQueryForm = ({
           ))}
         </select>
 
+        {/* Subcategory select + suggestion hint */}
         {formData.category && (
-          <select
-            name="subcategory"
-            className="form-input"
-            value={formData.subcategory}
-            onChange={handleChange}
-            disabled={defaultSubcategory}
-            required
-          >
-            <option value="">Select Sub Category</option>
-            {categories[formData.category].map((sub) => (
-              <option key={sub} value={sub}>
-                {sub}
-              </option>
-            ))}
-          </select>
+          <>
+            <select
+              name="subcategory"
+              className="form-input"
+              value={formData.subcategory}
+              onChange={handleChange}
+              disabled={defaultSubcategory}
+              required
+            >
+              <option value="">Select Sub Category</option>
+              {categories[formData.category].map((sub) => (
+                <option key={sub} value={sub}>
+                  {sub}
+                </option>
+              ))}
+            </select>
+
+            {(isSuggestingSubcategory || suggestedSubcategory) && (
+              <p style={{ fontSize: "0.78rem", color: "#6b7280", marginTop: "2px", marginBottom: "4px", paddingLeft: "2px" }}>
+                {isSuggestingSubcategory
+                  ? "Detecting best subcategory..."
+                  : `Suggested: ${suggestedSubcategory}`}
+              </p>
+            )}
+          </>
         )}
 
-        <textarea
-          name="description"
-          rows="4"
-          placeholder="Describe your issue in detail (100–1000 characters)"
-          className="form-input"
-          value={formData.description}
-          onChange={handleChange}
-          required
-        />
+        {/* Description with inline AI rephrase button */}
+        <div style={{ position: "relative" }}>
+          <textarea
+            name="description"
+            rows="4"
+            placeholder="Describe your issue in detail (100-1000 characters)"
+            className="form-input"
+            value={formData.description}
+            onChange={handleChange}
+            onBlur={handleDescriptionBlur}
+            required
+            style={{ paddingRight: "44px" }}
+          />
+          <button
+            type="button"
+            style={{
+              position: "absolute",
+              right: "8px",
+              top: "10px",
+              padding: "6px",
+              borderRadius: "6px",
+              border: "none",
+              background: "transparent",
+              color: "#1d4ed8",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              opacity: isDescriptionRephrasing || !formData.description.trim() ? 0.4 : 1,
+              transition: "background 0.15s, opacity 0.15s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#eff6ff")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+            onClick={() => handleRephraseField("description")}
+            disabled={isDescriptionRephrasing || !formData.description.trim()}
+            title="AI Rephrase"
+            aria-label="Rephrase description with AI"
+          >
+            {isDescriptionRephrasing ? <SpinnerIcon /> : <SparkleIcon />}
+          </button>
+        </div>
 
-        <button type="submit" className="primary-btn" disabled={loading}>
-          {loading ? "Submitting..." : "Post Question"}
-        </button>
+        {/* Submit or Change Category button */}
+        {categoryCorrection ? (
+          <button
+            type="button"
+            className="primary-btn"
+            onClick={() => {
+              setFormData((prev) => ({
+                ...prev,
+                category: categoryCorrection.correctCategory,
+                subcategory: "",
+              }));
+              setSuggestedSubcategory("");
+              lastSuggestedSubcategory.current = "";
+              isSubcategoryManuallyChanged.current = false;
+              setCategoryCorrection(null);
+            }}
+          >
+            Change Category
+          </button>
+        ) : (
+          <button type="submit" className="primary-btn" disabled={loading}>
+            {loading ? "Submitting..." : "Post Question"}
+          </button>
+        )}
       </form>
 
       <AlertPopup
         show={showSuccessModal}
         title="Query Submitted"
-        description="Your query has been submitted and is pending admin review. You can track its progress from your dashboard."
+        description="Your query has been submitted successfully. You can track its progress from your dashboard."
         onClose={() => {
           setShowSuccessModal(false);
           if (onClose) onClose();

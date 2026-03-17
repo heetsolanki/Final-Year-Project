@@ -21,7 +21,7 @@ export const generateBio = async ({
   const res = await axios.post(
     `${API_URL}/api/ai/generate-bio`,
     { name, specialization, expertiseAreas, languages, experience, city, state },
-    { headers: authHeader() }
+    { headers: authHeader() },
   );
   return res.data.data;
 };
@@ -33,4 +33,33 @@ export const generateBio = async ({
 export const summarizeLaw = async (lawText) => {
   const res = await axios.post(`${API_URL}/api/ai/summarize-law`, { lawText });
   return res.data.data;
+};
+
+/*
+ * Calls the backend to rephrase user-entered text.
+ * Returns rewritten text.
+ */
+export const rephraseUserText = async (inputText) => {
+  const res = await axios.post(`${API_URL}/api/ai/rephrase-text`, { inputText });
+  return res.data.data;
+};
+
+/*
+ * Calls the backend to suggest a subcategory for a query.
+ * Returns suggested subcategory string.
+ */
+export const suggestQuerySubcategory = async ({
+  title,
+  description,
+  selectedCategory,
+  selectedSubcategory,
+}) => {
+  const res = await axios.post(`${API_URL}/api/queries/suggest-subcategory`, {
+    title,
+    description,
+    selectedCategory,
+    selectedSubcategory,
+  });
+
+  return res.data?.suggestedSubcategory || "";
 };
