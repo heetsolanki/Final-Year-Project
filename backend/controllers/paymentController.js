@@ -1,13 +1,18 @@
 const Payment = require("../models/Payment");
 const Consultation = require("../models/Consultation");
 const Expert = require("../models/Expert");
+const Message = require("../models/Message");
 const sendEmail = require("../utils/sendEmail");
 const newConsultationEmail = require("../template/newConsultationEmail");
+const { generateConsultationTitle } = require("../services/geminiService");
 const { createNotification, NOTIFICATION_TYPES } = require("../services/notificationService");
 const {
   formatAvailabilityWindow,
   isWithinAvailability,
 } = require("../utils/availability");
+
+const getFallbackTitle = (specialization) =>
+  String(specialization ? `${specialization} Case` : "Legal Consultation").slice(0, 120);
 
 // GET /api/payments/expert-info/:expertId - Get expert info for payment page
 exports.getExpertPaymentInfo = async (req, res) => {
@@ -27,7 +32,9 @@ exports.getExpertPaymentInfo = async (req, res) => {
     res.json({
       name: expert.name,
       specialization: expert.specialization || "Legal Expert",
-      consultationCharges: expert.consultationCharges || 0,
+      consultationFee: expert.consultationFee ?? expert.consultationCharges ?? 0,
+      consultationCharges: expert.consultationFee ?? expert.consultationCharges ?? 0,
+      followUpFee: expert.followUpFee,
       experience: expert.experience,
       city: expert.city,
       state: expert.state,
@@ -41,7 +48,7 @@ exports.getExpertPaymentInfo = async (req, res) => {
 // POST /api/payments/process - Process a simulated payment
 exports.processPayment = async (req, res) => {
   try {
-    const { expertId, amount, paymentMethod, upiId, cardLast4Digits } =
+    const { expertId, paymentMethod, upiId, cardLast4Digits } =
       req.body;
 
     // Validate expert
@@ -56,6 +63,8 @@ exports.processPayment = async (req, res) => {
       });
     }
 
+    const consultationAmount = expert.consultationFee ?? expert.consultationCharges ?? 0;
+
     // Generate payment ID
     const paymentId = "PAY_" + Date.now() + Math.floor(Math.random() * 1000);
 
@@ -64,9 +73,10 @@ exports.processPayment = async (req, res) => {
       paymentId,
       userId: req.user.userId,
       expertId,
-      amount,
+      amount: consultationAmount,
       paymentMethod,
       paymentStatus: "Pending",
+      paymentPurpose: "initial",
       upiId: paymentMethod === "UPI" ? upiId : null,
       cardLast4Digits: paymentMethod === "CARD" ? cardLast4Digits : null,
     });
@@ -83,18 +93,31 @@ exports.processPayment = async (req, res) => {
       await payment.save();
 
       // Increment expert's total earnings
-      expert.totalEarnings = (expert.totalEarnings || 0) + amount;
+      expert.totalEarnings = (expert.totalEarnings || 0) + consultationAmount;
       await expert.save();
 
       // Create consultation
       const consultationId =
         "CONS_" + Math.floor(100000 + Math.random() * 900000);
 
+      let chatTitle = getFallbackTitle(expert.specialization);
+      try {
+        const aiTitle = await generateConsultationTitle({
+          specialization: expert.specialization,
+          city: expert.city,
+          state: expert.state,
+        });
+        if (aiTitle) chatTitle = aiTitle;
+      } catch (error) {
+        // Keep fallback title if AI generation fails
+      }
+
       const consultation = await Consultation.create({
         consultationId,
         userId: req.user.userId,
         expertId,
-        consultationFee: amount,
+        consultationFee: consultationAmount,
+        chatTitle,
         paymentStatus: "paid",
       });
 
@@ -143,7 +166,7 @@ exports.processPayment = async (req, res) => {
         receiverRole: "expert",
         senderId: req.user.userId,
         senderRole: "user",
-        message: `You received payment of ₹${amount} for consultation ${consultationId}.`,
+        message: `You received payment of ₹${consultationAmount} for consultation ${consultationId}.`,
         type: NOTIFICATION_TYPES.PAYMENT_RECEIVED,
         relatedId: paymentId,
       });
@@ -194,6 +217,232 @@ exports.processPayment = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// GET /api/payments/followup-info/:consultationId - Fetch pending follow-up payment summary
+exports.getFollowUpPaymentInfo = async (req, res) => {
+  try {
+    const consultation = await Consultation.findOne({
+      consultationId: req.params.consultationId,
+    });
+
+    if (!consultation) {
+      return res.status(404).json({ message: "Consultation not found" });
+    }
+
+    if (consultation.userId !== req.user.userId) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    if (consultation.isFollowUp) {
+      return res.status(400).json({ message: "Use the original consultation for follow-up payment" });
+    }
+
+    if (consultation.status !== "closed" || consultation.isActive) {
+      return res.status(400).json({ message: "Follow-up payment is allowed only after consultation ends" });
+    }
+
+    const expert = await Expert.findOne({ userId: consultation.expertId });
+    if (!expert) {
+      return res.status(404).json({ message: "Expert not found" });
+    }
+
+    const followUpFee = expert.followUpFee;
+    if (followUpFee === null || followUpFee === undefined) {
+      return res.status(400).json({ message: "Follow-up fee is not configured" });
+    }
+
+    const pendingPayment = await Payment.findOne({
+      userId: req.user.userId,
+      consultationId: consultation.consultationId,
+      paymentPurpose: "followup",
+      paymentStatus: "Pending",
+    });
+
+    return res.json({
+      consultationId: consultation.consultationId,
+      parentConsultationId: consultation.consultationId,
+      expertId: consultation.expertId,
+      followUpFee,
+      originalConsultationFee: consultation.consultationFee,
+      paymentStatus: pendingPayment ? "pending" : "ready",
+      expert: {
+        name: expert?.name || "Legal Expert",
+        specialization: expert?.specialization || "Legal Expert",
+        experience: expert?.experience,
+        city: expert?.city,
+        state: expert?.state,
+        availability: expert?.availability,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+// POST /api/payments/process-followup - Process payment for an already created pending follow-up consultation
+exports.processFollowUpPayment = async (req, res) => {
+  try {
+    const { consultationId, followUpConsultationId, paymentMethod, upiId, cardLast4Digits } =
+      req.body;
+
+    const targetConsultationId = consultationId || followUpConsultationId;
+
+    const consultation = await Consultation.findOne({
+      consultationId: targetConsultationId,
+    });
+
+    if (!consultation) {
+      return res.status(404).json({ message: "Consultation not found" });
+    }
+
+    if (consultation.userId !== req.user.userId) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    if (consultation.isFollowUp) {
+      return res.status(400).json({ message: "Use the original consultation for follow-up payment" });
+    }
+
+    if (consultation.status !== "closed" || consultation.isActive) {
+      return res.status(400).json({ message: "Consultation must be closed before follow-up" });
+    }
+
+    const existingPendingPayment = await Payment.findOne({
+      userId: req.user.userId,
+      consultationId: consultation.consultationId,
+      paymentPurpose: "followup",
+      paymentStatus: "Pending",
+    });
+
+    if (existingPendingPayment) {
+      return res.status(400).json({
+        message: "You already have an unpaid follow-up payment for this consultation",
+        paymentId: existingPendingPayment.paymentId,
+      });
+    }
+
+    const expert = await Expert.findOne({ userId: consultation.expertId });
+    if (!expert) {
+      return res.status(404).json({ message: "Expert not found" });
+    }
+
+    const amount = expert.followUpFee;
+    if (amount === null || amount === undefined) {
+      return res.status(400).json({ message: "Follow-up fee is not configured" });
+    }
+
+    const paymentId = "PAY_" + Date.now() + Math.floor(Math.random() * 1000);
+
+    const payment = await Payment.create({
+      paymentId,
+      userId: req.user.userId,
+      expertId: consultation.expertId,
+      consultationId: consultation.consultationId,
+      amount,
+      paymentMethod,
+      paymentStatus: "Pending",
+      paymentPurpose: "followup",
+      upiId: paymentMethod === "UPI" ? upiId : null,
+      cardLast4Digits: paymentMethod === "CARD" ? cardLast4Digits : null,
+    });
+
+    const paymentSuccess = Math.random() < 0.8;
+
+    if (!paymentSuccess) {
+      payment.paymentStatus = "Failed";
+      await payment.save();
+
+      await createNotification({
+        receiverId: req.user.userId,
+        receiverRole: "user",
+        senderId: consultation.expertId,
+        senderRole: "expert",
+        message: "Your follow-up consultation payment failed. Please try again.",
+        type: NOTIFICATION_TYPES.PAYMENT_FAILED,
+        relatedId: paymentId,
+      });
+
+      return res.status(200).json({
+        success: false,
+        paymentId,
+        message: "Payment failed",
+      });
+    }
+
+    const transactionId = "TXN" + Date.now();
+    payment.paymentStatus = "Success";
+    payment.transactionId = transactionId;
+    await payment.save();
+
+    expert.totalEarnings = (expert.totalEarnings || 0) + amount;
+    await expert.save();
+
+    consultation.status = "active";
+    consultation.isActive = true;
+    consultation.startedAt = consultation.startedAt || new Date();
+    consultation.closedAt = null;
+    await consultation.save();
+
+    await Message.create({
+      consultationId: consultation.consultationId,
+      senderId: consultation.expertId,
+      receiverId: consultation.userId,
+      message: "Follow-Up Consultation Started",
+      messageType: "system",
+    });
+
+    await createNotification({
+      receiverId: req.user.userId,
+      receiverRole: "user",
+      senderId: consultation.expertId,
+      senderRole: "expert",
+      message: "Your follow-up consultation payment was successful.",
+      type: NOTIFICATION_TYPES.PAYMENT_SUCCESS,
+      relatedId: paymentId,
+    });
+
+    await createNotification({
+      receiverId: req.user.userId,
+      receiverRole: "user",
+      senderId: consultation.expertId,
+      senderRole: "expert",
+      message: `Consultation ${consultation.consultationId} is active again. You can continue the chat.` ,
+      type: NOTIFICATION_TYPES.CONSULTATION_STARTED,
+      relatedId: consultation.consultationId,
+    });
+
+    await createNotification({
+      receiverId: consultation.expertId,
+      receiverRole: "expert",
+      senderId: req.user.userId,
+      senderRole: "user",
+      message: "User has initiated a follow-up consultation.",
+      type: NOTIFICATION_TYPES.CONSULTATION_BOOKED,
+      relatedId: consultation.consultationId,
+    });
+
+    await createNotification({
+      receiverId: consultation.expertId,
+      receiverRole: "expert",
+      senderId: req.user.userId,
+      senderRole: "user",
+      message: `You received follow-up payment of ₹${amount} for consultation ${consultation.consultationId}.`,
+      type: NOTIFICATION_TYPES.PAYMENT_RECEIVED,
+      relatedId: paymentId,
+    });
+
+    return res.status(200).json({
+      success: true,
+      transactionId,
+      consultationId: consultation.consultationId,
+      paymentId,
+      amount,
+      message: "Follow-up payment successful",
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
   }
 };
 

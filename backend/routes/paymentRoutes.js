@@ -6,6 +6,8 @@ const { verifyToken, authorizeRole } = require("../middleware/authMiddleware");
 const {
   getExpertPaymentInfo,
   processPayment,
+  getFollowUpPaymentInfo,
+  processFollowUpPayment,
   getPaymentHistory,
   getPaymentHistoryByUser,
 } = require("../controllers/paymentController");
@@ -17,6 +19,20 @@ router.post(
   verifyToken,
   authorizeRole("consumer"),
   processPayment,
+);
+
+router.get(
+  "/followup-info/:consultationId",
+  verifyToken,
+  authorizeRole("consumer"),
+  getFollowUpPaymentInfo,
+);
+
+router.post(
+  "/process-followup",
+  verifyToken,
+  authorizeRole("consumer"),
+  processFollowUpPayment,
 );
 
 router.get(

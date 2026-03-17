@@ -10,17 +10,42 @@ const ProfileForm = ({ user, refresh }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [generatingBio, setGeneratingBio] = useState(false);
   const [bioError, setBioError] = useState("");
+  const [pricingError, setPricingError] = useState("");
   const token = localStorage.getItem("token");
   const selectedState = formData.state || "";
 
   useEffect(() => {
-    setFormData(user);
+    setFormData({
+      ...user,
+      consultationFee: user.consultationFee ?? user.consultationCharges ?? "",
+      followUpFee: user.followUpFee ?? "",
+    });
   }, [user]);
 
-  const handleChange = (e) =>
+  const handleChange = (e) => {
+    setPricingError("");
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleUpdate = async () => {
+    const consultationFee = Number(formData.consultationFee);
+    const followUpFee = Number(formData.followUpFee);
+
+    if (!Number.isFinite(consultationFee) || consultationFee <= 0) {
+      setPricingError("Consultation fee must be greater than 0");
+      return;
+    }
+
+    if (!Number.isFinite(followUpFee) || followUpFee < 0) {
+      setPricingError("Follow-up fee must be 0 or more");
+      return;
+    }
+
+    if (followUpFee > consultationFee) {
+      setPricingError("Follow-up fee cannot exceed consultation fee");
+      return;
+    }
+
     await axios.put(`${API_URL}/api/expert/profile`, formData, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -169,14 +194,36 @@ const ProfileForm = ({ user, refresh }) => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-1">
-              Consultation Charges (₹)
+              Consultation Fee (₹)
             </label>
             <input
-              name="consultationCharges"
-              value={formData.consultationCharges || ""}
+              name="consultationFee"
+              type="number"
+              min="1"
+              value={formData.consultationFee || ""}
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              Follow-Up Fee (₹)
+            </label>
+            <input
+              name="followUpFee"
+              type="number"
+              min="0"
+              value={formData.followUpFee || ""}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Follow-up fee should not exceed consultation fee
+            </p>
+            <p className="text-xs text-gray-400">
+              Recommended: 20%-50% of consultation fee
+            </p>
           </div>
 
           <div className="md:col-span-2">
@@ -246,6 +293,10 @@ const ProfileForm = ({ user, refresh }) => {
       </div>
 
       {/* SAVE BUTTON */}
+      {pricingError && (
+        <p className="text-sm text-red-600">{pricingError}</p>
+      )}
+
       <div className="flex justify-end">
         <button
           onClick={handleUpdate}

@@ -3,7 +3,7 @@ import axios from "axios";
 import API_URL from "../../../api";
 import DashboardCard from "../DashboardCard";
 import ProfileHeader from "../../profile/ProfileHeader";
-import ProfileForm from "../../profile/ProfileForm";
+import ExpertProfileForm from "../../profile/ExpertProfileForm";
 import AccountSection from "../../profile/AccountSection";
 import { Scale } from "lucide-react";
 
@@ -105,7 +105,7 @@ const ExpertManageProfile = ({
       {/* Main Profile Card */}
       <DashboardCard title="Manage Profile">
         <ProfileHeader user={expert} setActiveTab={setActiveTab} />
-        <ProfileForm user={expert} refresh={fetchProfile} />
+        <ExpertProfileForm user={expert} refresh={fetchProfile} />
 
         <div className="mt-8 rounded-xl border border-gray-200 bg-gray-50 p-4">
           <h3 className="text-sm font-semibold text-gray-800">Set Availability</h3>

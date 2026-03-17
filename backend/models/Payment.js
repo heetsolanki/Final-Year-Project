@@ -41,6 +41,12 @@ const paymentSchema = new mongoose.Schema(
       default: "Pending",
     },
 
+    paymentPurpose: {
+      type: String,
+      enum: ["initial", "followup"],
+      default: "initial",
+    },
+
     upiId: {
       type: String,
       default: null,

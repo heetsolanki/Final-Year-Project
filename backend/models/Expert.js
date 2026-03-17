@@ -49,6 +49,18 @@ const expertSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
     },
+    consultationFee: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
+
+    followUpFee: {
+      type: Number,
+      min: 0,
+      default: null,
+    },
+
     consultationCharges: Number,
     languages: [String],
     expertiseAreas: [String],

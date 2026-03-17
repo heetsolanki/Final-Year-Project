@@ -75,7 +75,7 @@ const Experts = () => {
 
                   <div className="flex items-center gap-2 text-gray-800 font-semibold">
                     <IndianRupee size={16} />
-                    {expert.consultationCharges} / session
+                    {expert.consultationFee ?? expert.consultationCharges} / session
                   </div>
                 </div>
 

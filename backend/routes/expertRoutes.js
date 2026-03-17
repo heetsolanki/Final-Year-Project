@@ -14,6 +14,7 @@ const {
   acceptCase,
   completeExpertProfile,
   getExpertProfile,
+  updateExpertProfile,
   getAllExperts,
   getExpertById,
   toggleExpertStatus,
@@ -60,6 +61,12 @@ router.get(
   verifyToken,
   authorizeRole("legalExpert"),
   getExpertProfile,
+);
+router.put(
+  "/profile",
+  verifyToken,
+  authorizeRole("legalExpert"),
+  updateExpertProfile,
 );
 router.patch(
   "/toggle-status",

@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import { X } from "lucide-react";
-import { jwtDecode } from "jwt-decode";
 import MessageBubble from "./MessageBubble";
 import ChatInput from "./ChatInput";
 import axios from "axios";
 import API_URL from "../../api";
+import { Edit2, Save } from "lucide-react";
 
 const ChatWindow = ({
   consultationId,
@@ -13,12 +13,19 @@ const ChatWindow = ({
   socketRef,
   chatClosed,
   setChatClosed,
+  role,
+  chatTitle,
+  onTitleUpdated,
   onClose,
 }) => {
   const bottomRef = useRef();
-  const token = localStorage.getItem("token");
-    const decoded = jwtDecode(token);
-    const role = decoded.role;
+  const [editingTitle, setEditingTitle] = React.useState(false);
+  const [titleInput, setTitleInput] = React.useState(chatTitle || "");
+  const [savingTitle, setSavingTitle] = React.useState(false);
+
+  useEffect(() => {
+    setTitleInput(chatTitle || "");
+  }, [chatTitle]);
 
   /* ================= AUTO SCROLL ================= */
 
@@ -51,14 +58,58 @@ const ChatWindow = ({
     }
   };
 
+  const saveTitle = async () => {
+    if (!titleInput.trim()) return;
+
+    try {
+      setSavingTitle(true);
+      const token = localStorage.getItem("token");
+
+      await axios.patch(
+        `${API_URL}/api/consultations/${consultationId}/title`,
+        { chatTitle: titleInput.trim() },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      onTitleUpdated?.(titleInput.trim());
+      setEditingTitle(false);
+    } catch (error) {
+      window.alert(error?.response?.data?.message || "Failed to update chat title");
+    } finally {
+      setSavingTitle(false);
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col bg-gradient-to-b from-gray-50 to-gray-100">
       {/* HEADER */}
 
       <div className="p-3 sm:p-4 border-b bg-white flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
-        <h2 className="font-semibold text-gray-800 text-sm sm:text-base">
-          Consultation {consultationId}
-        </h2>
+        <div className="flex items-center gap-2">
+          {editingTitle ? (
+            <input
+              value={titleInput}
+              onChange={(e) => setTitleInput(e.target.value)}
+              className="border border-gray-300 rounded-lg px-2 py-1 text-sm"
+              maxLength={120}
+            />
+          ) : (
+            <h2 className="font-semibold text-gray-800 text-sm sm:text-base">
+              {chatTitle || `Consultation ${consultationId}`}
+            </h2>
+          )}
+
+          {role === "consumer" && (
+            <button
+              onClick={() => (editingTitle ? saveTitle() : setEditingTitle(true))}
+              disabled={savingTitle}
+              className="text-gray-500 hover:text-[#1E3A8A]"
+              title={editingTitle ? "Save title" : "Edit title"}
+            >
+              {editingTitle ? <Save size={16} /> : <Edit2 size={16} />}
+            </button>
+          )}
+        </div>
 
         <div className="flex gap-3 items-center justify-between">
         {!chatClosed && (

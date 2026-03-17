@@ -10,6 +10,7 @@ const MessageBubble = ({ message }) => {
   const isMine = message.senderId === user.userId;
   const hasFile = !!message.fileUrl;
   const hasText = !!message.message;
+  const isSystem = message.messageType === "system";
 
   const time = new Date(message.createdAt).toLocaleTimeString([], {
     hour: "2-digit",
@@ -22,6 +23,18 @@ const MessageBubble = ({ message }) => {
     hasFile &&
     !hasText &&
     ["jpg", "jpeg", "png"].includes(message.fileType?.toLowerCase());
+
+  if (isSystem) {
+    return (
+      <div className="flex items-center gap-3 my-4">
+        <span className="h-px bg-gray-200 flex-1" />
+        <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold bg-gray-100 px-3 py-1 rounded-full">
+          {message.message || "System update"}
+        </span>
+        <span className="h-px bg-gray-200 flex-1" />
+      </div>
+    );
+  }
 
   return (
     <div

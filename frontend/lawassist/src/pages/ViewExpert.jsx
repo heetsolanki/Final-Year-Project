@@ -194,7 +194,11 @@ const ExpertProfile = () => {
                 </p>
 
                 <p className="text-2xl sm:text-3xl font-bold text-gray-800">
-                  ₹{expert.consultationCharges || "Free"}
+                  ₹{expert.consultationFee ?? expert.consultationCharges ?? "Free"}
+                </p>
+
+                <p className="text-xs text-gray-500">
+                  Follow-up Fee: ₹{expert.followUpFee ?? "Not set"}
                 </p>
 
                 <p className="text-xs text-gray-500">

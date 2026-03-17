@@ -22,6 +22,7 @@ const ChatPage = () => {
   const [typing, setTyping] = useState(false);
   const [chatClosed, setChatClosed] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
+  const [currentConsultation, setCurrentConsultation] = useState(null);
 
   const unreadCounts = {};
 
@@ -50,7 +51,9 @@ const ChatPage = () => {
 
       setConsultations((prev) =>
         prev.map((c) =>
-          c.consultationId === id ? { ...c, status: "closed" } : c,
+          c.consultationId === id
+            ? { ...c, status: "closed", isActive: false }
+            : c,
         ),
       );
     });
@@ -98,6 +101,10 @@ const ChatPage = () => {
         });
 
         setConsultations(res.data);
+        const selectedConsultation = res.data.find(
+          (item) => item.consultationId === consultationId,
+        );
+        setCurrentConsultation(selectedConsultation || null);
       } catch (error) {
         console.log(error);
       }
@@ -116,7 +123,8 @@ const ChatPage = () => {
           { headers: { Authorization: `Bearer ${token}` } },
         );
 
-        setChatClosed(res.data.status === "closed");
+        setChatClosed(!res.data.isActive || res.data.status === "closed");
+        setCurrentConsultation((prev) => ({ ...prev, ...res.data }));
       } catch (error) {
         console.log(error);
       }
@@ -161,6 +169,18 @@ const ChatPage = () => {
                 socketRef={socketRef}
                 chatClosed={chatClosed}
                 setChatClosed={setChatClosed}
+                role={role}
+                chatTitle={currentConsultation?.chatTitle}
+                onTitleUpdated={(newTitle) => {
+                  setCurrentConsultation((prev) => ({ ...prev, chatTitle: newTitle }));
+                  setConsultations((prev) =>
+                    prev.map((item) =>
+                      item.consultationId === consultationId
+                        ? { ...item, chatTitle: newTitle }
+                        : item,
+                    ),
+                  );
+                }}
                 onClose={() => setChatOpen(false)}
               />
             )}
