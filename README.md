@@ -73,7 +73,3 @@ The platform also integrates AI-powered features to enhance user queries and imp
 - Role-based authentication system
 - AI API integration
 - Real-time communication (chat system)
-
----
-
-## 📂 Project Structure
