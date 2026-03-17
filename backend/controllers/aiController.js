@@ -1,4 +1,8 @@
-const { generateExpertBio, summarizeLawText } = require("../services/geminiService");
+const {
+  generateExpertBio,
+  summarizeLawText,
+  rephraseText,
+} = require("../services/geminiService");
 
 /* ─────────────────────────────────────────────────────────
    POST /api/ai/generate-bio
@@ -68,6 +72,41 @@ exports.summarizeLawController = async (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message || "Failed to generate summary. Please try again.",
+    });
+  }
+};
+/* ─────────────────────────────────────────────────────────
+   POST /api/ai/rephrase-text
+   Public — no authentication required.
+───────────────────────────────────────────────────────── */
+exports.rephraseTextController = async (req, res) => {
+  try {
+    const { inputText } = req.body;
+
+    if (!inputText || !String(inputText).trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "inputText is required.",
+      });
+    }
+
+    let rewritten = String(inputText).trim();
+
+    try {
+      const aiResult = await rephraseText(rewritten);
+      if (aiResult && aiResult.trim()) {
+        rewritten = aiResult.trim();
+      }
+    } catch (error) {
+      console.error("[AI] rephraseText failed, using original text:", error.message);
+    }
+
+    return res.json({ success: true, data: rewritten });
+  } catch (error) {
+    console.error("[AI] rephraseText controller error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to rephrase text. Please try again.",
     });
   }
 };
