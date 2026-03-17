@@ -44,6 +44,16 @@ const consultationSchema = new mongoose.Schema(
     closedAt: {
       type: Date,
     },
+
+    resolvedByUser: {
+      type: Boolean,
+      default: false,
+    },
+
+    resolvedByExpert: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

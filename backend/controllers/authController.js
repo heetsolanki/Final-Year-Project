@@ -6,6 +6,7 @@ const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
 const welcomeEmailTemplate = require("../template/userWelcomeEmail");
 const expertWelcomeEmail = require("../template/expertWelcomeEmail");
+const { notifyAdmins, NOTIFICATION_TYPES } = require("../services/notificationService");
 
 /* ================= REGISTER ================= */
 exports.registerUser = async (req, res) => {
@@ -54,6 +55,14 @@ exports.registerUser = async (req, res) => {
         expertWelcomeEmail(name, userId),
         { category: "register_expert", targetId: userId },
       );
+
+      await notifyAdmins({
+        senderId: userId,
+        senderRole: "expert",
+        type: NOTIFICATION_TYPES.NEW_REGISTRATION,
+        message: `New expert registration: ${name} (${email}).`,
+        relatedId: userId,
+      });
     } else {
       newUser = await User.create({
         userId,
@@ -69,6 +78,14 @@ exports.registerUser = async (req, res) => {
         welcomeEmailTemplate(name, userId),
         { category: "register_user", targetId: userId },
       );
+
+      await notifyAdmins({
+        senderId: userId,
+        senderRole: "user",
+        type: NOTIFICATION_TYPES.NEW_REGISTRATION,
+        message: `New user registration: ${name} (${email}).`,
+        relatedId: userId,
+      });
     }
 
     const token = jwt.sign(

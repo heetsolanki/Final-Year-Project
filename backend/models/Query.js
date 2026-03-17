@@ -72,6 +72,16 @@ const querySchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    resolvedByUser: {
+      type: Boolean,
+      default: false,
+    },
+
+    resolvedByExpert: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

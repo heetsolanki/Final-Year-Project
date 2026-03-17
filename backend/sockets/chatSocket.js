@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const Consultation = require("../models/Consultation");
 const Message = require("../models/Message");
 const { registerSocket, unregisterSocket } = require("./socketRegistry");
+const { createNotification, NOTIFICATION_TYPES } = require("../services/notificationService");
 
 const chatSocket = (io) => {
   io.on("connection", async (socket) => {
@@ -90,6 +91,21 @@ const chatSocket = (io) => {
           fileName: fileName || null,
           fileType: fileType || null,
           fileSize: fileSize || null,
+        });
+
+        const receiverRole = consultation.expertId === receiverId ? "expert" : "user";
+        const senderRole = user.role === "legalExpert" ? "expert" : user.role === "admin" ? "admin" : "user";
+
+        await createNotification({
+          receiverId,
+          receiverRole,
+          senderId: user.userId,
+          senderRole,
+          type: NOTIFICATION_TYPES.NEW_MESSAGE,
+          message: hasText
+            ? `New message: ${message.trim().slice(0, 80)}`
+            : "You received a new file message.",
+          relatedId: consultationId,
         });
 
         io.to(consultationId).emit("receiveMessage", newMessage);

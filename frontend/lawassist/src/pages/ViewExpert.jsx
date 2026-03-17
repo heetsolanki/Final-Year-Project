@@ -11,6 +11,38 @@ const ExpertProfile = () => {
 
   const [expert, setExpert] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [notifyLoading, setNotifyLoading] = useState(false);
+  const [notifyMessage, setNotifyMessage] = useState("");
+
+  const isWithinAvailability = useCallback((availability) => {
+    if (!availability?.startTime || !availability?.endTime) return false;
+
+    const toMinutes = (value) => {
+      const [h, m] = String(value).split(":").map(Number);
+      if (Number.isNaN(h) || Number.isNaN(m)) return null;
+      return h * 60 + m;
+    };
+
+    const start = toMinutes(availability.startTime);
+    const end = toMinutes(availability.endTime);
+    if (start === null || end === null) return false;
+
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+    if (start < end) {
+      return nowMinutes >= start && nowMinutes <= end;
+    }
+
+    return nowMinutes >= start || nowMinutes <= end;
+  }, []);
+
+  const availabilityWindow =
+    expert?.availability?.startTime && expert?.availability?.endTime
+      ? `${expert.availability.startTime} - ${expert.availability.endTime}`
+      : "Not set";
+
+  const canStartConsultation = expert?.isActive && isWithinAvailability(expert?.availability);
 
   const startConsultation = () => {
     const token = localStorage.getItem("token");
@@ -20,7 +52,40 @@ const ExpertProfile = () => {
       return;
     }
 
+    if (!canStartConsultation) {
+      return;
+    }
+
     navigate(`/payment?expertId=${expert.userId}`);
+  };
+
+  const handleNotifyMe = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      setNotifyLoading(true);
+      setNotifyMessage("");
+
+      const res = await axios.post(
+        `${API_URL}/api/expert/${expert.userId}/notify-me`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      setNotifyMessage(res.data?.message || "You will be notified when this expert is available.");
+    } catch (error) {
+      setNotifyMessage(
+        error?.response?.data?.message || "Unable to enable Notify Me right now.",
+      );
+    } finally {
+      setNotifyLoading(false);
+    }
   };
 
   const fetchExpert = useCallback(async () => {
@@ -107,7 +172,7 @@ const ExpertProfile = () => {
                 {expert.isActive ? (
                   <div className="flex items-center gap-1 sm:gap-2 text-green-600 font-medium">
                     <Circle size={10} className="fill-green-500 text-green-500" />
-                    Available
+                    {canStartConsultation ? "Available" : "Offline"}
                   </div>
                 ) : (
                   <div className="flex items-center gap-1 sm:gap-2 text-gray-500 font-medium">
@@ -132,13 +197,39 @@ const ExpertProfile = () => {
                   ₹{expert.consultationCharges || "Free"}
                 </p>
 
+                <p className="text-xs text-gray-500">
+                  Availability: {availabilityWindow}
+                </p>
+
+                {!canStartConsultation && (
+                  <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                    Expert is currently offline. Available between {availabilityWindow}.
+                  </p>
+                )}
+
                 <button
                   onClick={startConsultation}
-                  disabled={!expert.isActive}
+                  disabled={!canStartConsultation}
                   className="w-full bg-[#1E3A8A] text-white py-2.5 sm:py-3 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-[#1E3A8A]/90 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {!expert.isActive ? "Expert Unavailable" : "Start Consultation"}
+                  {!canStartConsultation ? "Expert Unavailable" : "Start Consultation"}
                 </button>
+
+                {!canStartConsultation && (
+                  <button
+                    onClick={handleNotifyMe}
+                    disabled={notifyLoading}
+                    className="w-full border border-[#1E3A8A] text-[#1E3A8A] py-2.5 sm:py-3 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-blue-50 disabled:opacity-60"
+                  >
+                    {notifyLoading ? "Enabling..." : "Notify Me"}
+                  </button>
+                )}
+
+                {notifyMessage && (
+                  <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                    {notifyMessage}
+                  </p>
+                )}
               </div>
             </div>
           </div>

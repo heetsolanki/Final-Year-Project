@@ -126,6 +126,22 @@ const QueryDetailsModal = ({
     }
   };
 
+  const handleExpertResolve = async () => {
+    try {
+      await axios.patch(
+        `${API_URL}/api/expert/resolve/${query._id}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      refreshQueries();
+      onClose();
+    } catch (error) {
+      console.log(error);
+      setErrorPopup({ show: true, title: "Error", message: "Failed to mark query as resolved." });
+    }
+  };
+
   const handleDelete = async () => {
     try {
       await axios.delete(`${API_URL}/api/queries/${query._id}`, {
@@ -248,6 +264,15 @@ const QueryDetailsModal = ({
             <button
               className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl"
               onClick={handleResolve}
+            >
+              Mark as Resolved
+            </button>
+          )}
+
+          {userRole === "legalExpert" && query.status === "Answered" && (
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl"
+              onClick={handleExpertResolve}
             >
               Mark as Resolved
             </button>

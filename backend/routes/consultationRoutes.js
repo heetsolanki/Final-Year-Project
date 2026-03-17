@@ -21,7 +21,6 @@ router.post(
 router.patch(
   "/close/:consultationId",
   verifyToken,
-  authorizeRole("consumer"),
   closeConsultation,
 );
 

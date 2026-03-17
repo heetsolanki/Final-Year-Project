@@ -136,6 +136,16 @@ exports.blockUser = async (req, res) => {
     }
 
     // Send email notification to the blocked user
+    await createNotification({
+      receiverId: userId,
+      receiverRole: "user",
+      senderId: req.user.userId,
+      senderRole: "admin",
+      message: "Your account has been blocked by admin.",
+      type: NOTIFICATION_TYPES.ACCOUNT_STATUS,
+      relatedId: userId,
+    });
+
     sendEmail(
       user.email,
       "Account Blocked – LawAssist",
@@ -169,6 +179,16 @@ exports.unblockUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+
+    await createNotification({
+      receiverId: userId,
+      receiverRole: "user",
+      senderId: req.user.userId,
+      senderRole: "admin",
+      message: "Your account has been unblocked by admin.",
+      type: NOTIFICATION_TYPES.ACCOUNT_STATUS,
+      relatedId: userId,
+    });
 
     res.json({
       message: "User unblocked",
@@ -220,8 +240,10 @@ exports.verifyExpert = async (req, res) => {
     await expert.save();
 
     await createNotification({
-      expertId: userId,
-      title: "Profile Verified",
+      receiverId: userId,
+      receiverRole: "expert",
+      senderId: req.user.userId,
+      senderRole: "admin",
       message: "Your profile has been verified. You can now accept cases.",
       type: NOTIFICATION_TYPES.ACCOUNT_STATUS,
       relatedId: userId,
@@ -270,8 +292,10 @@ exports.rejectExpert = async (req, res) => {
     await expert.save();
 
     await createNotification({
-      expertId: userId,
-      title: "Profile Rejected",
+      receiverId: userId,
+      receiverRole: "expert",
+      senderId: req.user.userId,
+      senderRole: "admin",
       message: `Your profile verification was rejected. Reason: ${reason || "Not specified"}`,
       type: NOTIFICATION_TYPES.ACCOUNT_STATUS,
       relatedId: userId,
@@ -365,6 +389,16 @@ exports.blockExpert = async (req, res) => {
 
     await expert.save();
 
+    await createNotification({
+      receiverId: userId,
+      receiverRole: "expert",
+      senderId: req.user.userId,
+      senderRole: "admin",
+      message: "Your account has been blocked by admin.",
+      type: NOTIFICATION_TYPES.ACCOUNT_STATUS,
+      relatedId: userId,
+    });
+
     await logActivity("Expert blocked", req.user.userId, userId);
 
     // Send email notification to the blocked expert
@@ -405,6 +439,16 @@ exports.unblockExpert = async (req, res) => {
     }
 
     await expert.save();
+
+    await createNotification({
+      receiverId: userId,
+      receiverRole: "expert",
+      senderId: req.user.userId,
+      senderRole: "admin",
+      message: "Your account has been unblocked by admin.",
+      type: NOTIFICATION_TYPES.ACCOUNT_STATUS,
+      relatedId: userId,
+    });
 
     await logActivity("Expert unblocked", req.user.userId, userId);
 
@@ -549,7 +593,12 @@ exports.getActivityLogs = async (req, res) => {
 
 exports.getNotifications = async (req, res) => {
   try {
-    const notifications = await Notification.find().sort({ createdAt: -1 }).limit(50);
+    const notifications = await Notification.find({
+      receiverId: req.user.userId,
+      receiverRole: "admin",
+    })
+      .sort({ createdAt: -1 })
+      .limit(50);
 
     res.json(notifications);
   } catch (error) {
@@ -696,10 +745,12 @@ exports.approveQuery = async (req, res) => {
     const user = await User.findOne({ userId: query.userId });
     if (user) {
       await createNotification({
-        userId: query.userId,
-        title: "Query Approved",
+        receiverId: query.userId,
+        receiverRole: "user",
+        senderId: req.user.userId,
+        senderRole: "admin",
         message: `Your query "${query.title}" has been approved and is now under review.`,
-        type: NOTIFICATION_TYPES.SYSTEM,
+        type: NOTIFICATION_TYPES.QUERY_APPROVED,
         relatedId: query._id.toString(),
       });
 
@@ -762,8 +813,10 @@ exports.rejectQuery = async (req, res) => {
     const user = await User.findOne({ userId: query.userId });
     if (user) {
       await createNotification({
-        userId: query.userId,
-        title: "Your Query Has Been Rejected",
+        receiverId: query.userId,
+        receiverRole: "user",
+        senderId: req.user.userId,
+        senderRole: "admin",
         message: `Your query "${query.title}" has been rejected. Reason: ${reason || "Not specified"}`,
         type: NOTIFICATION_TYPES.QUERY_REJECTED,
         relatedId: query._id.toString(),
@@ -781,8 +834,10 @@ exports.rejectQuery = async (req, res) => {
 
       if (user.queryRejectCount >= 3) {
         await createNotification({
-          userId: query.userId,
-          title: "Account Warning",
+          receiverId: query.userId,
+          receiverRole: "user",
+          senderId: req.user.userId,
+          senderRole: "admin",
           message: "Warning: Your account has received multiple query rejections. Further violations may lead to account termination.",
           type: NOTIFICATION_TYPES.ACCOUNT_STATUS,
           relatedId: query._id.toString(),
@@ -800,8 +855,10 @@ exports.rejectQuery = async (req, res) => {
         user.status = "blocked";
 
         await createNotification({
-          userId: query.userId,
-          title: "Account Blocked",
+          receiverId: query.userId,
+          receiverRole: "user",
+          senderId: req.user.userId,
+          senderRole: "admin",
           message: "Your account has been blocked due to excessive query rejections.",
           type: NOTIFICATION_TYPES.ACCOUNT_STATUS,
           relatedId: query._id.toString(),
