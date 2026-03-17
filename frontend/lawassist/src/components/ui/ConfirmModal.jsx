@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import ReactDOM from "react-dom";
 import { motion } from "framer-motion";
 import { AlertTriangle, Ban, CheckCircle2, ShieldAlert, Trash2 } from "lucide-react";
 
@@ -62,9 +63,9 @@ const ConfirmModal = ({
   const config = typeConfig[type] || typeConfig.danger;
   const ModalIcon = Icon || config.defaultIcon;
 
-  return (
+  return ReactDOM.createPortal(
     <div
-      className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+      className="global-modal-overlay"
       onClick={onCancel}
       role="dialog"
       aria-modal="true"
@@ -74,7 +75,7 @@ const ConfirmModal = ({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 8 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
-        className="w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-2xl"
+        className="global-modal-panel w-full max-w-md p-6 text-center"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="text-center">
@@ -108,7 +109,8 @@ const ConfirmModal = ({
           </div>
         </div>
       </motion.div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

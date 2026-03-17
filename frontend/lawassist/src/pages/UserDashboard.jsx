@@ -293,7 +293,7 @@ const UserDashboard = () => {
 
         {/* Ask Query Modal (for pending query continuation) */}
         {showAskQueryModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="global-modal-overlay">
             <AskQueryForm
               onClose={() => setShowAskQueryModal(false)}
               onSuccess={handleQuerySuccess}

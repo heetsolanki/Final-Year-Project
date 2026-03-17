@@ -403,8 +403,8 @@ const AdminExpertsTab = ({ refreshKey }) => {
 
       {/* ===== View Profile Modal ===== */}
       {(viewExpert || viewLoading) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4 max-h-[85vh] overflow-y-auto">
+        <div className="global-modal-overlay">
+          <div className="global-modal-panel max-w-lg w-full mx-4 max-h-[85vh] overflow-y-auto">
             {viewLoading ? (
               <div className="flex items-center justify-center py-20">
                 <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
@@ -607,8 +607,8 @@ const AdminExpertsTab = ({ refreshKey }) => {
 
       {/* ===== Reject Modal ===== */}
       {rejectExpert && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6 space-y-5">
+        <div className="global-modal-overlay">
+          <div className="global-modal-panel max-w-md w-full mx-4 p-6 space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-red-50 rounded-xl">

@@ -10,6 +10,54 @@
 
 body {
   @apply font-sans bg-white text-gray-800;
+  background-image: linear-gradient(180deg, #f8fafc 0%, #ffffff 18%, #ffffff 100%);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+:root {
+  --ui-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --modal-z: 5000;
+  --toast-z: 4800;
+}
+
+main {
+  animation: pageFadeIn 0.35s var(--ui-smooth);
+}
+
+a,
+button,
+input,
+textarea,
+select {
+  transition: color 0.22s ease, background-color 0.22s ease, border-color 0.22s ease,
+    box-shadow 0.28s var(--ui-smooth), transform 0.28s var(--ui-smooth);
+}
+
+.card-soft {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.global-modal-overlay {
+  @apply fixed inset-0 flex items-center justify-center bg-black/45 backdrop-blur-sm p-4;
+  z-index: var(--modal-z);
+}
+
+.global-modal-panel {
+  @apply bg-white rounded-2xl shadow-2xl;
+  animation: modalIn 0.24s var(--ui-smooth);
+}
+
+.fade-up {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.58s var(--ui-smooth), transform 0.58s var(--ui-smooth);
+}
+
+.fade-up.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ================= LAYOUT ================= */
@@ -32,7 +80,12 @@ body {
 }
 
 .feature-card {
-  @apply bg-white px-10 py-8 rounded-2xl border border-gray-400 shadow-sm transition hover:border-[#C9A227] hover:shadow-lg;
+  @apply bg-white px-10 py-8 rounded-2xl border border-gray-300 shadow-sm transition hover:border-[#C9A227] hover:shadow-lg;
+  transition: transform 0.35s var(--ui-smooth), box-shadow 0.35s var(--ui-smooth), border-color 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
 }
 
 .feature-icon {
@@ -242,6 +295,7 @@ body {
 
 .tabs-container {
   @apply bg-white rounded-2xl shadow-sm p-3 flex justify-between flex-nowrap overflow-x-auto gap-3;
+  border: 1px solid rgba(148, 163, 184, 0.2);
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -315,7 +369,8 @@ body {
    ============================================================ */
 
 .view-overlay {
-  @apply fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4 sm:px-6;
+  @apply fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4 sm:px-6;
+  z-index: var(--modal-z);
 }
 
 .view-modal {
@@ -382,7 +437,8 @@ body {
 @media (max-width: 640px) {
 
   .view-overlay {
-    @apply fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4 sm:px-6;
+    @apply fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4 sm:px-6;
+    z-index: var(--modal-z);
     overflow: hidden;
   }
 
@@ -410,7 +466,8 @@ body {
    ============================================================ */
 
 .delete-overlay {
-  @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50;
+  @apply fixed inset-0 bg-black/50 flex items-center justify-center;
+  z-index: var(--modal-z);
 }
 
 .delete-modal {
@@ -442,7 +499,8 @@ body {
    ============================================================ */
 
 .success-overlay {
-  @apply absolute inset-0 bg-black/50 flex items-center justify-center z-50;
+  @apply fixed inset-0 bg-black/50 flex items-center justify-center;
+  z-index: var(--modal-z);
 }
 
 .success-modal {
@@ -614,7 +672,8 @@ body {
    ============================================================ */
 
 .popup-overlay {
-  @apply fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4;
+  @apply fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4;
+  z-index: var(--modal-z);
 }
 
 .popup-card {
@@ -972,7 +1031,8 @@ body {
 }
 
 .profile-modal-overlay {
-  @apply fixed inset-0 bg-black/40 flex justify-center items-center z-50;
+  @apply fixed inset-0 bg-black/40 flex justify-center items-center;
+  z-index: var(--modal-z);
 }
 
 .profile-modal-box {
@@ -1163,5 +1223,25 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }

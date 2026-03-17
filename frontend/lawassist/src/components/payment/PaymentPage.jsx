@@ -225,7 +225,7 @@ const CardPaymentForm = ({ cardData, setCardData, errors, disabled }) => {
 
 // ─── PAYMENT LOADER ───
 const PaymentLoader = () => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+  <div className="global-modal-overlay">
     <div className="bg-white w-full max-w-[360px] rounded-2xl shadow-2xl p-8 text-center">
       <div className="flex justify-center mb-5">
         <Loader2 className="w-12 h-12 text-[#1E3A8A] animate-spin" />
@@ -370,7 +370,7 @@ export const PaymentReceipt = ({
 
 // ─── PAYMENT FAILURE MODAL ───
 const PaymentFailureModal = ({ onRetry, onCancel }) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+  <div className="global-modal-overlay">
     <div className="bg-white w-full max-w-[400px] rounded-2xl shadow-2xl p-6 sm:p-8 text-center">
       <div className="flex justify-center mb-4">
         <div className="bg-red-100 p-4 rounded-full">
