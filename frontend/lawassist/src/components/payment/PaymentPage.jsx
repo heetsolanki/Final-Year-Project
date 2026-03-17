@@ -402,7 +402,7 @@ const PaymentFailureModal = ({ onRetry, onCancel }) => (
 );
 
 // ─── EXPERT CONSULTATION CARD ───
-const ExpertConsultationCard = ({ expert }) => (
+const ExpertConsultationCard = ({ expert, amount, isFollowUp }) => (
   <div className="bg-gray-50 rounded-2xl p-5 sm:p-6 shadow-sm text-center space-y-3">
     <div className="w-16 h-16 mx-auto rounded-full bg-[#1E3A8A] flex items-center justify-center text-white text-2xl font-bold">
       {expert.name?.charAt(0)?.toUpperCase() || "E"}
@@ -418,9 +418,11 @@ const ExpertConsultationCard = ({ expert }) => (
     )}
     <div className="border-t border-gray-200 pt-3 space-y-2">
       <div className="flex items-center justify-between text-sm">
-        <span className="text-gray-500">Consultation Fee</span>
+        <span className="text-gray-500">
+          {isFollowUp ? "Follow-Up Fee" : "Consultation Fee"}
+        </span>
         <span className="text-xl font-bold text-gray-800">
-          ₹{expert.consultationCharges}
+          ₹{amount}
         </span>
       </div>
       <div className="flex items-center justify-between text-sm">
@@ -473,6 +475,7 @@ const PaymentPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const expertId = searchParams.get("expertId");
+  const followUpConsultationId = searchParams.get("followUpConsultationId");
   const token = localStorage.getItem("token");
 
   const [expert, setExpert] = useState(null);
@@ -480,6 +483,10 @@ const PaymentPage = () => {
   const [loading, setLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState("UPI");
   const [processing, setProcessing] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState(0);
+  const [paymentMode, setPaymentMode] = useState(
+    followUpConsultationId ? "followup" : "initial",
+  );
 
   // UPI — live validation
   const [upiId, setUpiId] = useState("");
@@ -508,20 +515,39 @@ const PaymentPage = () => {
   }, [token, navigate]);
 
   const fetchExpert = useCallback(async () => {
-    if (!expertId || !token) return;
+    if (!expertId || !token || paymentMode !== "initial") return;
     try {
       const res = await axios.get(
         `${API_URL}/api/payments/expert-info/${expertId}`,
         { headers: { Authorization: `Bearer ${token}` } },
       );
       setExpert(res.data);
+      setPaymentAmount(res.data.consultationFee || 0);
       setExpertError("");
     } catch (error) {
       setExpertError(error?.response?.data?.message || "Expert not found or unavailable.");
     } finally {
       setLoading(false);
     }
-  }, [expertId, token]);
+  }, [expertId, token, paymentMode]);
+
+  const fetchFollowUpInfo = useCallback(async () => {
+    if (!followUpConsultationId || !token || paymentMode !== "followup") return;
+    try {
+      const res = await axios.get(
+        `${API_URL}/api/payments/followup-info/${followUpConsultationId}`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      setExpert(res.data.expert);
+      setPaymentAmount(res.data.followUpFee || 0);
+      setExpertError("");
+    } catch (error) {
+      setExpertError(error?.response?.data?.message || "Follow-up session unavailable.");
+    } finally {
+      setLoading(false);
+    }
+  }, [followUpConsultationId, token, paymentMode]);
 
   const fetchUserInfo = useCallback(async () => {
     if (!token) return;
@@ -540,8 +566,16 @@ const PaymentPage = () => {
 
   useEffect(() => {
     fetchExpert();
+    fetchFollowUpInfo();
     fetchUserInfo();
-  }, [fetchExpert, fetchUserInfo]);
+  }, [fetchExpert, fetchFollowUpInfo, fetchUserInfo]);
+
+  useEffect(() => {
+    if (!expertId && !followUpConsultationId) {
+      setExpertError("Invalid payment request.");
+      setLoading(false);
+    }
+  }, [expertId, followUpConsultationId]);
 
   // Live UPI validation on every keystroke
   const handleUpiChange = (value) => {
@@ -593,18 +627,32 @@ const PaymentPage = () => {
 
     try {
       const cardDigits = cardData.cardNumber.replace(/\s/g, "");
-      const res = await axios.post(
-        `${API_URL}/api/payments/process`,
-        {
-          expertId,
-          amount: expert.consultationCharges,
-          paymentMethod,
-          upiId: paymentMethod === "UPI" ? upiId.trim() : undefined,
-          cardLast4Digits:
-            paymentMethod === "CARD" ? cardDigits.slice(-4) : undefined,
-        },
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      const endpoint =
+        paymentMode === "followup"
+          ? `${API_URL}/api/payments/process-followup`
+          : `${API_URL}/api/payments/process`;
+
+      const payload =
+        paymentMode === "followup"
+          ? {
+              consultationId: followUpConsultationId,
+              paymentMethod,
+              upiId: paymentMethod === "UPI" ? upiId.trim() : undefined,
+              cardLast4Digits:
+                paymentMethod === "CARD" ? cardDigits.slice(-4) : undefined,
+            }
+          : {
+              expertId,
+              amount: paymentAmount,
+              paymentMethod,
+              upiId: paymentMethod === "UPI" ? upiId.trim() : undefined,
+              cardLast4Digits:
+                paymentMethod === "CARD" ? cardDigits.slice(-4) : undefined,
+            };
+
+      const res = await axios.post(endpoint, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       setProcessing(false);
 
@@ -614,7 +662,7 @@ const PaymentPage = () => {
           transactionId: res.data.transactionId,
           paymentDate: new Date().toISOString(),
           paymentMethod,
-          amount: expert.consultationCharges,
+          amount: paymentAmount,
           expertName: expert.name,
           availabilityWindow:
             expert?.availability?.startTime && expert?.availability?.endTime
@@ -689,7 +737,12 @@ const PaymentPage = () => {
             {/* LEFT — Expert Info */}
             <div className="lg:col-span-1">
               <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 sm:p-5 transition hover:shadow-lg sticky top-28">
-                <ExpertConsultationCard expert={expert} />
+                <ExpertConsultationCard
+                  expert={expert}
+                  amount={paymentAmount}
+                  isFollowUp={paymentMode === "followup"}
+                />
+
                 <div className="mt-4 flex items-center gap-2 text-xs text-gray-400 justify-center">
                   <Shield size={14} />
                   Secure Simulated Payment
@@ -704,7 +757,9 @@ const PaymentPage = () => {
                   Payment Details
                 </h2>
                 <p className="text-sm text-gray-500 mb-6">
-                  Complete the payment to start your consultation session.
+                  {paymentMode === "followup"
+                    ? "Complete the reduced follow-up fee to reactivate your consultation chat."
+                    : "Complete the payment to start your consultation session."}
                 </p>
 
                 <div className="mb-6">
@@ -750,8 +805,8 @@ const PaymentPage = () => {
                   {processing
                     ? "Processing..."
                     : paymentMethod === "UPI"
-                      ? `Pay ₹${expert.consultationCharges} via UPI`
-                      : `Pay ₹${expert.consultationCharges}`}
+                      ? `Pay ₹${paymentAmount} via UPI`
+                      : `Pay ₹${paymentAmount}`}
                 </button>
               </div>
             </div>

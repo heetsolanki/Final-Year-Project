@@ -79,4 +79,36 @@ Return only the simplified explanation.`;
   }
 };
 
-module.exports = { generateExpertBio, summarizeLawText };
+/*
+ * Generates a concise consultation chat title.
+ */
+const generateConsultationTitle = async ({ specialization, city, state }) => {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is not set in environment variables");
+  }
+
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+  const prompt = `Generate a short title for a legal consultation chat.
+
+Context:
+Specialization: ${specialization || "General Consumer Law"}
+Location: ${city || ""}${city && state ? ", " : ""}${state || ""}
+
+Rules:
+- Maximum 6 words
+- Professional and clear
+- No quotation marks
+- Return plain text only`;
+
+  try {
+    const result = await model.generateContent(prompt);
+    return result.response.text().trim().replace(/[\n\r]+/g, " ").slice(0, 120);
+  } catch (error) {
+    console.error("Gemini generateConsultationTitle error:", error);
+    throw error;
+  }
+};
+
+module.exports = { generateExpertBio, summarizeLawText, generateConsultationTitle };

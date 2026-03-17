@@ -19,7 +19,8 @@ exports.completeExpertProfile = async (req, res) => {
       barCouncilId,
       specialization,
       experience,
-      consultationCharges,
+      consultationFee,
+      followUpFee,
       city,
       state,
       languages,
@@ -74,12 +75,19 @@ exports.completeExpertProfile = async (req, res) => {
       }
     }
 
-    // Consultation charges validation
-    if (consultationCharges !== undefined && consultationCharges !== "") {
-      const charges = Number(consultationCharges);
-      if (isNaN(charges) || charges < 0) {
-        return res.status(400).json({ message: "Consultation charges cannot be negative" });
-      }
+    const parsedConsultationFee = Number(consultationFee);
+    const parsedFollowUpFee = Number(followUpFee);
+
+    if (!Number.isFinite(parsedConsultationFee) || parsedConsultationFee <= 0) {
+      return res.status(400).json({ message: "Consultation fee must be greater than 0" });
+    }
+
+    if (!Number.isFinite(parsedFollowUpFee) || parsedFollowUpFee < 0) {
+      return res.status(400).json({ message: "Follow-up fee must be 0 or more" });
+    }
+
+    if (parsedFollowUpFee > parsedConsultationFee) {
+      return res.status(400).json({ message: "Follow-up fee cannot exceed consultation fee" });
     }
 
     const expert = await Expert.findOne({ userId: expertId });
@@ -91,7 +99,9 @@ exports.completeExpertProfile = async (req, res) => {
     expert.barCouncilId = barCouncilId;
     expert.specialization = specialization;
     expert.experience = experience;
-    expert.consultationCharges = consultationCharges;
+    expert.consultationFee = parsedConsultationFee;
+    expert.followUpFee = parsedFollowUpFee;
+    expert.consultationCharges = parsedConsultationFee;
     expert.state = state;
     expert.city = city;
     expert.languages = languages;
@@ -145,6 +155,64 @@ exports.getExpertProfile = async (req, res) => {
     res.json(expert);
   } catch {
     res.status(500).json({ message: "Error fetching profile" });
+  }
+};
+
+exports.updateExpertProfile = async (req, res) => {
+  try {
+    const expert = await Expert.findOne({ userId: req.user.userId });
+
+    if (!expert) {
+      return res.status(404).json({ message: "Expert not found" });
+    }
+
+    const {
+      city,
+      state,
+      bio,
+      consultationFee,
+      followUpFee,
+    } = req.body;
+
+    const hasConsultationFee = consultationFee !== undefined && consultationFee !== "";
+    const hasFollowUpFee = followUpFee !== undefined && followUpFee !== "";
+
+    const nextConsultationFee = hasConsultationFee
+      ? Number(consultationFee)
+      : Number(expert.consultationFee ?? expert.consultationCharges ?? 0);
+
+    const nextFollowUpFee = hasFollowUpFee
+      ? Number(followUpFee)
+      : Number(expert.followUpFee ?? 0);
+
+    if (!Number.isFinite(nextConsultationFee) || nextConsultationFee <= 0) {
+      return res.status(400).json({ message: "Consultation fee must be greater than 0" });
+    }
+
+    if (!Number.isFinite(nextFollowUpFee) || nextFollowUpFee < 0) {
+      return res.status(400).json({ message: "Follow-up fee must be 0 or more" });
+    }
+
+    if (nextFollowUpFee > nextConsultationFee) {
+      return res.status(400).json({ message: "Follow-up fee cannot exceed consultation fee" });
+    }
+
+    if (city !== undefined) expert.city = city;
+    if (state !== undefined) expert.state = state;
+    if (bio !== undefined) expert.bio = bio;
+
+    expert.consultationFee = nextConsultationFee;
+    expert.followUpFee = nextFollowUpFee;
+    expert.consultationCharges = nextConsultationFee;
+
+    await expert.save();
+
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      expert,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Error updating profile" });
   }
 };
 
@@ -393,6 +461,8 @@ const calculateProfileCompletion = (expert) => {
     expert.barCouncilId,
     expert.specialization,
     expert.experience,
+    expert.consultationFee,
+    expert.followUpFee,
     expert.city,
     expert.languages,
     expert.expertiseAreas,
@@ -419,7 +489,7 @@ exports.getAllExperts = async (req, res) => {
       verificationStatus: "active",
       isActive: true,
     }).select(
-      "name specialization experience city state consultationCharges expertiseAreas bio",
+      "name specialization experience city state consultationFee followUpFee consultationCharges expertiseAreas bio",
     );
 
     res.json(experts);

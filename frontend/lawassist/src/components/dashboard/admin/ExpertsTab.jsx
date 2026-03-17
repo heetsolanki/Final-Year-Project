@@ -502,8 +502,8 @@ const AdminExpertsTab = ({ refreshKey }) => {
                         Consultation Fee
                       </p>
                       <p className="text-gray-700">
-                        {viewExpert.consultationCharges
-                          ? `Rs. ${viewExpert.consultationCharges}`
+                        {viewExpert.consultationFee || viewExpert.consultationCharges
+                          ? `Rs. ${viewExpert.consultationFee ?? viewExpert.consultationCharges}`
                           : "--"}
                       </p>
                     </div>

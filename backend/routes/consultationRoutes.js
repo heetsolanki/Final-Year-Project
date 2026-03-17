@@ -9,6 +9,8 @@ const {
   getUserConsultations,
   getExpertConsultations,
   getConsultationById,
+  initiateFollowUp,
+  updateConsultationTitle,
 } = require("../controllers/consultationController");
 
 router.post(
@@ -22,6 +24,20 @@ router.patch(
   "/close/:consultationId",
   verifyToken,
   closeConsultation,
+);
+
+router.post(
+  "/followup",
+  verifyToken,
+  authorizeRole("consumer"),
+  initiateFollowUp,
+);
+
+router.patch(
+  "/:consultationId/title",
+  verifyToken,
+  authorizeRole("consumer"),
+  updateConsultationTitle,
 );
 
 router.get(

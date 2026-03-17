@@ -17,6 +17,7 @@ const startAutoCloseJob = (io) => {
 
       const expired = await Consultation.find({
         status: "active",
+        isActive: true,
         startedAt: { $lte: cutoff },
       });
 
@@ -24,6 +25,7 @@ const startAutoCloseJob = (io) => {
 
       for (const consultation of expired) {
         consultation.status = "closed";
+        consultation.isActive = false;
         consultation.closedAt = new Date();
         await consultation.save();
 

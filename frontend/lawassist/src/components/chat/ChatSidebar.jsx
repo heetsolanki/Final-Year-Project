@@ -26,7 +26,7 @@ const ChatSidebar = ({ consultations, selected, openChat }) => {
           }`}
           >
             <p className="font-medium text-gray-800 text-[15px]">
-              Consultation {c.consultationId}
+              {c.chatTitle || `Consultation ${c.consultationId}`}
             </p>
 
             <span

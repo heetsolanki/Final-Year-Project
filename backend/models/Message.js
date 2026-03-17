@@ -22,6 +22,12 @@ const messageSchema = new mongoose.Schema(
       default: null,
     },
 
+    messageType: {
+      type: String,
+      enum: ["user", "system"],
+      default: "user",
+    },
+
     fileUrl: {
       type: String,
       default: null,

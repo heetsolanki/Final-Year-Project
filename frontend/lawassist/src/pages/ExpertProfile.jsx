@@ -65,7 +65,8 @@ const ExpertProfile = () => {
     specialization: "",
     otherSpecialization: "",
     experience: "",
-    consultationCharges: "",
+    consultationFee: "",
+    followUpFee: "",
     state: "",
     city: "",
     languages: [],
@@ -104,7 +105,8 @@ const ExpertProfile = () => {
         specialization: data.specialization || "",
         otherSpecialization: "",
         experience: data.experience || "",
-        consultationCharges: data.consultationCharges || "",
+        consultationFee: data.consultationFee ?? data.consultationCharges ?? "",
+        followUpFee: data.followUpFee ?? "",
         state: data.state || "",
         city: data.city || "",
         languages: data.languages || [],
@@ -228,12 +230,23 @@ const ExpertProfile = () => {
       }
     }
 
-    // Consultation charges
-    if (formData.consultationCharges !== "" && formData.consultationCharges !== undefined) {
-      const charges = Number(formData.consultationCharges);
-      if (isNaN(charges) || charges < 0) {
-        newErrors.consultationCharges = "Charges cannot be negative";
-      }
+    const consultationFee = Number(formData.consultationFee);
+    const followUpFee = Number(formData.followUpFee);
+
+    if (!Number.isFinite(consultationFee) || consultationFee <= 0) {
+      newErrors.consultationFee = "Consultation fee must be greater than 0";
+    }
+
+    if (!Number.isFinite(followUpFee) || followUpFee < 0) {
+      newErrors.followUpFee = "Follow-up fee must be 0 or more";
+    }
+
+    if (
+      Number.isFinite(consultationFee) &&
+      Number.isFinite(followUpFee) &&
+      followUpFee > consultationFee
+    ) {
+      newErrors.followUpFee = "Follow-up fee cannot exceed consultation fee";
     }
 
     setErrors(newErrors);
@@ -480,20 +493,42 @@ const ExpertProfile = () => {
                   )}
                 </div>
 
-                {/* Consultation Charges */}
+                {/* Consultation Fee */}
                 <div>
                   <label className="text-sm font-medium">
-                    Consultation Charges (INR)
+                    Consultation Fee (INR) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
-                    name="consultationCharges"
-                    min="0"
-                    value={formData.consultationCharges}
+                    name="consultationFee"
+                    min="1"
+                    value={formData.consultationFee}
                     onChange={handleChange}
-                    className={inputClass("consultationCharges")}
+                    className={inputClass("consultationFee")}
                   />
-                  <FieldError field="consultationCharges" />
+                  <FieldError field="consultationFee" />
+                </div>
+
+                {/* Follow-Up Fee */}
+                <div>
+                  <label className="text-sm font-medium">
+                    Follow-Up Fee (INR) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="followUpFee"
+                    min="0"
+                    value={formData.followUpFee}
+                    onChange={handleChange}
+                    className={inputClass("followUpFee")}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Follow-up fee should not exceed consultation fee
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    Recommended: 20%-50% of consultation fee
+                  </p>
+                  <FieldError field="followUpFee" />
                 </div>
               </div>
             </div>

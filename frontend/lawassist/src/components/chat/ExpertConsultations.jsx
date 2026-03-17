@@ -49,7 +49,7 @@ const ExpertConsultations = () => {
             >
               <div>
                 <p className="font-medium text-gray-800">
-                  Consultation {c.consultationId}
+                  {c.chatTitle || `Consultation ${c.consultationId}`}
                 </p>
 
                 <p className="text-xs text-gray-500">

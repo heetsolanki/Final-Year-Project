@@ -24,6 +24,40 @@ const consultationSchema = new mongoose.Schema(
       required: true,
     },
 
+    chatTitle: {
+      type: String,
+      default: null,
+      trim: true,
+      maxlength: 120,
+    },
+
+    followUpFee: {
+      type: Number,
+      default: null,
+      validate: {
+        validator(value) {
+          if (value === null || value === undefined) return true;
+          return value <= this.consultationFee;
+        },
+        message: "Follow-up fee cannot exceed consultation fee",
+      },
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+
+    isFollowUp: {
+      type: Boolean,
+      default: false,
+    },
+
+    parentConsultationId: {
+      type: String,
+      default: null,
+    },
+
     paymentStatus: {
       type: String,
       enum: ["pending", "paid"],

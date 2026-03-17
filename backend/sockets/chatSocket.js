@@ -66,7 +66,7 @@ const chatSocket = (io) => {
           return socket.emit("error", "Consultation not found");
         }
 
-        if (consultation.status === "closed") {
+        if (!consultation.isActive || consultation.status === "closed") {
           return socket.emit("error", "Consultation closed");
         }
 
@@ -82,8 +82,13 @@ const chatSocket = (io) => {
             ? consultation.expertId
             : consultation.userId;
 
+        const threadConsultationId =
+          consultation.isFollowUp && consultation.parentConsultationId
+            ? consultation.parentConsultationId
+            : consultation.consultationId;
+
         const newMessage = await Message.create({
-          consultationId,
+          consultationId: threadConsultationId,
           senderId: user.userId,
           receiverId,
           message: hasText ? message.trim() : null,
