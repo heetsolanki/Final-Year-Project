@@ -100,7 +100,7 @@ const getCategoryFromKeywords = async (query) => {
       }
     }
 
-    if (maxScore < 3) return null;
+    if (maxScore === 0) return null;
 
     return bestCategory;
   } catch (err) {
