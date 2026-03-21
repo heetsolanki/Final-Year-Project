@@ -34,16 +34,6 @@ export const summarizeLaw = async (lawText) => {
   const res = await axios.post(`${API_URL}/api/ai/summarize-law`, { lawText });
   return res.data.data;
 };
-
-/*
- * Calls the backend to rephrase user-entered text.
- * Returns rewritten text.
- */
-export const rephraseUserText = async (inputText) => {
-  const res = await axios.post(`${API_URL}/api/ai/rephrase-text`, { inputText });
-  return res.data.data;
-};
-
 /*
  * Calls the backend to suggest a subcategory for a query.
  * Returns suggested subcategory string.

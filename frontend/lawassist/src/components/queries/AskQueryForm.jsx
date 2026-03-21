@@ -3,7 +3,7 @@ import axios from "axios";
 import API_URL from "../../api";
 import AlertPopup from "../ui/AlertPopup";
 import { categories } from "../../data";
-import { rephraseUserText, suggestQuerySubcategory } from "../../services/aiService";
+import { suggestQuerySubcategory } from "../../services/aiService";
 
 const SparkleIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -68,28 +68,6 @@ const AskQueryForm = ({
 
     if (name === "subcategory") {
       isSubcategoryManuallyChanged.current = true;
-    }
-  };
-
-  const handleRephraseField = async (field) => {
-    const sourceText = String(formData[field] || "").trim();
-    if (!sourceText) return;
-
-    const setFieldLoading = field === "title" ? setIsTitleRephrasing : setIsDescriptionRephrasing;
-
-    try {
-      setFieldLoading(true);
-      const rewritten = await rephraseUserText(sourceText);
-      if (!rewritten || !rewritten.trim()) return;
-
-      setFormData((prev) => ({
-        ...prev,
-        [field]: rewritten.trim(),
-      }));
-    } catch (error) {
-      console.error(`Failed to rephrase ${field}:`, error);
-    } finally {
-      setFieldLoading(false);
     }
   };
 
@@ -259,7 +237,6 @@ const AskQueryForm = ({
       )}
 
       <form className="query-form" onSubmit={handleSubmit}>
-        {/* Title with inline AI rephrase button */}
         <div style={{ position: "relative" }}>
           <input
             type="text"
@@ -271,34 +248,6 @@ const AskQueryForm = ({
             required
             style={{ paddingRight: "44px" }}
           />
-          <button
-            type="button"
-            style={{
-              position: "absolute",
-              right: "8px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              padding: "6px",
-              borderRadius: "6px",
-              border: "none",
-              background: "transparent",
-              color: "#1d4ed8",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              opacity: isTitleRephrasing || !formData.title.trim() ? 0.4 : 1,
-              transition: "background 0.15s, opacity 0.15s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#eff6ff")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-            onClick={() => handleRephraseField("title")}
-            disabled={isTitleRephrasing || !formData.title.trim()}
-            title="AI Rephrase"
-            aria-label="Rephrase title with AI"
-          >
-            {isTitleRephrasing ? <SpinnerIcon /> : <SparkleIcon />}
-          </button>
         </div>
 
         {/* Category select */}
@@ -358,7 +307,6 @@ const AskQueryForm = ({
           </>
         )}
 
-        {/* Description with inline AI rephrase button */}
         <div style={{ position: "relative" }}>
           <textarea
             name="description"
@@ -371,33 +319,6 @@ const AskQueryForm = ({
             required
             style={{ paddingRight: "44px" }}
           />
-          <button
-            type="button"
-            style={{
-              position: "absolute",
-              right: "8px",
-              top: "10px",
-              padding: "6px",
-              borderRadius: "6px",
-              border: "none",
-              background: "transparent",
-              color: "#1d4ed8",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              opacity: isDescriptionRephrasing || !formData.description.trim() ? 0.4 : 1,
-              transition: "background 0.15s, opacity 0.15s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#eff6ff")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-            onClick={() => handleRephraseField("description")}
-            disabled={isDescriptionRephrasing || !formData.description.trim()}
-            title="AI Rephrase"
-            aria-label="Rephrase description with AI"
-          >
-            {isDescriptionRephrasing ? <SpinnerIcon /> : <SparkleIcon />}
-          </button>
         </div>
 
         {/* Submit or Change Category button */}
