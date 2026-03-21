@@ -2,6 +2,7 @@ const { GoogleGenAI } = require("@google/genai");
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
+const Law = require("../models/Law");
 
 const GEMINI_MODEL = "gemini-3.1-flash-lite-preview";
 
@@ -23,8 +24,95 @@ const generateText = async (prompt) => {
   return String(response?.text || "").trim();
 };
 
+// =========================
+// 🔥 FINAL KEYWORD CLASSIFIER (FIXED)
+// =========================
+const GENERIC_KEYWORDS = [
+  "problem",
+  "issue",
+  "not good",
+  "bad quality",
+  "complaint",
+  "not working",
+  "not satisfied",
+  "poor service",
+  "help needed",
+  "support issue",
+  "customer problem",
+  "delay",
+  "not responding",
+];
+
+const getCategoryFromKeywords = async (query) => {
+  try {
+    const laws = await Law.find();
+
+    query = query.toLowerCase().replace(/[^\w\s]/g, "");
+    const words = query.split(" ");
+
+    const categoryScores = {};
+
+    for (const act of laws) {
+      let totalScore = 0;
+
+      for (const section of act.sections || []) {
+        for (const keyword of section.keywords || []) {
+          const cleanKeyword = keyword.toLowerCase().trim();
+
+          if (GENERIC_KEYWORDS.includes(cleanKeyword)) continue;
+
+          if (
+            words.some((word) => cleanKeyword.includes(word)) ||
+            cleanKeyword.includes(query)
+          ) {
+            totalScore += 2;
+          }
+        }
+      }
+
+      if (Array.isArray(act.keywords)) {
+        for (const keyword of act.keywords) {
+          const cleanKeyword = keyword.toLowerCase().trim();
+
+          if (
+            words.some((word) => cleanKeyword.includes(word)) ||
+            cleanKeyword.includes(query)
+          ) {
+            totalScore += 5;
+          }
+        }
+      }
+
+      if (!categoryScores[act.category]) {
+        categoryScores[act.category] = 0;
+      }
+
+      categoryScores[act.category] += totalScore;
+    }
+
+    let bestCategory = null;
+    let maxScore = 0;
+
+    for (const category in categoryScores) {
+      if (categoryScores[category] > maxScore) {
+        maxScore = categoryScores[category];
+        bestCategory = category;
+      }
+    }
+
+    if (maxScore < 3) return null;
+
+    return bestCategory;
+  } catch (err) {
+    console.error("Keyword classification error:", err.message);
+    return null;
+  }
+};
+
 const extractFirstJSONObject = (text = "") => {
-  const cleaned = String(text).replace(/```json|```/gi, "").trim();
+  const cleaned = String(text)
+    .replace(/`json|`/gi, "")
+    .trim();
 
   try {
     return JSON.parse(cleaned);
@@ -50,10 +138,13 @@ const normalizeText = (value = "") =>
 
 const getCategoriesFromDataFile = () => {
   try {
-    const dataFilePath = path.resolve(__dirname, "../../frontend/lawassist/src/data.js");
+    const dataFilePath = path.resolve(
+      __dirname,
+      "../../frontend/lawassist/src/data.js",
+    );
     const dataFileContent = fs.readFileSync(dataFilePath, "utf8");
     const categoriesMatch = dataFileContent.match(
-      /export\s+const\s+categories\s*=\s*(\{[\s\S]*?\})\s*;/,
+      /export\s+const\s+categories\s*=\s*({[\s\S]*?})\s*;/,
     );
 
     if (!categoriesMatch || !categoriesMatch[1]) return {};
@@ -67,14 +158,17 @@ const getCategoriesFromDataFile = () => {
 };
 
 const getClosestValidItem = (candidate, validItems = [], fallbackItem = "") => {
-  if (!Array.isArray(validItems) || validItems.length === 0) return fallbackItem;
+  if (!Array.isArray(validItems) || validItems.length === 0)
+    return fallbackItem;
 
   const normalizedCandidate = normalizeText(candidate);
   if (!normalizedCandidate) {
     return validItems.includes(fallbackItem) ? fallbackItem : validItems[0];
   }
 
-  const exact = validItems.find((item) => normalizeText(item) === normalizedCandidate);
+  const exact = validItems.find(
+    (item) => normalizeText(item) === normalizedCandidate,
+  );
   if (exact) return exact;
 
   const ranked = validItems
@@ -82,7 +176,9 @@ const getClosestValidItem = (candidate, validItems = [], fallbackItem = "") => {
       const normalizedItem = normalizeText(item);
       const itemTokens = normalizedItem.split(" ");
       const candidateTokens = normalizedCandidate.split(" ");
-      const overlap = candidateTokens.filter((token) => itemTokens.includes(token)).length;
+      const overlap = candidateTokens.filter((token) =>
+        itemTokens.includes(token),
+      ).length;
       return { item, overlap };
     })
     .sort((a, b) => b.overlap - a.overlap);
@@ -93,8 +189,9 @@ const getClosestValidItem = (candidate, validItems = [], fallbackItem = "") => {
 };
 
 /*
- * Generates a professional 80-100 word bio for a legal expert.
- */
+
+* Generates a professional 80-100 word bio for a legal expert.
+  */
 const generateExpertBio = async ({
   name,
   specialization,
@@ -129,18 +226,20 @@ Return plain text only.`;
 };
 
 /*
- * Converts dense legal text into a plain-language summary (max 80 words).
- */
+
+* Converts dense legal text into a plain-language summary (max 80 words).
+  */
 const summarizeLawText = async (lawText) => {
   const prompt = `You are a legal assistant helping simplify legal language.
 
 Convert the following legal text into a clear and simple explanation that a normal citizen can understand.
 
 Rules:
-- Keep meaning accurate
-- Avoid legal jargon
-- Use simple language
-- Maximum 80 words
+
+* Keep meaning accurate
+* Avoid legal jargon
+* Use simple language
+* Maximum 80 words
 
 Legal Text:
 ${lawText}
@@ -156,8 +255,9 @@ Return only the simplified explanation.`;
 };
 
 /*
- * Generates a concise consultation chat title.
- */
+
+* Generates a concise consultation chat title.
+  */
 const generateConsultationTitle = async ({ specialization, city, state }) => {
   const prompt = `Generate a short title for a legal consultation chat.
 
@@ -166,10 +266,11 @@ Specialization: ${specialization || "General Consumer Law"}
 Location: ${city || ""}${city && state ? ", " : ""}${state || ""}
 
 Rules:
-- Maximum 6 words
-- Professional and clear
-- No quotation marks
-- Return plain text only`;
+
+* Maximum 6 words
+* Professional and clear
+* No quotation marks
+* Return plain text only`;
 
   try {
     const text = await generateText(prompt);
@@ -181,23 +282,25 @@ Rules:
 };
 
 /*
- * Checks if a user query is appropriate for the consumer-rights platform.
- */
+
+* Checks if a user query is appropriate for the consumer-rights platform.
+  */
 const analyzeUserQuery = async (queryText) => {
   const fallback = { isAppropriate: true, reason: "Query accepted" };
 
   const prompt = `Check if the following query is appropriate for a consumer rights platform.
 
 Reject if it contains:
-- abusive language
-- spam
-- irrelevant content
-- illegal or harmful intent
+
+* abusive language
+* spam
+* irrelevant content
+* illegal or harmful intent
 
 Return ONLY JSON:
 {
-  "isAppropriate": true/false,
-  "reason": "short explanation"
+"isAppropriate": true/false,
+"reason": "short explanation"
 }
 
 Query: ${queryText}`;
@@ -211,29 +314,43 @@ Query: ${queryText}`;
 
   return {
     isAppropriate: parsed.isAppropriate,
-    reason: typeof parsed.reason === "string" && parsed.reason.trim()
-      ? parsed.reason.trim()
-      : fallback.reason,
+    reason:
+      typeof parsed.reason === "string" && parsed.reason.trim()
+        ? parsed.reason.trim()
+        : fallback.reason,
   };
 };
 
 /*
- * Validates whether user-selected category matches the query text.
- */
+
+* 🔥 VALIDATES CATEGORY (UPDATED WITH KEYWORD LOGIC)
+  */
 const validateQueryCategory = async (
   queryText,
   selectedCategory,
   categoriesList = [],
 ) => {
   const categoriesMap = getCategoriesFromDataFile();
-  const validCategories = Array.isArray(categoriesList) && categoriesList.length > 0
-    ? categoriesList
-    : Object.keys(categoriesMap);
+  const validCategories =
+    Array.isArray(categoriesList) && categoriesList.length > 0
+      ? categoriesList
+      : Object.keys(categoriesMap);
 
   const safeSelectedCategory = validCategories.includes(selectedCategory)
     ? selectedCategory
-    : (validCategories[0] || selectedCategory || "");
+    : validCategories[0] || selectedCategory || "";
 
+  // 🔥 KEYWORD MATCH FIRST
+  const keywordCategory = await getCategoryFromKeywords(queryText);
+
+  if (keywordCategory) {
+    return {
+      isMatch: keywordCategory === selectedCategory,
+      correctCategory: keywordCategory,
+    };
+  }
+
+  // 🤖 AI FALLBACK
   const fallback = { isMatch: true, correctCategory: safeSelectedCategory };
 
   const prompt = `Check whether the selected category matches the query.
@@ -241,10 +358,14 @@ const validateQueryCategory = async (
 Allowed categories:
 ${JSON.stringify(validCategories)}
 
+IMPORTANT:
+
+* Prioritize context over generic words like refund.
+
 Return ONLY JSON:
 {
-  "isMatch": true/false,
-  "correctCategory": "Category Name"
+"isMatch": true/false,
+"correctCategory": "Category Name"
 }
 
 Query: ${queryText}
@@ -257,9 +378,10 @@ Selected Category: ${selectedCategory}`;
     return fallback;
   }
 
-  const aiCategory = typeof parsed.correctCategory === "string"
-    ? parsed.correctCategory.trim()
-    : "";
+  const aiCategory =
+    typeof parsed.correctCategory === "string"
+      ? parsed.correctCategory.trim()
+      : "";
 
   const correctCategory = validCategories.includes(aiCategory)
     ? aiCategory
@@ -272,17 +394,17 @@ Selected Category: ${selectedCategory}`;
 };
 
 /*
- * Suggests the best subcategory from the selected category's existing subcategory list.
- */
-const detectSubcategory = async (
-  queryText,
-  category,
-  subcategoryList = [],
-) => {
+
+* Suggests subcategory (UNCHANGED)
+  */
+const detectSubcategory = async (queryText, category, subcategoryList = []) => {
   const categoriesMap = getCategoriesFromDataFile();
-  const validSubcategories = Array.isArray(subcategoryList) && subcategoryList.length > 0
-    ? subcategoryList
-    : (Array.isArray(categoriesMap[category]) ? categoriesMap[category] : []);
+  const validSubcategories =
+    Array.isArray(subcategoryList) && subcategoryList.length > 0
+      ? subcategoryList
+      : Array.isArray(categoriesMap[category])
+        ? categoriesMap[category]
+        : [];
 
   const fallback = { subcategory: validSubcategories[0] || "" };
 
@@ -297,7 +419,7 @@ ${JSON.stringify(validSubcategories)}
 
 Return ONLY JSON:
 {
-  "subcategory": "Subcategory Name"
+"subcategory": "Subcategory Name"
 }
 
 Query: ${queryText}
@@ -306,28 +428,18 @@ Category: ${category}`;
   const text = await generateText(prompt);
   const parsed = extractFirstJSONObject(text);
 
-  const aiSubcategory = typeof parsed?.subcategory === "string"
-    ? parsed.subcategory.trim()
-    : "";
+  const aiSubcategory =
+    typeof parsed?.subcategory === "string" ? parsed.subcategory.trim() : "";
 
   const subcategory = validSubcategories.includes(aiSubcategory)
     ? aiSubcategory
-    : getClosestValidItem(aiSubcategory, validSubcategories, fallback.subcategory);
+    : getClosestValidItem(
+        aiSubcategory,
+        validSubcategories,
+        fallback.subcategory,
+      );
 
   return { subcategory };
-};
-
-/*
- * Rephrases user text to be clearer and professional without changing intent.
- */
-const rephraseText = async (inputText) => {
-  const prompt = `Rewrite the following text into a clear, professional, and legally meaningful sentence without changing intent.
-
-Text: ${inputText}
-
-Return plain text only.`;
-
-  return generateText(prompt);
 };
 
 module.exports = {
@@ -337,6 +449,5 @@ module.exports = {
   analyzeUserQuery,
   validateQueryCategory,
   detectSubcategory,
-  rephraseText,
   getCategoriesFromDataFile,
 };
