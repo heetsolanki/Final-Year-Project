@@ -4,6 +4,7 @@ import API_URL from "../../api";
 import { jwtDecode } from "jwt-decode";
 import AlertPopup from "../ui/AlertPopup";
 import { getStatusClass } from "../../data";
+import { useNavigate } from "react-router-dom";
 
 const QueryDetailsModal = ({
   query,
@@ -19,9 +20,12 @@ const QueryDetailsModal = ({
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [acceptingCase, setAcceptingCase] = useState(false);
   const [errorPopup, setErrorPopup] = useState({ show: false, title: "", message: "" });
+  const navigate = useNavigate();
 
   const decoded = token ? jwtDecode(token) : null;
   const userRole = decoded?.role;
+  const currentUserId = decoded?.userId;
+  const isQueryOwner = Boolean(query?.userId && currentUserId && query.userId === currentUserId);
 
   const fetchExpertProfile = async () => {
     try {
@@ -227,6 +231,20 @@ const QueryDetailsModal = ({
               </p>
             )}
           </div>
+          {userRole === "consumer" && query.status === "Resolved" && query.expertId && (
+            <div className="mt-2 rounded-lg border border-blue-100 bg-blue-50 px-4 py-3">
+              <p className="text-sm text-blue-900">
+                Not satisfied with the answer?{" "}
+                <button
+                  type="button"
+                  onClick={() => navigate(`/payment?expertId=${encodeURIComponent(query.expertId)}`)}
+                  className="font-semibold text-[#1E3A8A] underline hover:text-[#123A6F]"
+                >
+                  Consult Expert
+                </button>
+              </p>
+            </div>
+          )}
           {query.status === "In Review" && userRole === "legalExpert" && (
             <>
               {expert?.verificationStatus !== "active" && (
@@ -278,7 +296,7 @@ const QueryDetailsModal = ({
             </button>
           )}
 
-          {userRole === "consumer" && (query.status === "In Review" || query.status === "Pending") && (
+          {userRole === "consumer" && isQueryOwner && (query.status === "In Review" || query.status === "Pending") && (
             <button
               className="bg-red-500 hover:bg-red-600 text-white px-5 py-2.5 rounded-xl"
               onClick={handleDelete}

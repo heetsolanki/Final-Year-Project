@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import API_URL from "../../../api";
 import { Search, Eye, Trash2, FileSearch, Filter, CheckCircle, XCircle } from "lucide-react";
@@ -42,9 +42,9 @@ const AdminQueriesTab = ({ refreshKey }) => {
   const { openConfirmModal } = useConfirmModal();
 
   const token = localStorage.getItem("token");
-  const headers = { Authorization: `Bearer ${token}` };
+  const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
-  const fetchQueries = async () => {
+  const fetchQueries = useCallback(async () => {
     try {
       const res = await axios.get(`${API_URL}/api/queries/public`);
       setQueries(res.data);
@@ -53,13 +53,13 @@ const AdminQueriesTab = ({ refreshKey }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchQueries();
-  }, [refreshKey]);
+  }, [fetchQueries, refreshKey]);
 
-  const handleDelete = async (queryId) => {
+  const handleDelete = useCallback(async (queryId) => {
     if (!queryId) return;
     setActionLoading(`delete-${queryId}`);
     try {
@@ -71,7 +71,7 @@ const AdminQueriesTab = ({ refreshKey }) => {
     } finally {
       setActionLoading(null);
     }
-  };
+  }, [fetchQueries, headers]);
 
   const handleApprove = async (queryId) => {
     setActionLoading(`approve-${queryId}`);
@@ -87,7 +87,7 @@ const AdminQueriesTab = ({ refreshKey }) => {
     }
   };
 
-  const handleReject = async (queryId) => {
+  const handleReject = useCallback(async (queryId) => {
     if (!queryId) return;
     setActionLoading(`reject-${queryId}`);
     try {
@@ -104,7 +104,7 @@ const AdminQueriesTab = ({ refreshKey }) => {
     } finally {
       setActionLoading(null);
     }
-  };
+  }, [fetchQueries, headers]);
 
   useEffect(() => {
     if (!deleteConfirm) return;
@@ -121,7 +121,7 @@ const AdminQueriesTab = ({ refreshKey }) => {
     });
 
     setDeleteConfirm(null);
-  }, [deleteConfirm, openConfirmModal]);
+  }, [deleteConfirm, handleDelete, openConfirmModal]);
 
   useEffect(() => {
     if (!rejectModal) return;
@@ -137,7 +137,7 @@ const AdminQueriesTab = ({ refreshKey }) => {
     });
 
     setRejectModal(null);
-  }, [rejectModal, openConfirmModal]);
+  }, [rejectModal, handleReject, openConfirmModal]);
 
   const categories = [
     "All",

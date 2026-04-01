@@ -1,9 +1,37 @@
+import { useState } from "react";
 import useScrollReveal from "../hooks/useScrollReveal";
 import BackToTopButton from "../components/layout/BackToTopButton";
 import { miniCards, features, steps, homeCategories } from "../data";
 
 function Home() {
   useScrollReveal();
+  const [flippedCards, setFlippedCards] = useState({});
+
+  const featureBackText = {
+    "Submit Legal Query": "Describe your issue clearly and route it to the right legal workflow.",
+    "Upload Documents": "Attach invoices, chats, and receipts to strengthen your case.",
+    "Secure Storage": "Your legal files stay protected with privacy-focused handling.",
+    "Track Query Status": "Follow each stage from review to answer and resolution.",
+    "Expert Panel Access": "Connect with active verified experts for practical legal direction.",
+    "Smart Legal Search": "Find relevant consumer rights topics and legal references faster.",
+  };
+
+  const categoryBackText = {
+    "Shopping & Marketplace Issues": "Covers refunds, delivery failures, wrong items, and unfair sellers.",
+    "Health & Safety": "Addresses unsafe products, service negligence, and safety concerns.",
+    "Digital & Telecom": "Includes online scams, unauthorized deductions, and telecom complaints.",
+    "Financial Services": "For banking disputes, insurance claim issues, and payment-related problems.",
+    "Housing & Property": "Helps with builder delays, rental disputes, and possession concerns.",
+    "Travel & Transport": "Supports refund, cancellation, overcharge, and service-quality disputes.",
+    Utilities: "Handles electricity, water, and utility billing or service interruptions.",
+    Education: "For fee disputes, false promises, and institutional service issues.",
+  };
+
+  const toggleFlipCard = (key) => {
+    if (typeof window !== "undefined" && window.innerWidth > 768) return;
+    setFlippedCards((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   return (
     <>
       {/* HERO SECTION */}
@@ -39,12 +67,14 @@ function Home() {
             {miniCards.map((card) => (
               <div
                 key={card.id}
-                className="bg-white w-40 max-md:w-full h-40 max-md:h-32 flex flex-col items-center justify-center rounded-xl shadow-md transition hover:shadow-lg max-md:text-sm max-md:px-4 max-md:py-3"
+                className="bg-white w-40 max-md:w-full h-40 max-md:h-32 rounded-xl shadow-md transition hover:shadow-lg max-md:text-sm max-md:px-4 max-md:py-3"
               >
-                {card.icon}
-                <h3 className="mt-3 font-semibold text-[#0A1F44]">
-                  {card.title}
-                </h3>
+                <div className="h-full">
+                  <div className="flex h-full flex-col items-center justify-center px-3 py-3">
+                    {card.icon}
+                    <h3 className="mt-3 font-semibold text-[#0A1F44] text-center">{card.title}</h3>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -52,7 +82,7 @@ function Home() {
       </section>
 
       {/* FEATURES SECTION */}
-      <section className="py-24 max-md:py-16 fade-up">
+      <section className="py-24 max-md:py-16 bg-[#f6f8fb] fade-up">
         <div className="max-w-7xl mx-auto px-6">
           {/* Section Heading */}
           <div className="text-center max-w-3xl mx-auto">
@@ -69,11 +99,20 @@ function Home() {
             {features.map((feature) => (
               <div
                 key={feature.id}
-                className="feature-card max-md:px-6 max-md:py-6"
+                className={`feature-card info-flip-card max-md:px-6 max-md:py-6 ${flippedCards[`feature-${feature.id}`] ? "is-flipped" : ""}`}
+                onClick={() => toggleFlipCard(`feature-${feature.id}`)}
               >
-                <div className="feature-icon">{feature.icon}</div>
-                <h3 className="feature-title">{feature.title}</h3>
-                <p className="feature-text">{feature.text}</p>
+                <div className="info-flip-inner">
+                  <div className="info-flip-face">
+                    <div className="feature-icon">{feature.icon}</div>
+                    <h3 className="feature-title">{feature.title}</h3>
+                    <p className="feature-text">{feature.text}</p>
+                  </div>
+                  <div className="info-flip-face info-flip-back rounded-2xl border border-blue-100 bg-[#f8fafc] p-6 flex flex-col justify-center">
+                    <h3 className="feature-title">{feature.title}</h3>
+                    <p className="feature-text">{featureBackText[feature.title] || feature.text}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -128,11 +167,21 @@ function Home() {
             {homeCategories.map((category) => (
               <div
                 key={category.id}
-                className="feature-card max-md:px-6 max-md:py-6"
+                className={`feature-card info-flip-card max-md:px-6 max-md:py-6 ${flippedCards[`category-${category.id}`] ? "is-flipped" : ""}`}
+                onClick={() => toggleFlipCard(`category-${category.id}`)}
               >
-                <div className="feature-icon">{category.icon}</div>
-                <h3 className="feature-title">{category.title}</h3>
-                <p className="feature-text">{category.text}</p>
+                <div className="info-flip-inner">
+                  <div className="info-flip-face">
+                    <div className="feature-icon">{category.icon}</div>
+                    <h3 className="feature-title">{category.title}</h3>
+                    <p className="feature-text">{category.text}</p>
+                  </div>
+                  <div className="info-flip-face info-flip-back rounded-2xl border border-blue-100 bg-[#f8fafc] p-6 flex flex-col justify-center">
+                    <h3 className="feature-title">{category.title}</h3>
+                    <p className="feature-text">{categoryBackText[category.title] || category.text}</p>
+                    <p className="text-xs text-[#1E3A8A] font-medium mt-3">Use this category to file a focused legal query.</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>

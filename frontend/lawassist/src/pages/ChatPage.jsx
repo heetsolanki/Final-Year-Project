@@ -125,7 +125,7 @@ const ChatPage = () => {
     };
 
     fetchConsultations();
-  }, [role, token]);
+  }, [consultationId, role, token]);
 
   /* ================= FETCH CHAT STATUS ================= */
 

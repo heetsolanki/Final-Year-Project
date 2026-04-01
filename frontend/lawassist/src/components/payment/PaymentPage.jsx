@@ -484,7 +484,7 @@ const PaymentPage = () => {
   const [paymentMethod, setPaymentMethod] = useState("UPI");
   const [processing, setProcessing] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState(0);
-  const [paymentMode, setPaymentMode] = useState(
+  const [paymentMode] = useState(
     followUpConsultationId ? "followup" : "initial",
   );
 

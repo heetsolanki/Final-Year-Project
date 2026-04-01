@@ -5,28 +5,6 @@ import AlertPopup from "../ui/AlertPopup";
 import { categories } from "../../data";
 import { suggestQuerySubcategory } from "../../services/aiService";
 
-const SparkleIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6L12 2z" />
-  </svg>
-);
-
-const SpinnerIcon = () => (
-  <svg
-    className="animate-spin"
-    width="14"
-    height="14"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    aria-hidden="true"
-  >
-    <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
-    <path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round" />
-  </svg>
-);
-
 const AskQueryForm = ({
   onClose,
   onSuccess,
@@ -54,6 +32,15 @@ const AskQueryForm = ({
   const suggestionRequestCounter = useRef(0);
   const lastSuggestedSubcategory = useRef("");
   const isSubcategoryManuallyChanged = useRef(false);
+  const titleRef = useRef(formData.title);
+  const descriptionRef = useRef(formData.description);
+  const subcategoryRef = useRef(formData.subcategory);
+
+  useEffect(() => {
+    titleRef.current = formData.title;
+    descriptionRef.current = formData.description;
+    subcategoryRef.current = formData.subcategory;
+  }, [formData.description, formData.subcategory, formData.title]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -124,9 +111,9 @@ const AskQueryForm = ({
     const timer = setTimeout(() => {
       triggerSubcategorySuggestion({
         category: formData.category,
-        title: formData.title,
-        description: formData.description,
-        currentSubcategory: formData.subcategory,
+        title: titleRef.current,
+        description: descriptionRef.current,
+        currentSubcategory: subcategoryRef.current,
       });
     }, 400);
 

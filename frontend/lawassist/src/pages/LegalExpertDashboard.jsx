@@ -31,7 +31,6 @@ const LegalExpertDashboard = () => {
   const [isActive, setIsActive] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
-  const [isMasterAdmin, setIsMasterAdmin] = useState(false);
 
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -58,13 +57,6 @@ const LegalExpertDashboard = () => {
 
       setIsActive(res.data.isActive);
 
-      // Check if user is master admin
-      if (decoded.role === "admin") {
-        const statusRes = await axios.get(`${API_URL}/api/auth/check-status`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setIsMasterAdmin(Boolean(statusRes.data.isMasterAdmin));
-      }
     } catch (error) {
       console.log(error);
     }

@@ -33,7 +33,7 @@ const ADMIN_TABS = [
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [refreshKey] = useState(0);
-  const [showLogoutToast, setShowLogoutToast] = useState(false);
+  const [showLogoutToast] = useState(false);
   const [isMasterAdmin, setIsMasterAdmin] = useState(false);
   const [switchRoute, setSwitchRoute] = useState("/user-dashboard");
   const [switchLabel, setSwitchLabel] = useState("Back to Dashboard");

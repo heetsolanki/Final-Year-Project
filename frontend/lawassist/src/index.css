@@ -16,9 +16,10 @@ body {
 }
 
 :root {
-  --ui-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --ui-smooth: cubic-bezier(0.22, 0.9, 0.32, 1);
   --modal-z: 5000;
   --toast-z: 4800;
+  --hover-lift: translateY(-3px);
 }
 
 main {
@@ -32,6 +33,61 @@ textarea,
 select {
   transition: color 0.22s ease, background-color 0.22s ease, border-color 0.22s ease,
     box-shadow 0.28s var(--ui-smooth), transform 0.28s var(--ui-smooth);
+}
+
+/* Global interaction polish */
+button:hover,
+.nav-btn:hover,
+.primary-btn:hover,
+.secondary-btn:hover,
+.tab-item:hover,
+.user-view-btn:hover,
+.user-delete-btn:hover,
+.floating-btn:hover {
+  transform: var(--hover-lift);
+}
+
+button:active,
+.nav-btn:active,
+.primary-btn:active,
+.secondary-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+a:hover {
+  transition-duration: 0.2s;
+}
+
+/* Generic card lift for common containers */
+.card-soft,
+.query-card,
+.user-dashboard-container,
+.expert-dashboard-container,
+.tabs-container,
+.auth-container,
+.footer-surface {
+  transition: transform 0.32s var(--ui-smooth), box-shadow 0.32s var(--ui-smooth), border-color 0.28s ease;
+}
+
+.card-soft:hover,
+.query-card:hover,
+.tabs-container:hover,
+.auth-container:hover,
+.footer-surface:hover {
+  transform: translateY(-2px);
+}
+
+/* Micro-animations for list and table interactions */
+.user-queries-table tbody tr,
+.view-item,
+.footer-links li,
+.mobile-menu .nav-link {
+  transition: transform 0.24s var(--ui-smooth), background-color 0.24s ease, color 0.2s ease;
+}
+
+.user-queries-table tbody tr:hover,
+.view-item:hover {
+  transform: translateX(2px);
 }
 
 .card-soft {
@@ -60,6 +116,11 @@ select {
   transform: translateY(0);
 }
 
+/* Section entrance helper (safe for existing markup if class is added later) */
+.animate-on-load {
+  animation: fadeIn 0.45s var(--ui-smooth);
+}
+
 /* ================= LAYOUT ================= */
 
 .container-custom {
@@ -81,7 +142,7 @@ select {
 
 .feature-card {
   @apply bg-white px-10 py-8 rounded-2xl border border-gray-300 shadow-sm transition hover:border-[#C9A227] hover:shadow-lg;
-  transition: transform 0.35s var(--ui-smooth), box-shadow 0.35s var(--ui-smooth), border-color 0.3s ease;
+  transition: transform 0.45s var(--ui-smooth), box-shadow 0.45s var(--ui-smooth), border-color 0.35s ease;
 }
 
 .feature-card:hover {
@@ -102,6 +163,45 @@ select {
 
 .feature-text {
   @apply text-sm text-gray-600 leading-relaxed;
+}
+
+/* INFO CARD FLIP */
+.info-flip-card {
+  perspective: 1000px;
+  transform: translateZ(0);
+}
+
+.info-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 0.82s cubic-bezier(0.2, 0.78, 0.2, 1);
+}
+
+.info-flip-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+.info-flip-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .info-flip-card:hover .info-flip-inner {
+    transform: rotateY(180deg);
+  }
+}
+
+.info-flip-card.is-flipped .info-flip-inner {
+  transform: rotateY(180deg);
 }
 
 /* SECTION TITLES, SUBTITLES & LINES */
@@ -1243,5 +1343,16 @@ select {
   }
   to {
     opacity: 1;
+  }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 }

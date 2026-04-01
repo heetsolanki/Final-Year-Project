@@ -1,4 +1,5 @@
 import BackToTopButton from "../components/layout/BackToTopButton";
+import { useState } from "react";
 import {
   Scale,
   Shield,
@@ -9,8 +10,33 @@ import {
   Github,
 } from "lucide-react";
 import { missions, offers } from "../data";
+import profile from "../assets/profile.png";
 
 function About() {
+  const [flippedCards, setFlippedCards] = useState({});
+  const [profileImageError, setProfileImageError] = useState(false);
+
+  const toggleFlipCard = (key) => {
+    if (typeof window !== "undefined" && window.innerWidth > 768) return;
+    setFlippedCards((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const missionBackText = {
+    "Simplify Legal Access": "Break complex legal language into simple action points.",
+    "Increase Consumer Awareness": "Help users identify violations and take timely action.",
+    "Structured Query Management": "Track each complaint from submission to final outcome.",
+    "Secure Document Handling": "Keep legal evidence protected and accessible when needed.",
+  };
+
+  const offerBackText = {
+    "Secure User Accounts": "Hardened login flow with role-based protection for safer access.",
+    "Submit Legal Queries": "Guided form helps users submit focused and complete complaints.",
+    "Upload Supporting Documents": "Evidence uploads improve clarity and strengthen legal review.",
+    "Track Query Status": "Real-time status visibility with clear next-step communication.",
+    "Expert Panel Access": "Connect with verified experts for practical legal direction.",
+    "Smart Legal Search": "Quickly surface relevant rights and legal information by topic.",
+  };
+
   return (
     <>
       <main className="pt-40">
@@ -125,20 +151,35 @@ function About() {
               {missions.map((mission) => (
                 <div
                   key={mission.id}
-                  className="bg-[#f3f4f6] rounded-2xl p-10 max-md:p-6 text-left shadow-lg relative"
+                  className={`info-flip-card bg-[#f3f4f6] rounded-2xl p-10 max-md:p-6 text-left shadow-lg relative ${flippedCards[`mission-${mission.id}`] ? "is-flipped" : ""}`}
+                  onClick={() => toggleFlipCard(`mission-${mission.id}`)}
                   style={{ borderTop: "4px solid #C9A227" }}
                 >
-                  <div className="w-14 h-14 bg-[#e9e3d2] rounded-xl flex items-center justify-center mb-6">
-                    <span className="[&>svg]:w-6 [&>svg]:h-6 [&>svg]:text-[#C9A227]">
-                      {mission.icon}
-                    </span>
+                  <div className="info-flip-inner">
+                    <div className="info-flip-face">
+                      <div className="w-14 h-14 bg-[#e9e3d2] rounded-xl flex items-center justify-center mb-6">
+                        <span className="[&>svg]:w-6 [&>svg]:h-6 [&>svg]:text-[#C9A227]">
+                          {mission.icon}
+                        </span>
+                      </div>
+                      <h3 className="text-lg font-semibold text-[#0A1F44] mb-4">
+                        {mission.title}
+                      </h3>
+                      <p className="text-gray-600 leading-relaxed text-sm">
+                        {mission.text}
+                      </p>
+                    </div>
+                    <div className="info-flip-face info-flip-back rounded-2xl border border-blue-100 bg-[#f8fafc] p-6 flex flex-col justify-center">
+                      <p className="text-sm text-gray-700 leading-relaxed font-medium">
+                        {missionBackText[mission.title] || mission.text}
+                      </p>
+                      <ul className="mt-3 space-y-1 text-xs text-gray-600 list-disc pl-4">
+                        <li>Consumer-first legal guidance</li>
+                        <li>Structured and trackable workflow</li>
+                        <li>Practical outcomes over legal jargon</li>
+                      </ul>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-[#0A1F44] mb-4">
-                    {mission.title}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed text-sm">
-                    {mission.text}
-                  </p>
                 </div>
               ))}
             </div>
@@ -158,10 +199,26 @@ function About() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 max-md:gap-6 mt-20 max-md:mt-12 text-left">
               {offers.map((offer) => (
-                <div key={offer.id} className="feature-card">
-                  <div className="feature-icon">{offer.icon}</div>
-                  <h3 className="feature-title">{offer.title}</h3>
-                  <p className="feature-text">{offer.text}</p>
+                <div
+                  key={offer.id}
+                  className={`feature-card info-flip-card ${flippedCards[`offer-${offer.id}`] ? "is-flipped" : ""}`}
+                  onClick={() => toggleFlipCard(`offer-${offer.id}`)}
+                >
+                  <div className="info-flip-inner">
+                    <div className="info-flip-face">
+                      <div className="feature-icon">{offer.icon}</div>
+                      <h3 className="feature-title">{offer.title}</h3>
+                      <p className="feature-text">{offer.text}</p>
+                    </div>
+                    <div className="info-flip-face info-flip-back rounded-2xl border border-blue-100 bg-[#f8fafc] p-6 flex flex-col justify-center">
+                      <p className="feature-text text-gray-700 font-medium">{offerBackText[offer.title] || offer.text}</p>
+                      <ul className="mt-3 space-y-1 text-xs text-gray-600 list-disc pl-4">
+                        <li>Designed for real consumer disputes</li>
+                        <li>Easy-to-understand user flow</li>
+                        <li>Clear legal support pathway</li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -220,8 +277,17 @@ function About() {
             {/* RIGHT SIDE CARD */}
             <div className="bg-white rounded-2xl shadow-xl p-10">
               <div className="flex items-start gap-6 max-md:flex-col max-md:items-center max-md:text-center">
-                <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center max-md:mx-auto">
-                  <User className="w-10 h-10 text-gray-500" />
+                <div className="w-20 h-20 min-w-20 min-h-20 shrink-0 bg-gray-200 rounded-full flex items-center justify-center max-md:mx-auto overflow-hidden ring-2 ring-[#0A1F44]/10">
+                  {!profileImageError ? (
+                    <img
+                      src={profile}
+                      alt="Developer profile"
+                      className="w-full h-full object-cover object-center"
+                      onError={() => setProfileImageError(true)}
+                    />
+                  ) : (
+                    <User className="w-10 h-10 text-gray-500" />
+                  )}
                 </div>
 
                 <div>
@@ -233,7 +299,7 @@ function About() {
                   </p>
 
                   <p className="text-gray-600 mt-4 leading-relaxed">
-                    Passionate about computer and related stuff.
+                    Passionate about computer and related stuff. Love to design the UI of the websites and make them look good. Always eager to learn new technologies and implement them in projects. Eager to solve real-world problems through technology and innovation.
                   </p>
 
                   <div className="flex gap-4 mt-6 max-md:justify-center">
