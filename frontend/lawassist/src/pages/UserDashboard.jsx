@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import API_URL from "../api";
 import { User, MessageSquare, X } from "lucide-react";
-import { jwtDecode } from "jwt-decode";
 
 import DashboardTopCard from "../components/dashboard/DashboardTopCard";
 
@@ -38,7 +37,6 @@ const UserDashboard = () => {
   const [queries, setQueries] = useState([]);
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
-  const [isMasterAdmin, setIsMasterAdmin] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
@@ -100,7 +98,6 @@ const UserDashboard = () => {
   const fetchDashboard = async () => {
     try {
       const token = localStorage.getItem("token");
-      const decoded = jwtDecode(token);
 
       const res = await axios.get(`${API_URL}/api/dashboard`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -110,19 +107,13 @@ const UserDashboard = () => {
       setEmail(res.data.email || "");
       setQueries(res.data.queries || []);
 
-      // Check if user is master admin
-      if (decoded.role === "admin") {
-        const statusRes = await axios.get(`${API_URL}/api/auth/check-status`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setIsMasterAdmin(Boolean(statusRes.data.isMasterAdmin));
-      }
+      // role checks are handled server-side for protected routes
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     if (!selectedQueryId) return;
 
     try {
@@ -140,7 +131,7 @@ const UserDashboard = () => {
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [selectedQueryId]);
 
   useEffect(() => {
     fetchDashboard();
@@ -166,7 +157,7 @@ const UserDashboard = () => {
     });
 
     setShowDeleteModal(false);
-  }, [showDeleteModal, openConfirmModal]);
+  }, [handleDelete, openConfirmModal, showDeleteModal]);
 
   const renderTab = () => {
     switch (activeTab) {

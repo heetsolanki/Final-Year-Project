@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import API_URL from "../api";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +15,7 @@ const Consultations = () => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
-  const fetchConsultations = async () => {
+  const fetchConsultations = useCallback(async () => {
     try {
       const endpoint =
         role === "legalExpert"
@@ -30,11 +30,11 @@ const Consultations = () => {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [role, token]);
 
   useEffect(() => {
     fetchConsultations();
-  }, [role, token]);
+  }, [fetchConsultations]);
 
   const handleStartFollowUp = async (consultationId) => {
     try {

@@ -1,4 +1,4 @@
-import { ClipboardList, CheckCircle, Clock, XCircle, Circle, Edit3, X } from "lucide-react";
+import { ClipboardList, CheckCircle, XCircle, Circle, Edit3, X } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
 import API_URL from "../../../api";
@@ -214,8 +214,6 @@ const QueryTrackCard = ({ query, onReAppeal }) => {
         {STEPS.map((step, idx) => {
           const isCompleted = idx < currentIndex;
           const isCurrent = idx === currentIndex;
-          const isFuture = idx > currentIndex;
-
           return (
             <div key={step} className="flex items-center flex-1 last:flex-none">
               {/* Step dot */}

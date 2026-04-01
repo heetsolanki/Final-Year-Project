@@ -60,8 +60,6 @@ const io = new Server(server, {
 setNotificationSocketServer(io);
 
 chatSocket(io);
-startAutoCloseJob(io);
-
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {

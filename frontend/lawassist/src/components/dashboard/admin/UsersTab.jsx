@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import API_URL from "../../../api";
 import { Search, Users, Filter } from "lucide-react";
@@ -20,10 +20,10 @@ const AdminUsersTab = ({ refreshKey }) => {
   const { openConfirmModal } = useConfirmModal();
 
   const token = localStorage.getItem("token");
-  const headers = { Authorization: `Bearer ${token}` };
+  const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
   // Helper function to decode JWT and get userId
-  const getCurrentUserId = () => {
+  const getCurrentUserId = useCallback(() => {
     if (!token) return null;
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
@@ -32,9 +32,9 @@ const AdminUsersTab = ({ refreshKey }) => {
       console.error("Failed to decode token:", err);
       return null;
     }
-  };
+  }, [token]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const res = await axios.get(`${API_URL}/api/admin/users`, { headers });
       setUsers(res.data);
@@ -43,11 +43,11 @@ const AdminUsersTab = ({ refreshKey }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [headers]);
 
   useEffect(() => {
     fetchUsers();
-  }, [refreshKey]);
+  }, [fetchUsers, refreshKey]);
 
   const handleAction = async (action, userId, isExpert) => {
     if (["delete", "block", "unblock", "promote", "demote"].includes(action)) {
@@ -100,7 +100,7 @@ const AdminUsersTab = ({ refreshKey }) => {
     }
   };
 
-  const executeConfirmedAction = async ({ action, userId, isExpert }) => {
+  const executeConfirmedAction = useCallback(async ({ action, userId, isExpert }) => {
     if (!action || !userId) return;
     setActionLoading(`${action}-${userId}`);
 
@@ -142,9 +142,9 @@ const AdminUsersTab = ({ refreshKey }) => {
     } finally {
       setActionLoading(null);
     }
-  };
+  }, [fetchUsers, getCurrentUserId, headers, navigate]);
 
-  const getActionModalConfig = () => {
+  const getActionModalConfig = useCallback(() => {
     if (!pendingAction) return null;
 
     const noun = pendingAction.isExpert ? "expert" : "user";
@@ -183,7 +183,7 @@ const AdminUsersTab = ({ refreshKey }) => {
     };
 
     return config[pendingAction.action];
-  };
+  }, [pendingAction]);
 
   useEffect(() => {
     if (!pendingAction) return;
@@ -205,7 +205,7 @@ const AdminUsersTab = ({ refreshKey }) => {
     });
 
     setPendingAction(null);
-  }, [pendingAction, openConfirmModal]);
+  }, [executeConfirmedAction, getActionModalConfig, openConfirmModal, pendingAction]);
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =

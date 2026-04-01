@@ -118,12 +118,14 @@ function AlertPopup({
   return (
     ReactDOM.createPortal(
       <div
-        className={`fixed left-1/2 top-24 -translate-x-1/2 w-[92vw] max-w-md transition-all duration-200 ${
-          exiting ? "opacity-0 -translate-y-2" : "opacity-100 translate-y-0"
+        className={`fixed inset-0 flex items-center justify-center bg-black/45 backdrop-blur-sm p-4 transition-all duration-200 ${
+          exiting ? "opacity-0" : "opacity-100"
         }`}
-        style={{ zIndex: "var(--toast-z)" }}
+        style={{ zIndex: "var(--modal-z)" }}
       >
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-[0_16px_34px_rgba(15,23,42,0.14)] p-4 sm:p-5">
+        <div className={`w-[92vw] max-w-md rounded-2xl border border-slate-200 bg-white shadow-[0_16px_34px_rgba(15,23,42,0.14)] p-4 sm:p-5 transition-all duration-200 ${
+          exiting ? "scale-95" : "scale-100"
+        }`}>
           <div className="flex items-start gap-3">
             <div className={`${config.bg} p-2.5 rounded-full shrink-0`}>
               <Icon className={`${config.text} w-5 h-5`} />

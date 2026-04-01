@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import API_URL from "../../../api";
 import {
@@ -70,9 +70,9 @@ const AdminExpertsTab = ({ refreshKey }) => {
   const [rejectReason, setRejectReason] = useState("");
 
   const token = localStorage.getItem("token");
-  const headers = { Authorization: `Bearer ${token}` };
+  const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
-  const fetchExperts = async () => {
+  const fetchExperts = useCallback(async () => {
     try {
       const params = {};
       if (statusFilter !== "all") params.status = statusFilter;
@@ -88,11 +88,11 @@ const AdminExpertsTab = ({ refreshKey }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [headers, search, statusFilter]);
 
   useEffect(() => {
     fetchExperts();
-  }, [refreshKey, statusFilter, search]);
+  }, [fetchExperts, refreshKey]);
 
   const handleApprove = async (userId) => {
     setActionLoading(`approve-${userId}`);

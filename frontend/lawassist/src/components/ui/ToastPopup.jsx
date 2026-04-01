@@ -1,4 +1,5 @@
 import { CheckCircle, XCircle, AlertCircle, Info } from "lucide-react";
+import ReactDOM from "react-dom";
 
 function ToastPopup({ show, message, type = "success" }) {
   const styles = {
@@ -26,11 +27,12 @@ function ToastPopup({ show, message, type = "success" }) {
 
   const current = styles[type];
 
-  return (
+  if (!show) return null;
+
+  return ReactDOM.createPortal(
     <div
-      className={`fixed left-1/2 -translate-x-1/2 transition-all duration-500 ease-in-out
-  ${show ? "top-28 opacity-100" : "top-16 opacity-0 pointer-events-none"}`}
-      style={{ zIndex: "var(--toast-z)" }}
+      className="fixed inset-0 flex items-center justify-center bg-black/35 backdrop-blur-sm p-4"
+      style={{ zIndex: "var(--modal-z)" }}
     >
       <div
         className={`flex items-center gap-3 px-5 py-3 sm:px-8 sm:py-4 rounded-xl shadow-lg backdrop-blur-md
@@ -43,7 +45,8 @@ function ToastPopup({ show, message, type = "success" }) {
           {message}
         </span>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
