@@ -11,7 +11,7 @@ const {
   isWithinAvailability,
 } = require("../utils/availability");
 
-exports.completeExpertProfile = async (req, res) => {
+const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) => {
   try {
     const expertId = req.user.userId;
 
@@ -75,8 +75,19 @@ exports.completeExpertProfile = async (req, res) => {
       }
     }
 
-    const parsedConsultationFee = Number(consultationFee);
-    const parsedFollowUpFee = Number(followUpFee);
+    const expert = await Expert.findOne({ userId: expertId });
+
+    if (!expert) {
+      return res.status(404).json({ message: "Expert not found" });
+    }
+
+    const parsedConsultationFee = consultationFee === undefined || consultationFee === ""
+      ? Number(expert.consultationFee ?? expert.consultationCharges)
+      : Number(consultationFee);
+
+    const parsedFollowUpFee = followUpFee === undefined || followUpFee === ""
+      ? Number(expert.followUpFee)
+      : Number(followUpFee);
 
     if (!Number.isFinite(parsedConsultationFee) || parsedConsultationFee <= 0) {
       return res.status(400).json({ message: "Consultation fee must be greater than 0" });
@@ -88,12 +99,6 @@ exports.completeExpertProfile = async (req, res) => {
 
     if (parsedFollowUpFee > parsedConsultationFee) {
       return res.status(400).json({ message: "Follow-up fee cannot exceed consultation fee" });
-    }
-
-    const expert = await Expert.findOne({ userId: expertId });
-
-    if (!expert) {
-      return res.status(404).json({ message: "Expert not found" });
     }
 
     expert.barCouncilId = barCouncilId;
@@ -114,37 +119,57 @@ exports.completeExpertProfile = async (req, res) => {
     const completion = calculateProfileCompletion(expert);
     expert.profileCompletion = completion;
 
-    const previousStatus = expert.verificationStatus;
-    expert.verificationStatus = completion === 100 ? "under_review" : "profile_incomplete";
-
-    if (expert.verificationStatus === "under_review") {
-      expert.rejectionReason = "";
+    if (verifyAfterSave && completion < 100) {
+      return res.status(400).json({
+        message: "Complete all required profile fields before requesting verification",
+      });
     }
 
-    if (
-      previousStatus !== "under_review" &&
-      expert.verificationStatus === "under_review"
-    ) {
-      await notifyAdmins({
-        senderId: req.user.userId,
-        senderRole: "expert",
-        message: `Expert ${expert.name} requested verification.`,
-        type: NOTIFICATION_TYPES.SYSTEM,
-        relatedId: expert.userId,
-      });
+    if (verifyAfterSave) {
+      const previousStatus = expert.verificationStatus;
+      expert.verificationStatus = "under_review";
+      expert.status = "pending_verification";
+      expert.rejectionReason = "";
+
+      if (previousStatus !== "under_review") {
+        await notifyAdmins({
+          senderId: req.user.userId,
+          senderRole: "expert",
+          message: `Expert ${expert.name} requested verification.`,
+          type: NOTIFICATION_TYPES.SYSTEM,
+          relatedId: expert.userId,
+        });
+      }
+    } else {
+      if (expert.verificationStatus !== "active" && expert.verificationStatus !== "blocked") {
+        expert.verificationStatus = "profile_incomplete";
+      }
+      expert.status = "draft";
     }
 
     await expert.save();
 
     res.json({
-      message: "Profile updated successfully",
+      message: verifyAfterSave
+        ? "Profile saved and sent for verification"
+        : "Profile saved successfully",
       profileCompletion: completion,
       verificationStatus: expert.verificationStatus,
+      status: expert.status,
     });
   } catch (error) {
     res.status(500).json({ message: "Error updating profile" });
   }
 };
+
+exports.saveExpertProfile = async (req, res) =>
+  saveExpertProfileInternal({ req, res, verifyAfterSave: false });
+
+exports.verifyExpertProfile = async (req, res) =>
+  saveExpertProfileInternal({ req, res, verifyAfterSave: true });
+
+exports.completeExpertProfile = async (req, res) =>
+  saveExpertProfileInternal({ req, res, verifyAfterSave: true });
 
 exports.getExpertProfile = async (req, res) => {
   try {

@@ -3,6 +3,7 @@ import axios from "axios";
 import API_URL from "../api";
 import { useNavigate } from "react-router-dom";
 import AlertPopup from "../components/ui/AlertPopup";
+import ToastPopup from "../components/ui/ToastPopup";
 import { generateBio } from "../services/aiService";
 import {
   Scale,
@@ -55,7 +56,7 @@ const formatAadhaar = (value) => {
 const ExpertProfile = () => {
   const navigate = useNavigate();
   const [showProfilePopup, setShowProfilePopup] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState("");
   const [generatingBio, setGeneratingBio] = useState(false);
   const [bioError, setBioError] = useState("");
   const token = localStorage.getItem("token");
@@ -81,7 +82,11 @@ const ExpertProfile = () => {
   const [serverError, setServerError] = useState("");
   const [profileCompletion, setProfileCompletion] = useState(0);
   const [verificationStatus, setVerificationStatus] = useState("");
+  const [profileStatus, setProfileStatus] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -92,6 +97,7 @@ const ExpertProfile = () => {
       const data = res.data;
       setProfileCompletion(data.profileCompletion || 0);
       setVerificationStatus(data.verificationStatus || "");
+      setProfileStatus(data.status || "");
       setRejectionReason(data.rejectionReason || "");
 
       // Format Aadhaar number if it exists and is not already formatted
@@ -262,21 +268,25 @@ const ExpertProfile = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const submitProfile = async (mode) => {
     setServerError("");
 
     if (!validate()) return;
 
-    setSubmitting(true);
+    setSubmitting(mode);
     try {
       // Strip hyphens from Aadhaar before sending to backend
       const idNumberToSend = formData.idDocumentType === "aadhaar"
         ? formData.idNumber.replace(/-/g, "")
         : formData.idNumber;
 
+      const endpoint =
+        mode === "verify"
+          ? `${API_URL}/api/expert/verify-profile`
+          : `${API_URL}/api/expert/save-profile`;
+
       await axios.post(
-        `${API_URL}/api/expert/complete-profile`,
+        endpoint,
         {
           ...formData,
           idNumber: idNumberToSend,
@@ -290,15 +300,41 @@ const ExpertProfile = () => {
         },
       );
 
-      setShowProfilePopup(true);
-      fetchProfile();
+      if (mode === "verify") {
+        setShowProfilePopup(true);
+      }
+
+      setToastType("success");
+      setToastMessage(
+        mode === "verify"
+          ? "Profile saved and sent for verification"
+          : "Profile saved successfully",
+      );
+      setShowToast(true);
+
+      if (mode === "save") {
+        setTimeout(() => {
+          navigate("/legal-expert-dashboard");
+        }, 1000);
+      } else {
+        fetchProfile();
+      }
     } catch (error) {
       const msg = error.response?.data?.message || "Error updating profile";
       setServerError(msg);
+      setToastType("error");
+      setToastMessage(msg);
+      setShowToast(true);
     } finally {
-      setSubmitting(false);
+      setSubmitting("");
     }
   };
+
+  useEffect(() => {
+    if (!showToast) return;
+    const timer = setTimeout(() => setShowToast(false), 2500);
+    return () => clearTimeout(timer);
+  }, [showToast]);
 
   const handleGenerateBio = async () => {
     setBioError("");
@@ -395,6 +431,10 @@ const ExpertProfile = () => {
                 <span className="text-red-600 font-semibold">Rejected</span>
               ) : verificationStatus === "blocked" ? (
                 <span className="text-gray-600 font-semibold">Blocked</span>
+              ) : profileStatus === "pending_verification" ? (
+                <span className="text-yellow-600 font-semibold">Pending Verification</span>
+              ) : profileStatus === "draft" ? (
+                <span className="text-orange-500 font-semibold">Draft</span>
               ) : (
                 <span className="text-orange-500 font-semibold">Incomplete</span>
               )}
@@ -420,7 +460,10 @@ const ExpertProfile = () => {
           )}
 
           <form
-            onSubmit={handleSubmit}
+            onSubmit={(e) => {
+              e.preventDefault();
+              submitProfile("save");
+            }}
             className="space-y-6"
             noValidate
           >
@@ -755,13 +798,22 @@ const ExpertProfile = () => {
             </div>
 
             {/* Submit */}
-            <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
-                type="submit"
-                disabled={submitting}
+                type="button"
+                onClick={() => submitProfile("save")}
+                disabled={submitting === "save" || submitting === "verify"}
                 className="w-full rounded-lg bg-[#1E3A8A] py-3 text-sm sm:text-base font-medium text-white hover:bg-[#162e6d] transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {submitting ? "Saving Profile..." : "Save Profile"}
+                {submitting === "save" ? "Saving Profile..." : "Save Profile"}
+              </button>
+              <button
+                type="button"
+                onClick={() => submitProfile("verify")}
+                disabled={submitting === "save" || submitting === "verify"}
+                className="w-full rounded-lg bg-[#C9A227] py-3 text-sm sm:text-base font-medium text-white hover:bg-[#b8921f] transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submitting === "verify" ? "Verifying Profile..." : "Verify Profile"}
               </button>
             </div>
             <AlertPopup
@@ -772,6 +824,7 @@ const ExpertProfile = () => {
               redirectTo="/legal-expert-dashboard"
               onClose={() => setShowProfilePopup(false)}
             />
+            <ToastPopup show={showToast} message={toastMessage} type={toastType} />
           </form>
         </div>
       </div>

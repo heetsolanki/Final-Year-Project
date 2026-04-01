@@ -10,6 +10,7 @@ const DashboardTopCard = ({
   tabs,
   avatarIcon: AvatarIcon = User,
   headerExtra = null,
+  belowManageProfileButton = null,
 }) => {
   return (
     <div className="relative rounded-2xl px-6 md:px-12 py-8 md:py-10 mt-6 mb-10 shadow-md overflow-visible bg-gradient-to-r from-blue-50 via-white to-blue-50">
@@ -39,20 +40,28 @@ const DashboardTopCard = ({
         </div>
 
         {/* Manage Profile Button */}
-        <div className="flex w-full md:w-auto items-center justify-end gap-2">
-          <DashboardNotificationBell
-            onOpenNotifications={() => setActiveTab("notifications")}
-          />
-          <button
-            onClick={() => setActiveTab("profile")}
-            className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium
-            bg-white border border-gray-200 rounded-lg shadow-sm
-            hover:bg-blue-50 hover:border-blue-300 transition
-            w-full md:w-auto"
-          >
-            <Settings size={16} />
-            Manage Profile
-          </button>
+        <div className="flex w-full md:w-auto flex-col items-end justify-end gap-2">
+          <div className="flex items-center justify-end gap-2 w-full md:w-auto">
+            <DashboardNotificationBell
+              onOpenNotifications={() => setActiveTab("notifications")}
+            />
+            <button
+              onClick={() => setActiveTab("profile")}
+              className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium
+              bg-white border border-gray-200 rounded-lg shadow-sm
+              hover:bg-blue-50 hover:border-blue-300 transition
+              w-full md:w-auto"
+            >
+              <Settings size={16} />
+              Manage Profile
+            </button>
+          </div>
+          {/* Button below Manage Profile */}
+          {belowManageProfileButton && (
+            <div className="w-full md:w-auto">
+              {belowManageProfileButton}
+            </div>
+          )}
         </div>
       </div>
 

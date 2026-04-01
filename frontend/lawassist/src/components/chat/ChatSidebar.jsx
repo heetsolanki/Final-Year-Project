@@ -29,6 +29,12 @@ const ChatSidebar = ({ consultations, selected, openChat }) => {
               {c.chatTitle || `Consultation ${c.consultationId}`}
             </p>
 
+            <p className="text-xs text-gray-500 mt-1">
+              {localStorage.getItem("role") === "legalExpert"
+                ? `Consumer: ${c.consumerName || "-"}`
+                : `Expert: ${c.expertName || "-"}`}
+            </p>
+
             <span
               className={`text-xs px-2.5 py-1 rounded-full mt-1 inline-block ${
                 c.status === "active"

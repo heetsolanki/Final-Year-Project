@@ -115,6 +115,7 @@ exports.processPayment = async (req, res) => {
       const consultation = await Consultation.create({
         consultationId,
         userId: req.user.userId,
+        consumerId: req.user.userId,
         expertId,
         consultationFee: consultationAmount,
         chatTitle,

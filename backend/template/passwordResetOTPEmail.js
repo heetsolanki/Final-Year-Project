@@ -1,9 +1,7 @@
-const expertAvailableEmail = (userName, expertName, startTime, endTime) => {
-  return `
+const passwordResetOTPEmail = (otp) => {
+  const html = `
   <div style="font-family: Arial, sans-serif; background-color:#f5f7fb; padding:40px 20px;">
-    
     <div style="max-width:600px; margin:auto; background:white; border-radius:10px; overflow:hidden; box-shadow:0 6px 18px rgba(0,0,0,0.08);">
-
       <!-- Header -->
       <div style="background:#1f2937; padding:20px; text-align:center;">
         <h1 style="color:white; margin:0;">LawAssist</h1>
@@ -14,42 +12,38 @@ const expertAvailableEmail = (userName, expertName, startTime, endTime) => {
 
       <!-- Body -->
       <div style="padding:30px;">
-
-        <h2 style="color:#111827;">Expert Is Now Available</h2>
-
+        <h2 style="color:#111827;">Password Reset OTP</h2>
+        
         <p style="color:#4b5563; line-height:1.6;">
-          Hello <strong>${userName || "there"}</strong>,
+          We received a request to reset your password. Use the OTP below to proceed.
         </p>
 
-        <p style="color:#4b5563; line-height:1.6;">
-          ${expertName} is now available for consultation on LawAssist.
-        </p>
-
-        <div style="background:#f9fafb; border-left:4px solid #2563eb; padding:15px; margin:25px 0; border-radius:6px;">
-          <p style="margin:0; color:#374151;">
-            <strong>Availability Window:</strong> ${startTime} - ${endTime}
-          </p>
+        <div style="margin:24px 0; padding:20px; background:#f0f9ff; border:2px solid #0ea5e9; border-radius:8px; text-align:center;">
+          <p style="margin:0 0 8px; color:#6b7280; font-size:13px;">Your OTP</p>
+          <p style="margin:0; font-size:32px; font-weight:bold; color:#1E3A8A; letter-spacing:4px;">${otp}</p>
+          <p style="margin:8px 0 0; color:#6b7280; font-size:12px;">Valid for 2 minutes</p>
         </div>
 
         <p style="color:#4b5563; line-height:1.6;">
-          You can open the platform and start your consultation now.
+          Do not share this OTP with anyone. LawAssist will never ask for your OTP via email.
         </p>
 
         <p style="margin-top:30px; color:#111827;">
           — Team LawAssist
         </p>
-
       </div>
 
       <!-- Footer -->
       <div style="background:#f3f4f6; padding:15px; text-align:center; font-size:12px; color:#6b7280;">
         © ${new Date().getFullYear()} LawAssist. All rights reserved.
       </div>
-
     </div>
-
   </div>
   `;
+
+  const text = `Password Reset OTP\n\nYour OTP: ${otp}\n\nValid for 2 minutes. Do not share this OTP with anyone. LawAssist will never ask for your OTP via email.`;
+
+  return { html, text };
 };
 
-module.exports = expertAvailableEmail;
+module.exports = passwordResetOTPEmail;

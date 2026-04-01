@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import API_URL from "../api";
 import { User, MessageSquare, X } from "lucide-react";
+import { jwtDecode } from "jwt-decode";
 
 import DashboardTopCard from "../components/dashboard/DashboardTopCard";
 
@@ -19,6 +20,7 @@ import ReviewModal from "../components/queries/ReviewModal";
 import AskQueryForm from "../components/queries/AskQueryForm";
 import BackToTopButton from "../components/layout/BackToTopButton";
 import { useConfirmModal } from "../context/ConfirmModalContext";
+import { useNavigate } from "react-router-dom";
 
 const USER_TABS = [
   { id: "overview", label: "Overview" },
@@ -36,6 +38,7 @@ const UserDashboard = () => {
   const [queries, setQueries] = useState([]);
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
+  const [isMasterAdmin, setIsMasterAdmin] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
@@ -55,6 +58,7 @@ const UserDashboard = () => {
   const [pendingQuery, setPendingQuery] = useState(null);
   const [showAskQueryModal, setShowAskQueryModal] = useState(false);
   const { openConfirmModal } = useConfirmModal();
+  const navigate = useNavigate();
 
   // Check for pending query on mount
   useEffect(() => {
@@ -96,6 +100,7 @@ const UserDashboard = () => {
   const fetchDashboard = async () => {
     try {
       const token = localStorage.getItem("token");
+      const decoded = jwtDecode(token);
 
       const res = await axios.get(`${API_URL}/api/dashboard`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -104,6 +109,14 @@ const UserDashboard = () => {
       setUserName(res.data.name || "");
       setEmail(res.data.email || "");
       setQueries(res.data.queries || []);
+
+      // Check if user is master admin
+      if (decoded.role === "admin") {
+        const statusRes = await axios.get(`${API_URL}/api/auth/check-status`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setIsMasterAdmin(Boolean(statusRes.data.isMasterAdmin));
+      }
     } catch (error) {
       console.log(error);
     }
@@ -219,6 +232,16 @@ const UserDashboard = () => {
             setActiveTab={setActiveTab}
             tabs={USER_TABS}
             avatarIcon={User}
+            belowManageProfileButton={
+              localStorage.getItem("role") === "admin" ? (
+                <button
+                  onClick={() => navigate("/admin-dashboard")}
+                  className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-blue-50 hover:border-blue-300 transition"
+                >
+                  Switch to Admin Dashboard
+                </button>
+              ) : null
+            }
           />
 
           {/* Pending Query Banner */}

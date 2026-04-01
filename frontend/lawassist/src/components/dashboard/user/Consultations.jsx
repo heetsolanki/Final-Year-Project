@@ -157,6 +157,10 @@ const Consultations = () => {
                   Started {new Date(c.createdAt).toLocaleDateString()}
                 </p>
 
+                <p className="text-xs text-gray-500 mt-1">
+                  Expert: {c.expertName || "-"}
+                </p>
+
                 {!c.isFollowUp && c.availableFollowUpFee !== null && c.availableFollowUpFee !== undefined && (
                   <p className="text-xs text-indigo-700 mt-1">
                     Follow-up fee: ₹{c.availableFollowUpFee}

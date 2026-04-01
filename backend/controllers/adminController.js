@@ -234,6 +234,7 @@ exports.verifyExpert = async (req, res) => {
     }
 
     expert.verificationStatus = "active";
+    expert.status = "verified";
     expert.isVerified = true;
     expert.rejectionReason = "";
 
@@ -286,6 +287,7 @@ exports.rejectExpert = async (req, res) => {
     }
 
     expert.verificationStatus = "rejected";
+    expert.status = "draft";
     expert.isVerified = false;
     expert.rejectionReason = reason || "";
 
@@ -432,9 +434,11 @@ exports.unblockExpert = async (req, res) => {
 
     if (expert.profileCompletion === 100) {
       expert.verificationStatus = "active";
+      expert.status = "verified";
       expert.isVerified = true;
     } else {
       expert.verificationStatus = "profile_incomplete";
+      expert.status = "draft";
       expert.isVerified = false;
     }
 

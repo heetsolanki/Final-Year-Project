@@ -55,6 +55,10 @@ const ExpertConsultations = () => {
                 <p className="text-xs text-gray-500">
                   Started {new Date(c.createdAt).toLocaleDateString()}
                 </p>
+
+                <p className="text-xs text-gray-500 mt-1">
+                  Consumer: {c.consumerName || "-"}
+                </p>
               </div>
 
               <span

@@ -1,9 +1,111 @@
 import React, { useState, useRef, useEffect } from "react";
 import FileUploadButton from "./FileUploadButton";
+import ToastPopup from "../ui/ToastPopup";
+
+const FOUL_WORDS = [
+  // English
+  "shit",
+  "sh1t",
+  "shyt",
+  "fuck",
+  "fck",
+  "fcuk",
+  "fuk",
+  "f*ck",
+  "bitch",
+  "b1tch",
+  "b!tch",
+  "asshole",
+  "ass",
+  "bastard",
+  "motherfucker",
+  "slut",
+  "whore",
+  "dick",
+  "piss",
+  "idiot",
+  "stupid",
+  "loser",
+
+  // Hindi / Hinglish (Roman)
+  "kutta",
+  "saala",
+  "kamina",
+  "chutiya",
+  "chu tiya",
+  "chutya",
+  "chutiyapa",
+  "madarchod",
+  "maa ki chut",
+  "bhenchod",
+  "behenchod",
+  "gandu",
+  "harami",
+  "randi",
+
+  // Marathi (Roman)
+  "makad tondya",
+  "lavda",
+  "chutya",
+  "झव्या",
+  "भडवा",
+  "आईघाल्या",
+
+  // Gujarati (Roman)
+  "kutro",
+  "ચુતિયા",
+  "ભેંચોદ",
+  "માદરચોદ",
+  "ગાંડુ",
+
+  // Tamil / Telugu phonetic slang (Roman)
+  "thevdiya",
+  "punda",
+  "pundai",
+  "lanja",
+  "dengey",
+  "pukku",
+
+  // Existing native-script entries kept
+  "चूतिया",
+  "मादरचोद",
+  "बहनचोद",
+  "हरामी",
+  "रंडी",
+  "தேவடியா",
+  "புண்டை",
+  "மயிரு",
+  "లంజా",
+  "దెంగే",
+  "పుక్క",
+];
+
+const normalizeRepeatedLetters = (value = "") =>
+  String(value).replace(/(.)\1{2,}/g, "$1");
+
+const normalizeInput = (text = "") =>
+  normalizeRepeatedLetters(String(text))
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\p{L}\p{N}]+/gu, "");
+
+const normalizedFoulWords = FOUL_WORDS.map((word) => normalizeInput(word));
+
+const hasFoulLanguage = (text = "") => {
+  const raw = String(text || "").toLowerCase().trim();
+  const normalizedText = normalizeInput(raw);
+
+  return FOUL_WORDS.some((word) => raw.includes(word.toLowerCase())) ||
+    normalizedFoulWords.some((word) => word && normalizedText.includes(word));
+};
 
 const ChatInput = ({ consultationId, socketRef, disabled }) => {
   const [text, setText] = useState("");
   const [uploadError, setUploadError] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [blockedByModeration, setBlockedByModeration] = useState(false);
   const typingTimeout = useRef(null);
   const errorTimeout = useRef(null);
 
@@ -15,15 +117,52 @@ const ChatInput = ({ consultationId, socketRef, disabled }) => {
     return () => clearTimeout(errorTimeout.current);
   }, [uploadError]);
 
+  useEffect(() => {
+    if (!showToast) return;
+    const timer = setTimeout(() => setShowToast(false), 2500);
+    return () => clearTimeout(timer);
+  }, [showToast]);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket) return;
+
+    const foulHandler = (payload) => {
+      setToastMessage(payload?.message || "Foul language is not allowed.");
+      setShowToast(true);
+    };
+
+    const blockedHandler = () => {
+      setBlockedByModeration(true);
+      setToastMessage("You are blocked from sending messages.");
+      setShowToast(true);
+    };
+
+    socket.on("foulLanguageDetected", foulHandler);
+    socket.on("messageBlocked", blockedHandler);
+
+    return () => {
+      socket.off("foulLanguageDetected", foulHandler);
+      socket.off("messageBlocked", blockedHandler);
+    };
+  }, [socketRef]);
+
   /* ================= SEND TEXT MESSAGE ================= */
 
   const sendMessage = () => {
     const socket = socketRef.current;
-    if (!socket || !text.trim()) return;
+    const textValue = text.trim();
+    if (!socket || !textValue || blockedByModeration) return;
+
+    if (hasFoulLanguage(textValue)) {
+      setToastMessage("Foul language is not allowed.");
+      setShowToast(true);
+      return;
+    }
 
     socket.emit("sendMessage", {
       consultationId,
-      message: text,
+      message: textValue,
     });
 
     setText("");
@@ -93,7 +232,7 @@ const ChatInput = ({ consultationId, socketRef, disabled }) => {
         <input
           className="flex-1 border border-gray-200 rounded-xl px-3 sm:px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition"
           placeholder="Type a message..."
-          disabled={disabled}
+          disabled={disabled || blockedByModeration}
           value={text}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
@@ -101,9 +240,9 @@ const ChatInput = ({ consultationId, socketRef, disabled }) => {
 
         <button
           onClick={sendMessage}
-          disabled={disabled || !text.trim()}
+          disabled={disabled || blockedByModeration || !text.trim()}
           className={`px-3 sm:px-5 py-2 rounded-xl transition shadow-sm text-sm sm:text-base ${
-            disabled || !text.trim()
+            disabled || blockedByModeration || !text.trim()
               ? "bg-gray-300 text-gray-400 cursor-not-allowed"
               : "bg-indigo-600 hover:bg-indigo-700 text-white"
           }`}
@@ -111,6 +250,8 @@ const ChatInput = ({ consultationId, socketRef, disabled }) => {
           Send
         </button>
       </div>
+
+      <ToastPopup show={showToast} message={toastMessage} type="error" />
     </div>
   );
 };

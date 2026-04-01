@@ -17,6 +17,9 @@ const ChatWindow = ({
   chatTitle,
   onTitleUpdated,
   onClose,
+  blockedReason,
+  expertName,
+  consumerName,
 }) => {
   const bottomRef = useRef();
   const [editingTitle, setEditingTitle] = React.useState(false);
@@ -85,30 +88,38 @@ const ChatWindow = ({
       {/* HEADER */}
 
       <div className="p-3 sm:p-4 border-b bg-white flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          {editingTitle ? (
-            <input
-              value={titleInput}
-              onChange={(e) => setTitleInput(e.target.value)}
-              className="border border-gray-300 rounded-lg px-2 py-1 text-sm"
-              maxLength={120}
-            />
-          ) : (
-            <h2 className="font-semibold text-gray-800 text-sm sm:text-base">
-              {chatTitle || `Consultation ${consultationId}`}
-            </h2>
-          )}
+        <div>
+          <div className="flex items-center gap-2">
+            {editingTitle ? (
+              <input
+                value={titleInput}
+                onChange={(e) => setTitleInput(e.target.value)}
+                className="border border-gray-300 rounded-lg px-2 py-1 text-sm"
+                maxLength={120}
+              />
+            ) : (
+              <h2 className="font-semibold text-gray-800 text-sm sm:text-base">
+                {chatTitle || `Consultation ${consultationId}`}
+              </h2>
+            )}
 
-          {role === "consumer" && (
-            <button
-              onClick={() => (editingTitle ? saveTitle() : setEditingTitle(true))}
-              disabled={savingTitle}
-              className="text-gray-500 hover:text-[#1E3A8A]"
-              title={editingTitle ? "Save title" : "Edit title"}
-            >
-              {editingTitle ? <Save size={16} /> : <Edit2 size={16} />}
-            </button>
-          )}
+            {role === "consumer" && (
+              <button
+                onClick={() => (editingTitle ? saveTitle() : setEditingTitle(true))}
+                disabled={savingTitle}
+                className="text-gray-500 hover:text-[#1E3A8A]"
+                title={editingTitle ? "Save title" : "Edit title"}
+              >
+                {editingTitle ? <Save size={16} /> : <Edit2 size={16} />}
+              </button>
+            )}
+          </div>
+
+          <p className="text-xs text-gray-500 mt-1">
+            {role === "legalExpert"
+              ? `Consumer: ${consumerName || "-"}`
+              : `Expert: ${expertName || "-"}`}
+          </p>
         </div>
 
         <div className="flex gap-3 items-center justify-between">
@@ -155,12 +166,18 @@ const ChatWindow = ({
         </div>
       )}
 
+      {blockedReason && (
+        <div className="bg-red-100 text-red-700 text-xs sm:text-sm p-2 text-center px-3">
+          {blockedReason}
+        </div>
+      )}
+
       {/* INPUT */}
 
       <ChatInput
         consultationId={consultationId}
         socketRef={socketRef}
-        disabled={chatClosed}
+        disabled={chatClosed || Boolean(blockedReason)}
       />
     </div>
   );

@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import API_URL from "../api";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { XCircle, Eye, EyeOff } from "lucide-react";
 import AuthInput from "../components/auth/AuthInput";
 import AuthButton from "../components/auth/AuthButton";
 import AlertPopup from "../components/ui/AlertPopup";
 
 function ForgotPassword() {
+  const location = useLocation();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState("consumer");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
 
   const [password, setPassword] = useState("");
@@ -39,6 +41,26 @@ function ForgotPassword() {
 
   const strengthPercent =
     (Object.values(passwordChecks).filter(Boolean).length / 5) * 100;
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tokenFromQuery = params.get("token");
+    const emailFromQuery = params.get("email");
+    const roleFromQuery = params.get("role");
+
+    if (emailFromQuery) {
+      setEmail(emailFromQuery);
+    }
+
+    if (roleFromQuery === "legalExpert" || roleFromQuery === "consumer") {
+      setRole(roleFromQuery);
+    }
+
+    if (tokenFromQuery && emailFromQuery) {
+      setResetToken(tokenFromQuery);
+      setStep(3);
+    }
+  }, [location.search]);
 
   /* OTP TIMER */
   useEffect(() => {
@@ -78,7 +100,7 @@ function ForgotPassword() {
         const res = await fetch(`${API_URL}/api/auth/send-reset-otp`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({ email, role }),
         });
 
         const data = await res.json();

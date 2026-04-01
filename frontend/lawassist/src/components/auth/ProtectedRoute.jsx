@@ -48,7 +48,11 @@ const ProtectedRoute = ({ children, allowedRole }) => {
   try {
     const decoded = jwtDecode(token);
 
-    if (decoded.role !== allowedRole) {
+    const isAdminOverride =
+      decoded.role === "admin" &&
+      (allowedRole === "consumer" || allowedRole === "legalExpert");
+
+    if (decoded.role !== allowedRole && !isAdminOverride) {
       if (decoded.role === "consumer") {
         return <Navigate to="/user-dashboard" replace />;
       }

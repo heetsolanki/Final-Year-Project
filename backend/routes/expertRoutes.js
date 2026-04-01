@@ -13,6 +13,8 @@ const {
   answerQuery,
   acceptCase,
   completeExpertProfile,
+  saveExpertProfile,
+  verifyExpertProfile,
   getExpertProfile,
   updateExpertProfile,
   getAllExperts,
@@ -49,6 +51,18 @@ router.patch(
   authorizeRole("legalExpert"),
   verifyExpertStatus,
   resolveCase,
+);
+router.post(
+  "/save-profile",
+  verifyToken,
+  authorizeRole("legalExpert"),
+  saveExpertProfile,
+);
+router.post(
+  "/verify-profile",
+  verifyToken,
+  authorizeRole("legalExpert"),
+  verifyExpertProfile,
 );
 router.post(
   "/complete-profile",

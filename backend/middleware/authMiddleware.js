@@ -26,7 +26,11 @@ const authorizeRole = (role) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    if (req.user.role !== role) {
+    const isAdminOverride =
+      req.user.role === "admin" &&
+      (role === "consumer" || role === "legalExpert");
+
+    if (req.user.role !== role && !isAdminOverride) {
       return res.status(403).json({ message: "Forbidden: Access denied" });
     }
 

@@ -1,5 +1,6 @@
 const Consultation = require("../models/Consultation");
 const Expert = require("../models/Expert");
+const User = require("../models/User");
 const Payment = require("../models/Payment");
 const sendEmail = require("../utils/sendEmail");
 const newConsultationEmail = require("../template/newConsultationEmail");
@@ -56,6 +57,7 @@ exports.createConsultation = async (req, res) => {
     const consultation = await Consultation.create({
       consultationId,
       userId: req.user.userId,
+      consumerId: req.user.userId,
       expertId: expertUserId,
       consultationFee: expert.consultationFee ?? expert.consultationCharges,
       chatTitle,
@@ -175,11 +177,12 @@ exports.getUserConsultations = async (req, res) => {
     const expertIds = [...new Set(consultations.map((item) => item.expertId))];
     const experts = await Expert.find(
       { userId: { $in: expertIds } },
-      { userId: 1, consultationFee: 1, followUpFee: 1, consultationCharges: 1 },
+      { userId: 1, name: 1, consultationFee: 1, followUpFee: 1, consultationCharges: 1 },
     ).lean();
 
     const feeMap = experts.reduce((acc, item) => {
       acc[item.userId] = {
+        name: item.name,
         consultationFee: item.consultationFee ?? item.consultationCharges ?? 0,
         followUpFee: item.followUpFee,
       };
@@ -205,6 +208,8 @@ exports.getUserConsultations = async (req, res) => {
         const fees = feeMap[item.expertId] || {};
         return {
           ...item.toObject(),
+          consumerId: item.consumerId || item.userId,
+          expertName: fees.name || "",
           availableConsultationFee: fees.consultationFee,
           availableFollowUpFee: fees.followUpFee,
           hasPendingFollowUpPayment: pendingByConsultation.has(item.consultationId),
@@ -222,7 +227,24 @@ exports.getExpertConsultations = async (req, res) => {
     isFollowUp: { $ne: true },
   }).sort({ createdAt: -1 });
 
-  res.json(consultations);
+  const consumerIds = [...new Set(consultations.map((item) => item.consumerId || item.userId))];
+  const consumers = await User.find(
+    { userId: { $in: consumerIds } },
+    { userId: 1, name: 1 },
+  ).lean();
+
+  const consumerMap = consumers.reduce((acc, item) => {
+    acc[item.userId] = item.name;
+    return acc;
+  }, {});
+
+  res.json(
+    consultations.map((item) => ({
+      ...item.toObject(),
+      consumerId: item.consumerId || item.userId,
+      consumerName: consumerMap[item.consumerId || item.userId] || "",
+    })),
+  );
 };
 
 exports.getConsultationById = async (req, res) => {
@@ -235,7 +257,18 @@ exports.getConsultationById = async (req, res) => {
       return res.status(404).json({ message: "Consultation not found" });
     }
 
-    res.json(consultation);
+    const consumerId = consultation.consumerId || consultation.userId;
+    const [expert, consumer] = await Promise.all([
+      Expert.findOne({ userId: consultation.expertId }, { name: 1, userId: 1 }).lean(),
+      User.findOne({ userId: consumerId }, { name: 1, userId: 1 }).lean(),
+    ]);
+
+    res.json({
+      ...consultation.toObject(),
+      consumerId,
+      expertName: expert?.name || "",
+      consumerName: consumer?.name || "",
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }

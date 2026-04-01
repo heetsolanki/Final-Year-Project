@@ -23,6 +23,7 @@ const ChatPage = () => {
   const [chatClosed, setChatClosed] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
   const [currentConsultation, setCurrentConsultation] = useState(null);
+  const [blockedReason, setBlockedReason] = useState("");
 
   const unreadCounts = {};
 
@@ -40,10 +41,21 @@ const ChatPage = () => {
 
     const typingHandler = () => setTyping(true);
     const stopTypingHandler = () => setTyping(false);
+    const foulLanguageHandler = (payload) => {
+      if (payload?.isBlocked) {
+        setBlockedReason(payload.blockReason || "Used inappropriate language multiple times");
+      }
+    };
+
+    const blockedHandler = (reason) => {
+      setBlockedReason(reason || "Used inappropriate language multiple times");
+    };
 
     socket.on("receiveMessage", receiveHandler);
     socket.on("typing", typingHandler);
     socket.on("stopTyping", stopTypingHandler);
+    socket.on("foulLanguageDetected", foulLanguageHandler);
+    socket.on("messageBlocked", blockedHandler);
     socket.on("chatClosed", (id) => {
       if (id === consultationId) {
         setChatClosed(true);
@@ -62,6 +74,8 @@ const ChatPage = () => {
       socket.off("receiveMessage", receiveHandler);
       socket.off("typing", typingHandler);
       socket.off("stopTyping", stopTypingHandler);
+      socket.off("foulLanguageDetected", foulLanguageHandler);
+      socket.off("messageBlocked", blockedHandler);
       socket.off("chatClosed");
     };
   }, [consultationId, socketRef]);
@@ -133,6 +147,26 @@ const ChatPage = () => {
     fetchStatus();
   }, [consultationId, token]);
 
+  useEffect(() => {
+    const fetchAccountStatus = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/auth/check-status`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.data?.status === "blocked") {
+          setBlockedReason(
+            res.data?.blockReason || "Used inappropriate language multiple times",
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchAccountStatus();
+  }, [token]);
+
   return (
     <>
       <div className="pt-28 sm:pt-32 pb-4 sm:pb-6 min-h-screen bg-gray-50 flex justify-center px-2 sm:px-3">
@@ -182,6 +216,9 @@ const ChatPage = () => {
                   );
                 }}
                 onClose={() => setChatOpen(false)}
+                blockedReason={blockedReason}
+                expertName={currentConsultation?.expertName}
+                consumerName={currentConsultation?.consumerName}
               />
             )}
 

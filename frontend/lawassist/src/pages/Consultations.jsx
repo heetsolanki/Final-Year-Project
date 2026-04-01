@@ -148,6 +148,11 @@ const Consultations = () => {
                   )}
                 </div>
                 <p className="text-sm text-gray-500">{c.status}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {role === "legalExpert"
+                    ? `Consumer: ${c.consumerName || "-"}`
+                    : `Expert: ${c.expertName || "-"}`}
+                </p>
                 {!c.isFollowUp && c.availableFollowUpFee !== null && c.availableFollowUpFee !== undefined && (
                   <p className="text-xs text-indigo-700 mt-1">Follow-up fee: ₹{c.availableFollowUpFee}</p>
                 )}

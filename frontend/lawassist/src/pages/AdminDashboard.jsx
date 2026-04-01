@@ -34,6 +34,9 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [refreshKey] = useState(0);
   const [showLogoutToast, setShowLogoutToast] = useState(false);
+  const [isMasterAdmin, setIsMasterAdmin] = useState(false);
+  const [switchRoute, setSwitchRoute] = useState("/user-dashboard");
+  const [switchLabel, setSwitchLabel] = useState("Back to Dashboard");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,6 +46,8 @@ const AdminDashboard = () => {
         const res = await axios.get(`${API_URL}/api/auth/check-status`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        setIsMasterAdmin(Boolean(res.data.isMasterAdmin));
 
         // If user was demoted, logout and redirect
         if (res.data.role && res.data.role !== "admin") {
@@ -83,6 +88,21 @@ const AdminDashboard = () => {
 
     // Initial verification
     verifyAdminRole();
+
+    const resolveSwitchTarget = async () => {
+      try {
+        await axios.get(`${API_URL}/api/expert/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setSwitchRoute("/legal-expert-dashboard");
+        setSwitchLabel("Back to Dashboard");
+      } catch {
+        setSwitchRoute("/user-dashboard");
+        setSwitchLabel("Back to Dashboard");
+      }
+    };
+
+    resolveSwitchTarget();
 
     return () => clearInterval(interval);
   }, [navigate]);
@@ -162,6 +182,22 @@ const AdminDashboard = () => {
             </div>
 
             {/* Logout Button */}
+            <button
+              onClick={() => navigate("/")}
+              className="group flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium text-blue-600 hover:bg-blue-50 hover:text-blue-700 hover:translate-x-0.5 transition-all duration-200"
+            >
+              Back to Home
+            </button>
+
+            {!isMasterAdmin && (
+              <button
+                onClick={() => navigate(switchRoute)}
+                className="group flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700 hover:translate-x-0.5 transition-all duration-200"
+              >
+                {switchLabel}
+              </button>
+            )}
+
             <button
               onClick={handleLogout}
               className="group flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 hover:text-red-600 hover:translate-x-0.5 transition-all duration-200"

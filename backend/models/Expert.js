@@ -85,9 +85,31 @@ const expertSchema = new mongoose.Schema(
       default: "profile_incomplete",
     },
 
+    status: {
+      type: String,
+      enum: ["draft", "pending_verification", "verified"],
+      default: "draft",
+    },
+
     isVerified: {
       type: Boolean,
       default: false,
+    },
+
+    resetOTP: {
+      type: String,
+    },
+
+    otpExpire: {
+      type: Date,
+    },
+
+    resetToken: {
+      type: String,
+    },
+
+    resetTokenExpire: {
+      type: Date,
     },
 
     rejectionReason: {

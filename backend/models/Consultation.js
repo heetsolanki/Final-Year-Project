@@ -14,6 +14,11 @@ const consultationSchema = new mongoose.Schema(
       required: true,
     },
 
+    consumerId: {
+      type: String,
+      required: false,
+    },
+
     expertId: {
       type: String,
       required: true,

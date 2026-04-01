@@ -16,7 +16,7 @@ const LawDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [showForm, setShowForm] = useState(false);
+  const [showFormBySection, setShowFormBySection] = useState({});
   const [law, setLaw] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
 
@@ -199,6 +199,7 @@ const LawDetails = () => {
           <div className="space-y-6">
             {law.sections.map((section, index) => {
               const isOpen = activeIndex === index;
+              const showForm = Boolean(showFormBySection[index]);
 
               return (
                 <div
@@ -231,16 +232,24 @@ const LawDetails = () => {
 
                     <ChevronDown
                       size={20}
-                      className={isOpen ? "rotate-180" : ""}
+                      className={`transition-transform duration-300 ease-in-out ${isOpen ? "rotate-180" : ""}`}
                     />
                   </button>
 
                   <div
-                    className={`transition-all overflow-hidden ${
-                      isOpen ? "max-h-[900px]" : "max-h-0"
+                    className={`grid transition-all duration-300 ease-in-out ${
+                      isOpen
+                        ? "grid-rows-[1fr] opacity-100 overflow-visible"
+                        : "grid-rows-[0fr] opacity-0 overflow-hidden"
                     }`}
                   >
-                    <div className="border-t p-6 space-y-6">
+                    <div
+                      className={`space-y-6 ${
+                        isOpen
+                          ? "border-t px-6 py-5 md:py-6 overflow-visible"
+                          : "border-0 p-0 overflow-hidden"
+                      }`}
+                    >
                       <div className="flex justify-between">
                         <div>
                           <h4 className="font-semibold mb-2">
@@ -266,7 +275,7 @@ const LawDetails = () => {
                         )}
                       </div>
 
-                      <div>
+                      <div className="overflow-visible">
                         <h4 className="font-semibold mb-3">Common Issues</h4>
 
                         <div className="flex flex-wrap gap-2">
@@ -339,18 +348,25 @@ const LawDetails = () => {
 
                       {!showForm && userRole !== "legalExpert" && (
                         <button
-                          className="bg-[#1E3A8A] text-white px-6 py-2 rounded-lg"
-                          onClick={() => setShowForm(true)}
+                          className="mt-4 bg-[#1E3A8A] text-white px-6 py-2 rounded-lg"
+                          onClick={() =>
+                            setShowFormBySection((prev) => ({ ...prev, [index]: true }))
+                          }
                         >
                           + Ask a Question
                         </button>
                       )}
 
                       {showForm && (
-                        <AskQueryForm
-                          defaultCategory={law.category}
-                          defaultSubcategory={law.alias}
-                        />
+                        <div className="mt-4">
+                          <AskQueryForm
+                            defaultCategory={law.category}
+                            defaultSubcategory={law.alias}
+                            onClose={() =>
+                              setShowFormBySection((prev) => ({ ...prev, [index]: false }))
+                            }
+                          />
+                        </div>
                       )}
                     </div>
                   </div>

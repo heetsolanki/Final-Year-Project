@@ -77,6 +77,21 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
 
+    foulCount: {
+      type: Number,
+      default: 0,
+    },
+
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
+
+    blockReason: {
+      type: String,
+      default: "",
+    },
+
     phone: String,
     gender: String,
     dob: Date,

@@ -12,6 +12,7 @@ import ExpertNotificationsTab from "../components/dashboard/expert/Notifications
 import ClientReviewsTab from "../components/dashboard/expert/ClientReviewsTab";
 import QueryDetailsModal from "../components/queries/QueryDetailsModal";
 import BackToTopButton from "../components/layout/BackToTopButton";
+import { useNavigate } from "react-router-dom";
 
 // Expert-specific tabs (no "Saved Topics")
 const EXPERT_TABS = [
@@ -30,12 +31,14 @@ const LegalExpertDashboard = () => {
   const [isActive, setIsActive] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [isMasterAdmin, setIsMasterAdmin] = useState(false);
 
   const [refreshKey, setRefreshKey] = useState(0);
 
   // Queries tab state
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
+  const navigate = useNavigate();
 
   const fetchExpertProfile = async () => {
     try {
@@ -54,6 +57,14 @@ const LegalExpertDashboard = () => {
       });
 
       setIsActive(res.data.isActive);
+
+      // Check if user is master admin
+      if (decoded.role === "admin") {
+        const statusRes = await axios.get(`${API_URL}/api/auth/check-status`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setIsMasterAdmin(Boolean(statusRes.data.isMasterAdmin));
+      }
     } catch (error) {
       console.log(error);
     }
@@ -199,6 +210,16 @@ const LegalExpertDashboard = () => {
             setActiveTab={setActiveTab}
             tabs={EXPERT_TABS}
             avatarIcon={BadgeCheck}
+            belowManageProfileButton={
+              localStorage.getItem("role") === "admin" ? (
+                <button
+                  onClick={() => navigate("/admin-dashboard")}
+                  className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-blue-50 hover:border-blue-300 transition"
+                >
+                  Switch to Admin Dashboard
+                </button>
+              ) : null
+            }
           />
 
           {/* Tab Content */}

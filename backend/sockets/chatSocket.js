@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 const Consultation = require("../models/Consultation");
 const Message = require("../models/Message");
+const User = require("../models/User");
+const { hasFoulLanguage } = require("../constants/foulWords");
 const { registerSocket, unregisterSocket } = require("./socketRegistry");
 const { createNotification, NOTIFICATION_TYPES } = require("../services/notificationService");
 
@@ -75,6 +77,20 @@ const chatSocket = (io) => {
           consultation.expertId !== user.userId
         ) {
           return socket.emit("error", "Unauthorized");
+        }
+
+        const senderUser = await User.findOne({ userId: user.userId });
+        if (senderUser?.isBlocked || senderUser?.status === "blocked") {
+          return socket.emit(
+            "messageBlocked",
+            senderUser.blockReason || "Used inappropriate language multiple times",
+          );
+        }
+
+        if (hasText && hasFoulLanguage(message.trim())) {
+          return socket.emit("foulLanguageDetected", {
+            message: "Foul language is not allowed.",
+          });
         }
 
         const receiverId =

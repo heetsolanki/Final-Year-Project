@@ -6,6 +6,8 @@ const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
 const welcomeEmailTemplate = require("../template/userWelcomeEmail");
 const expertWelcomeEmail = require("../template/expertWelcomeEmail");
+const passwordResetEmail = require("../template/passwordResetEmail");
+const passwordResetOTPEmail = require("../template/passwordResetOTPEmail");
 const { notifyAdmins, NOTIFICATION_TYPES } = require("../services/notificationService");
 
 /* ================= REGISTER ================= */
@@ -133,7 +135,7 @@ exports.loginUser = async (req, res) => {
     }
 
     // Check if user is blocked
-    if (user.status === "blocked") {
+    if (user.status === "blocked" || user.isBlocked) {
       return res.status(403).json({ message: "Your account has been blocked. Please contact the administrator." });
     }
 
@@ -171,10 +173,12 @@ exports.sendResetOTP = async (req, res) => {
   try {
     const { email } = req.body;
 
-    let user = await User.findOne({ email });
-    if (!user) {
-      user = await Expert.findOne({ email });
-    }
+    const [consumerAccount, expertAccount] = await Promise.all([
+      User.findOne({ email }),
+      Expert.findOne({ email }),
+    ]);
+
+    const user = consumerAccount || expertAccount;
 
     if (!user) {
       return res
@@ -187,16 +191,21 @@ exports.sendResetOTP = async (req, res) => {
     const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
 
     user.resetOTP = hashedOTP;
-    user.otpExpire = Date.now() + 2 * 60 * 1000; // ⬅ changed to 2 minutes
+    user.otpExpire = Date.now() + 2 * 60 * 1000;
 
     await user.save();
 
-    await sendEmail(
+    const otpTemplate = passwordResetOTPEmail(otp);
+    const otpEmailSent = await sendEmail(
       email,
       "Password Reset OTP",
-      `Your password reset OTP is ${otp}. It expires in 2 minutes.`,
-      { category: "password_reset_otp", targetId: user.userId },
+      otpTemplate.html,
+      { text: otpTemplate.text, category: "password_reset_otp", targetId: user.userId },
     );
+
+    if (!otpEmailSent) {
+      return res.status(500).json({ message: "Failed to send reset OTP email" });
+    }
 
     res.json({ message: "OTP sent successfully" });
   } catch (err) {
@@ -208,24 +217,19 @@ exports.verifyResetOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    console.log("Email received:", email);
-    console.log("OTP received:", otp);
-
     const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
 
-    console.log("Hashed OTP:", hashedOTP);
-
-    const user = await User.findOne({ email });
-
-    console.log("User from DB:", user);
-
-    const match = await User.findOne({
+    const findPayload = {
       email,
       resetOTP: hashedOTP,
       otpExpire: { $gt: Date.now() },
-    });
+    };
 
-    console.log("Match result:", match);
+    const [consumerMatch, expertMatch] = await Promise.all([
+      User.findOne(findPayload),
+      Expert.findOne(findPayload),
+    ]);
+    const match = consumerMatch || expertMatch;
 
     if (!match)
       return res.status(400).json({ message: "Invalid or expired OTP" });
@@ -237,6 +241,22 @@ exports.verifyResetOTP = async (req, res) => {
 
     await match.save();
 
+    const frontendBaseUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    const safeRole = expertMatch ? "legalExpert" : "consumer";
+    const resetUrl = `${frontendBaseUrl}/forgot-password?email=${encodeURIComponent(email)}&role=${encodeURIComponent(safeRole)}&token=${encodeURIComponent(resetToken)}`;
+    const resetTemplate = passwordResetEmail({ resetUrl, appName: "LawAssist" });
+
+    const resetLinkEmailSent = await sendEmail(email, "Reset Your LawAssist Password", resetTemplate.html, {
+      text: resetTemplate.text,
+      category: "password_reset_link",
+      targetId: match.userId,
+      details: { role: safeRole },
+    });
+
+    if (!resetLinkEmailSent) {
+      return res.status(500).json({ message: "Failed to send reset password email" });
+    }
+
     res.json({ resetToken });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -247,13 +267,26 @@ exports.resetPassword = async (req, res) => {
   try {
     const { email, resetToken, password } = req.body;
 
-    const user = await User.findOne({
+    const query = {
       email,
       resetToken,
       resetTokenExpire: { $gt: Date.now() },
-    });
+    };
+
+    const [consumerUser, expertUser] = await Promise.all([
+      User.findOne(query),
+      Expert.findOne(query),
+    ]);
+    const user = consumerUser || expertUser;
 
     if (!user) return res.status(400).json({ message: "Invalid request" });
+
+    const isSameAsOldPassword = await bcrypt.compare(password, user.password);
+    if (isSameAsOldPassword) {
+      return res.status(400).json({
+        message: "New password cannot be same as previous password.",
+      });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -277,15 +310,27 @@ exports.checkUserStatus = async (req, res) => {
   try {
     const { userId } = req.user;
 
-    let user = await User.findOne({ userId }).select("status");
+    let user = await User.findOne({ userId }).select("status isBlocked blockReason role isMasterAdmin");
     if (user) {
-      return res.json({ status: user.status || "active" });
+      if (user.isBlocked) {
+        return res.json({
+          status: "blocked",
+          role: user.role || "consumer",
+          isMasterAdmin: Boolean(user.isMasterAdmin),
+          blockReason: user.blockReason || "Account blocked",
+        });
+      }
+      return res.json({
+        status: user.status || "active",
+        role: user.role || "consumer",
+        isMasterAdmin: Boolean(user.isMasterAdmin),
+      });
     }
 
     const expert = await Expert.findOne({ userId }).select("verificationStatus role");
     if (expert) {
       const status = expert.verificationStatus === "blocked" ? "blocked" : "active";
-      return res.json({ status, role: expert.role });
+      return res.json({ status, role: expert.role, isMasterAdmin: false });
     }
 
     return res.json({ status: "deleted" });

@@ -13,6 +13,7 @@ function Navbar() {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [isMasterAdmin, setIsMasterAdmin] = useState(false);
   const [userName, setUserName] = useState("");
   const [showLogoutToast, setShowLogoutToast] = useState(false);
 
@@ -35,6 +36,14 @@ function Navbar() {
           setIsLoggedIn(true);
           setUserRole(decoded.role);
 
+          // Fetch isMasterAdmin status
+          if (decoded.role === "admin") {
+            const statusRes = await axios.get(`${API_URL}/api/auth/check-status`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            setIsMasterAdmin(Boolean(statusRes.data.isMasterAdmin));
+          }
+
           if (decoded.role === "consumer") {
             const res = await axios.get(`${API_URL}/api/users/profile`, {
               headers: { Authorization: `Bearer ${token}` },
@@ -46,15 +55,33 @@ function Navbar() {
               headers: { Authorization: `Bearer ${token}` },
             });
             setUserName(res.data.name);
+          } else if (decoded.role === "admin") {
+            try {
+              const expertRes = await axios.get(`${API_URL}/api/expert/profile`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              setUserName(expertRes.data?.name || "");
+            } catch {
+              try {
+                const userRes = await axios.get(`${API_URL}/api/users/profile`, {
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+                setUserName(userRes.data?.name || "");
+              } catch {
+                setUserName(localStorage.getItem("name") || "");
+              }
+            }
           }
         } catch {
           setIsLoggedIn(false);
           setUserRole(null);
+          setIsMasterAdmin(false);
           setUserName("");
         }
       } else {
         setIsLoggedIn(false);
         setUserRole(null);
+        setIsMasterAdmin(false);
         setUserName("");
       }
     };
@@ -133,6 +160,16 @@ function Navbar() {
             About
           </Link>
 
+          {userRole === "admin" && isMasterAdmin && (
+            <Link
+              to="/admin-dashboard"
+              className="nav-link"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
+              Admin Dashboard
+            </Link>
+          )}
+
           {!isLoggedIn ? (
             <>
               <Link
@@ -167,6 +204,18 @@ function Navbar() {
               {userRole === "legalExpert" && (
                 <Link
                   to="/legal-expert-dashboard"
+                  className="nav-profile-link"
+                  onClick={() =>
+                    window.scrollTo({ top: 0, behavior: "smooth" })
+                  }
+                >
+                  <User2Icon size={18} />
+                  <span className="nav-profile-name">{userName}</span>
+                </Link>
+              )}
+              {userRole === "admin" && (
+                <Link
+                  to="/admin-dashboard"
                   className="nav-profile-link"
                   onClick={() =>
                     window.scrollTo({ top: 0, behavior: "smooth" })
@@ -249,6 +298,19 @@ function Navbar() {
           About
         </Link>
 
+        {userRole === "admin" && isMasterAdmin && (
+          <Link
+            to="/admin-dashboard"
+            className="nav-link"
+            onClick={() => {
+              setIsOpen(false);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          >
+            Admin Dashboard
+          </Link>
+        )}
+
         {!isLoggedIn ? (
           <>
             <Link
@@ -274,20 +336,10 @@ function Navbar() {
           </>
         ) : (
           <>
-            <Link
-              to={
-                userRole === "consumer"
-                  ? "/user-dashboard"
-                  : "/legal-expert-dashboard"
-              }
-              className="nav-login nav-btn w-full text-center"
-              onClick={() => {
-                setIsOpen(false);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-            >
-              {userRole === "consumer" ? "My Dashboard" : "Expert Dashboard"}
-            </Link>
+            <div className="nav-profile-link w-full justify-center">
+              <User2Icon size={18} />
+              <span className="nav-profile-name">{userName}</span>
+            </div>
             <button
               className="nav-btn nav-register w-full"
               onClick={() => {
