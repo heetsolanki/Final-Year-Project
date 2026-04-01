@@ -223,7 +223,9 @@ exports.createQuery = async (req, res) => {
     if (categoryValidation.isMatch === false) {
       return res.status(200).json({
         requiresCategoryChange: true,
+        selectedCategory: finalSelectedCategory,
         correctCategory: categoryValidation.correctCategory || finalSelectedCategory,
+        message: `Your query appears to belong to '${categoryValidation.correctCategory || finalSelectedCategory}' instead of '${finalSelectedCategory}'. Please switch category.`,
       });
     }
 
@@ -275,7 +277,11 @@ exports.createQuery = async (req, res) => {
         actorId: req.user.userId,
       });
 
-      return res.status(201).json(newQuery);
+      return res.status(201).json({
+        ...newQuery.toObject(),
+        isFlagged: true,
+        moderationReason: moderationResult.reason || "Inappropriate content detected",
+      });
     }
 
     await applyApprovedQueryFlow({

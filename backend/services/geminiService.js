@@ -2,9 +2,157 @@ const { GoogleGenAI } = require("@google/genai");
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
-const Law = require("../models/Law");
 
 const GEMINI_MODEL = "gemini-3.1-flash-lite-preview";
+
+const CATEGORY_KEYWORDS = {
+  "Shopping & Marketplace": [
+    "refund", "return", "replace", "replacement", "defect", "defective", "damaged",
+    "delivery", "courier", "seller", "vendor", "marketplace", "product", "order",
+    "ecommerce", "online shopping", "cancel order", "wrong item", "fake product",
+    "price", "mrp", "overcharge", "invoice", "warranty", "exchange",
+  ],
+  "Health & Safety": [
+    "food", "restaurant", "hotel", "stale", "expired", "contamination", "hygiene",
+    "medicine", "pharmacy", "drug", "medical store", "unsafe", "adulterated",
+    "health", "allergy", "poisoning", "side effect",
+  ],
+  "Digital & Telecom": [
+    "cyber", "scam", "fraud", "otp", "phishing", "hacked", "hack", "sim swap",
+    "upi fraud", "online fraud", "wallet", "telecom", "network", "call drop",
+    "broadband", "mobile data", "internet", "spam call", "sms fraud",
+  ],
+  "Financial Services": [
+    "bank", "banking", "loan", "emi", "interest", "credit", "debit", "account",
+    "transaction", "chargeback", "insurance", "claim", "policy", "premium",
+    "card", "foreclosure", "nbfc", "finance", "payment failure",
+  ],
+  "Housing & Property": [
+    "builder", "flat", "apartment", "housing", "property", "society", "rent", "rental",
+    "tenant", "landlord", "deposit", "maintenance", "possession", "registry",
+    "broker", "lease", "agreement", "eviction",
+  ],
+  "Travel & Transport": [
+    "flight", "airline", "train", "bus", "cab", "taxi", "travel", "ticket",
+    "cancellation", "reschedule", "delay", "baggage", "luggage", "boarding",
+    "vehicle", "car", "bike", "service center", "dealer",
+  ],
+  Utilities: [
+    "electricity", "water", "gas", "utility", "bill", "billing", "meter",
+    "power cut", "overbilling", "sewage", "disconnection", "supply",
+  ],
+  Education: [
+    "college", "school", "university", "tuition", "fee", "admission", "semester",
+    "exam", "certificate", "marksheet", "hostel", "course", "placement",
+    "scholarship", "education",
+  ],
+};
+
+const STOP_WORDS = new Set([
+  "the", "a", "an", "and", "or", "to", "of", "for", "in", "on", "at", "with",
+  "is", "are", "was", "were", "be", "been", "being", "my", "our", "your", "their",
+  "i", "we", "you", "it", "this", "that", "from", "by", "about", "into", "as", "have",
+]);
+
+const normalizeCategoryText = (value = "") =>
+  String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const singularizeToken = (token = "") => {
+  if (token.length <= 3) return token;
+  if (token.endsWith("ies") && token.length > 4) return `${token.slice(0, -3)}y`;
+  if (token.endsWith("es") && token.length > 4) return token.slice(0, -2);
+  if (token.endsWith("s") && !token.endsWith("ss") && token.length > 3) return token.slice(0, -1);
+  return token;
+};
+
+const tokenizeText = (value = "") =>
+  normalizeCategoryText(value)
+    .split(" ")
+    .map((token) => singularizeToken(token.trim()))
+    .filter((token) => token && !STOP_WORDS.has(token));
+
+const matchKeywordScore = (keyword, tokens, normalizedText) => {
+  const normalizedKeyword = normalizeCategoryText(keyword);
+  if (!normalizedKeyword) return 0;
+
+  // Phrase/substring match gets highest weight.
+  if (normalizedText.includes(normalizedKeyword)) return 4;
+
+  const keywordTokens = normalizedKeyword.split(" ").map((item) => singularizeToken(item));
+  let score = 0;
+
+  for (const queryToken of tokens) {
+    for (const keywordToken of keywordTokens) {
+      if (!queryToken || !keywordToken) continue;
+      if (queryToken === keywordToken) {
+        score = Math.max(score, 3);
+      } else if (
+        queryToken.length >= 4
+        && keywordToken.length >= 4
+        && (queryToken.includes(keywordToken) || keywordToken.includes(queryToken))
+      ) {
+        score = Math.max(score, 2);
+      }
+    }
+  }
+
+  return score;
+};
+
+const detectCategoryByKeywords = (queryText, allowedCategories = []) => {
+  const validCategories = Array.isArray(allowedCategories) && allowedCategories.length > 0
+    ? allowedCategories
+    : Object.keys(CATEGORY_KEYWORDS);
+
+  const normalizedText = normalizeCategoryText(queryText);
+  const tokens = tokenizeText(queryText);
+
+  if (!normalizedText || tokens.length === 0) {
+    return {
+      detectedCategory: "",
+      confidence: 0,
+      isHighConfidence: false,
+      topScore: 0,
+      secondScore: 0,
+    };
+  }
+
+  const scores = validCategories.map((category) => {
+    const keywords = CATEGORY_KEYWORDS[category] || [];
+    let score = 0;
+    let hitCount = 0;
+
+    for (const keyword of keywords) {
+      const keywordScore = matchKeywordScore(keyword, tokens, normalizedText);
+      if (keywordScore > 0) {
+        score += keywordScore;
+        hitCount += 1;
+      }
+    }
+
+    return { category, score, hitCount };
+  }).sort((a, b) => b.score - a.score || b.hitCount - a.hitCount);
+
+  const top = scores[0] || { category: "", score: 0, hitCount: 0 };
+  const second = scores[1] || { score: 0, hitCount: 0 };
+  const margin = top.score - second.score;
+
+  // High confidence: enough weighted hits and clear gap from runner-up.
+  const isHighConfidence = top.score >= 4 && (margin >= 2 || top.hitCount >= 2);
+  const confidence = top.score === 0 ? 0 : Math.min(0.99, (top.score + margin) / 12);
+
+  return {
+    detectedCategory: top.score > 0 ? top.category : "",
+    confidence,
+    isHighConfidence,
+    topScore: top.score,
+    secondScore: second.score,
+  };
+};
 
 const getAiClient = () => {
   if (!process.env.GEMINI_API_KEY) {
@@ -22,91 +170,6 @@ const generateText = async (prompt) => {
   });
 
   return String(response?.text || "").trim();
-};
-
-// =========================
-// 🔥 FINAL KEYWORD CLASSIFIER (FIXED)
-// =========================
-const GENERIC_KEYWORDS = [
-  "problem",
-  "issue",
-  "not good",
-  "bad quality",
-  "complaint",
-  "not working",
-  "not satisfied",
-  "poor service",
-  "help needed",
-  "support issue",
-  "customer problem",
-  "delay",
-  "not responding",
-];
-
-const getCategoryFromKeywords = async (query) => {
-  try {
-    const laws = await Law.find();
-
-    query = query.toLowerCase().replace(/[^\w\s]/g, "");
-    const words = query.split(" ");
-
-    const categoryScores = {};
-
-    for (const act of laws) {
-      let totalScore = 0;
-
-      for (const section of act.sections || []) {
-        for (const keyword of section.keywords || []) {
-          const cleanKeyword = keyword.toLowerCase().trim();
-
-          if (GENERIC_KEYWORDS.includes(cleanKeyword)) continue;
-
-          if (
-            words.some((word) => cleanKeyword.includes(word)) ||
-            cleanKeyword.includes(query)
-          ) {
-            totalScore += 2;
-          }
-        }
-      }
-
-      if (Array.isArray(act.keywords)) {
-        for (const keyword of act.keywords) {
-          const cleanKeyword = keyword.toLowerCase().trim();
-
-          if (
-            words.some((word) => cleanKeyword.includes(word)) ||
-            cleanKeyword.includes(query)
-          ) {
-            totalScore += 5;
-          }
-        }
-      }
-
-      if (!categoryScores[act.category]) {
-        categoryScores[act.category] = 0;
-      }
-
-      categoryScores[act.category] += totalScore;
-    }
-
-    let bestCategory = null;
-    let maxScore = 0;
-
-    for (const category in categoryScores) {
-      if (categoryScores[category] > maxScore) {
-        maxScore = categoryScores[category];
-        bestCategory = category;
-      }
-    }
-
-    if (maxScore === 0) return null;
-
-    return bestCategory;
-  } catch (err) {
-    console.error("Keyword classification error:", err.message);
-    return null;
-  }
 };
 
 const extractFirstJSONObject = (text = "") => {
@@ -340,13 +403,13 @@ const validateQueryCategory = async (
     ? selectedCategory
     : validCategories[0] || selectedCategory || "";
 
-  // 🔥 KEYWORD MATCH FIRST
-  const keywordCategory = await getCategoryFromKeywords(queryText);
+  // Keyword-first detection with confidence gating.
+  const keywordResult = detectCategoryByKeywords(queryText, validCategories);
 
-  if (keywordCategory) {
+  if (keywordResult.isHighConfidence && keywordResult.detectedCategory) {
     return {
-      isMatch: keywordCategory === selectedCategory,
-      correctCategory: keywordCategory,
+      isMatch: keywordResult.detectedCategory === safeSelectedCategory,
+      correctCategory: keywordResult.detectedCategory,
     };
   }
 
@@ -375,6 +438,13 @@ Selected Category: ${selectedCategory}`;
   const parsed = extractFirstJSONObject(text);
 
   if (!parsed || typeof parsed.isMatch !== "boolean") {
+    // AI unavailable/unclear: use best keyword guess when available.
+    if (keywordResult.detectedCategory) {
+      return {
+        isMatch: keywordResult.detectedCategory === safeSelectedCategory,
+        correctCategory: keywordResult.detectedCategory,
+      };
+    }
     return fallback;
   }
 

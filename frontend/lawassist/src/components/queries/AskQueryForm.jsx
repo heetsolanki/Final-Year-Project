@@ -45,11 +45,11 @@ const AskQueryForm = ({
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [showModerationPopup, setShowModerationPopup] = useState(false);
+  const [moderationMessage, setModerationMessage] = useState("");
   const [categoryCorrection, setCategoryCorrection] = useState(null);
   const [suggestedSubcategory, setSuggestedSubcategory] = useState("");
   const [isSuggestingSubcategory, setIsSuggestingSubcategory] = useState(false);
-  const [isTitleRephrasing, setIsTitleRephrasing] = useState(false);
-  const [isDescriptionRephrasing, setIsDescriptionRephrasing] = useState(false);
 
   const suggestionRequestCounter = useRef(0);
   const lastSuggestedSubcategory = useRef("");
@@ -178,14 +178,23 @@ const AskQueryForm = ({
 
       if (response?.data?.requiresCategoryChange) {
         setCategoryCorrection({
-          selectedCategory: formData.category,
+          selectedCategory: response.data.selectedCategory || formData.category,
           correctCategory: response.data.correctCategory,
+          message: response.data.message || "",
         });
         return;
       }
 
+      if (response?.data?.isFlagged) {
+        setModerationMessage(
+          response.data.moderationReason
+          || "This query contains inappropriate content and was flagged by moderation.",
+        );
+        setShowModerationPopup(true);
+        return;
+      }
+
       setCategoryCorrection(null);
-      setShowSuccessModal(true);
       localStorage.removeItem("pendingQuery");
       setFormData({
         title: "",
@@ -196,6 +205,8 @@ const AskQueryForm = ({
       setSuggestedSubcategory("");
       lastSuggestedSubcategory.current = "";
       isSubcategoryManuallyChanged.current = false;
+      if (onSuccess) onSuccess();
+      if (onClose) onClose();
     } catch (error) {
       console.error(error);
       setShowErrorPopup(true);
@@ -230,9 +241,18 @@ const AskQueryForm = ({
             lineHeight: "1.4",
           }}
         >
-          This query seems to belong to{" "}
-          <strong style={{ color: "#78350f" }}>{categoryCorrection.correctCategory}</strong>.
-          Please change the category before submitting.
+          <>
+            This query appears to belong to{" "}
+            <strong style={{ color: "#78350f", fontWeight: "bold" }}>{categoryCorrection.correctCategory}</strong>
+            {categoryCorrection.selectedCategory ? (
+              <>
+                {" "}instead of{" "}
+                <strong style={{ color: "#78350f", fontWeight: "bold" }}>{categoryCorrection.selectedCategory}</strong>
+                .
+              </>
+            ) : "."}{" "}
+            Please select the correct category.
+          </>
         </div>
       )}
 
@@ -338,7 +358,7 @@ const AskQueryForm = ({
               setCategoryCorrection(null);
             }}
           >
-            Change Category
+            Switch to Suggested Category
           </button>
         ) : (
           <button type="submit" className="primary-btn" disabled={loading}>
@@ -364,6 +384,13 @@ const AskQueryForm = ({
         type="warning"
         redirectTo="/login"
         onClose={() => setShowLoginPopup(false)}
+      />
+      <AlertPopup
+        show={showModerationPopup}
+        title="Query Flagged"
+        description={moderationMessage || "This query was flagged by content moderation."}
+        type="warning"
+        onClose={() => setShowModerationPopup(false)}
       />
       <AlertPopup
         show={showErrorPopup}
