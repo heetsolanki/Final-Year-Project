@@ -7,6 +7,11 @@ const logActivity = async (
   details = {},
 ) => {
   try {
+    // Skip persistence for email-related events.
+    if (typeof action === "string" && action.toLowerCase().includes("email")) {
+      return;
+    }
+
     await ActivityLog.create({
       action,
       performedBy,

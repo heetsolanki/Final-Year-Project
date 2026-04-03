@@ -583,7 +583,11 @@ exports.demoteExpertAdmin = async (req, res) => {
 
 exports.getActivityLogs = async (req, res) => {
   try {
-    const logs = await ActivityLog.find().sort({ createdAt: -1 }).limit(50);
+    const logs = await ActivityLog.find({
+      action: { $not: /email/i },
+    })
+      .sort({ createdAt: -1 })
+      .limit(50);
 
     res.json(logs);
   } catch (error) {
