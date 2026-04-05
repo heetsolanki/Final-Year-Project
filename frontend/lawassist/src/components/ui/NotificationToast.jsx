@@ -74,7 +74,10 @@ const NotificationToast = ({ toasts = [], onClose }) => {
   );
 
   return (
-    <div className="pointer-events-none fixed right-4 top-4 flex w-full max-w-sm flex-col gap-3" style={{ zIndex: 4700 }}>
+    <div
+      className="pointer-events-none fixed right-4 top-[6.5rem] flex w-full max-w-sm flex-col gap-3"
+      style={{ zIndex: 4700 }}
+    >
       <AnimatePresence mode="popLayout">
         {sortedToasts.map((toast) => (
           <div key={toast._id} className="pointer-events-auto">

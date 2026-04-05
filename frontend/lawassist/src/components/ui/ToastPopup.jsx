@@ -1,5 +1,6 @@
 import { CheckCircle, XCircle, AlertCircle, Info } from "lucide-react";
 import ReactDOM from "react-dom";
+import { AnimatePresence, motion } from "framer-motion";
 
 function ToastPopup({ show, message, type = "success" }) {
   const styles = {
@@ -27,25 +28,31 @@ function ToastPopup({ show, message, type = "success" }) {
 
   const current = styles[type];
 
-  if (!show) return null;
-
   return ReactDOM.createPortal(
-    <div
-      className="fixed inset-0 flex items-center justify-center bg-black/35 backdrop-blur-sm p-4"
-      style={{ zIndex: "var(--modal-z)" }}
-    >
-      <div
-        className={`flex items-center gap-3 px-5 py-3 sm:px-8 sm:py-4 rounded-xl shadow-lg backdrop-blur-md
-    w-fit max-w-[85vw] sm:max-w-md mx-auto
-    ${current.bg}`}
-      >
-        {current.icon}
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          initial={{ opacity: 0, y: -10, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -12, scale: 0.98 }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+          className="pointer-events-none fixed inset-x-0 top-[8.5rem] flex justify-center px-4"
+          style={{ zIndex: "var(--toast-z)" }}
+        >
+          <div
+            className={`pointer-events-auto flex items-center gap-3 px-5 py-3 sm:px-8 sm:py-4 rounded-xl shadow-lg
+      w-fit max-w-[85vw] sm:max-w-md
+      ${current.bg}`}
+          >
+            {current.icon}
 
-        <span className={`text-sm sm:text-base font-medium ${current.text}`}>
-          {message}
-        </span>
-      </div>
-    </div>,
+            <span className={`text-sm sm:text-base font-medium ${current.text}`}>
+              {message}
+            </span>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
     document.body,
   );
 }

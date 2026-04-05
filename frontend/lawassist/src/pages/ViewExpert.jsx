@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { MapPin, Briefcase, CheckCircle, ArrowLeft, Star, Circle } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import BackToTopButton from "../components/layout/BackToTopButton";
+import AlertPopup from "../components/ui/AlertPopup";
 import axios from "axios";
 import API_URL from "../api";
 
@@ -13,6 +14,8 @@ const ExpertProfile = () => {
   const [reviews, setReviews] = useState([]);
   const [notifyLoading, setNotifyLoading] = useState(false);
   const [notifyMessage, setNotifyMessage] = useState("");
+  const [showAuthPopup, setShowAuthPopup] = useState(false);
+  const [authPopupMessage, setAuthPopupMessage] = useState("");
 
   const isWithinAvailability = useCallback((availability) => {
     if (!availability?.startTime || !availability?.endTime) return false;
@@ -44,11 +47,16 @@ const ExpertProfile = () => {
 
   const canStartConsultation = expert?.isActive && isWithinAvailability(expert?.availability);
 
+  const showLoginRequiredPopup = useCallback((message) => {
+    setAuthPopupMessage(message);
+    setShowAuthPopup(true);
+  }, []);
+
   const startConsultation = () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      navigate("/login");
+      showLoginRequiredPopup("Please login to start a consultation with this expert.");
       return;
     }
 
@@ -63,7 +71,7 @@ const ExpertProfile = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        navigate("/login");
+        showLoginRequiredPopup("Please login to receive availability notifications.");
         return;
       }
 
@@ -364,6 +372,14 @@ const ExpertProfile = () => {
           </div>
         </div>
       </div>
+      <AlertPopup
+        show={showAuthPopup}
+        type="warning"
+        title="Login Required"
+        description={authPopupMessage}
+        redirectTo="/login"
+        onClose={() => setShowAuthPopup(false)}
+      />
       <BackToTopButton />
     </>
   );
