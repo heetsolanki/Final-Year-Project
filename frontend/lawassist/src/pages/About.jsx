@@ -9,6 +9,7 @@ import {
   Linkedin,
   Github,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { missions, offers } from "../data";
 import profile from "../assets/profile.png";
 
@@ -263,13 +264,25 @@ function About() {
                   "Node.js",
                   "JWT",
                   "REST API",
-                ].map((badge) => (
-                  <span
+                ].map((badge, index) => (
+                  <motion.span
                     key={badge}
-                    className="px-5 py-2 rounded-full bg-white border border-gray-300 text-sm text-[#0A1F44]"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.4 }}
+                    transition={{ duration: 0.28, delay: index * 0.05, ease: "easeOut" }}
+                    whileHover={{ y: -4, scale: 1.04 }}
+                    className="group relative overflow-hidden px-5 py-2 rounded-full bg-white border border-gray-300 text-sm text-[#0A1F44] transition-all duration-200 hover:bg-[#0A1F44] hover:text-white hover:border-[#0A1F44] hover:shadow-[0_8px_20px_rgba(10,31,68,0.18)]"
                   >
-                    {badge}
-                  </span>
+                    <span
+                      className="pointer-events-none absolute -inset-[1px] rounded-full border border-transparent border-t-[#C9A227]/85 border-r-[#C9A227]/55 opacity-0 group-hover:opacity-100"
+                      style={{
+                        animation: "spin 2.8s linear infinite",
+                        filter: "drop-shadow(0 0 4px rgba(201,162,39,0.45))",
+                      }}
+                    />
+                    <span className="relative z-10 group-hover:font-semibold">{badge}</span>
+                  </motion.span>
                 ))}
               </div>
             </div>
