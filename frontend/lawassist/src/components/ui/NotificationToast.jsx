@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import ReactDOM from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell, X } from "lucide-react";
 
@@ -73,10 +74,14 @@ const NotificationToast = ({ toasts = [], onClose }) => {
     [toasts],
   );
 
-  return (
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return ReactDOM.createPortal(
     <div
       className="pointer-events-none fixed right-4 top-[6.5rem] flex w-full max-w-sm flex-col gap-3"
-      style={{ zIndex: 4700 }}
+      style={{ zIndex: "var(--toast-z)" }}
     >
       <AnimatePresence mode="popLayout">
         {sortedToasts.map((toast) => (
@@ -85,7 +90,8 @@ const NotificationToast = ({ toasts = [], onClose }) => {
           </div>
         ))}
       </AnimatePresence>
-    </div>
+    </div>,
+    document.body,
   );
 };
 

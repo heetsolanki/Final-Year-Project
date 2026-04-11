@@ -17,8 +17,8 @@ body {
 
 :root {
   --ui-smooth: cubic-bezier(0.22, 0.9, 0.32, 1);
-  --modal-z: 5000;
-  --toast-z: 4800;
+  --modal-z: 2147483646;
+  --toast-z: 2147483645;
   --hover-lift: translateY(-3px);
 }
 

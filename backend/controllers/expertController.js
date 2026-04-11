@@ -75,6 +75,35 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
       }
     }
 
+    // Check Government ID uniqueness (document type + ID number)
+    if (idDocumentType && idNumber) {
+      const existingGovId = await Expert.findOne({
+        idDocumentType,
+        idNumber,
+        userId: { $ne: expertId },
+      });
+
+      if (existingGovId) {
+        return res.status(400).json({
+          message: "This Government ID is already registered with another expert",
+        });
+      }
+    }
+
+    // Check Government ID proof file uniqueness
+    if (idProofUrl) {
+      const existingGovProof = await Expert.findOne({
+        idProofUrl,
+        userId: { $ne: expertId },
+      });
+
+      if (existingGovProof) {
+        return res.status(400).json({
+          message: "This Government ID proof is already registered with another expert",
+        });
+      }
+    }
+
     const expert = await Expert.findOne({ userId: expertId });
 
     if (!expert) {
