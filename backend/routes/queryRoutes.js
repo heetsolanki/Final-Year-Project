@@ -6,6 +6,7 @@ const { verifyToken, authorizeRole } = require("../middleware/authMiddleware");
 const {
   createQuery,
   suggestSubcategory,
+  validateCategory,
   getPublicQueries,
   getSingleQuery,
   deleteQuery,
@@ -21,6 +22,9 @@ router.put("/re-appeal/:id", verifyToken, authorizeRole("consumer"), reAppealQue
 
 /* ================= SUGGEST SUBCATEGORY ================= */
 router.post("/suggest-subcategory", suggestSubcategory);
+
+/* ================= VALIDATE CATEGORY ================= */
+router.post("/validate-category", validateCategory);
 
 /* ================= GET ALL PUBLIC QUERIES ================= */
 router.get("/public", getPublicQueries);

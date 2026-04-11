@@ -351,6 +351,51 @@ exports.suggestSubcategory = async (req, res) => {
   }
 };
 
+exports.validateCategory = async (req, res) => {
+  try {
+    const {
+      title = "",
+      description = "",
+      selectedCategory,
+      category,
+    } = req.body;
+
+    const finalSelectedCategory = selectedCategory || category;
+    const queryText = `${title || ""}\n${description || ""}`.trim();
+
+    if (!finalSelectedCategory || !queryText) {
+      return res.status(200).json({
+        detectedCategory: finalSelectedCategory || "",
+        isMatch: true,
+        confidence: 0,
+      });
+    }
+
+    const categoriesMap = getCategoriesFromDataFile();
+    const categoriesList = Object.keys(categoriesMap);
+
+    const validation = await validateQueryCategory(
+      queryText,
+      finalSelectedCategory,
+      categoriesList,
+    );
+
+    return res.status(200).json({
+      detectedCategory: validation.correctCategory || finalSelectedCategory,
+      isMatch: validation.isMatch !== false,
+      confidence:
+        typeof validation.confidence === "number" ? validation.confidence : 0,
+    });
+  } catch (error) {
+    console.error("Validate Category Error:", error);
+    return res.status(200).json({
+      detectedCategory: req.body?.selectedCategory || req.body?.category || "",
+      isMatch: true,
+      confidence: 0,
+    });
+  }
+};
+
 /* ================= RE-APPEAL REJECTED QUERY ================= */
 exports.reAppealQuery = async (req, res) => {
   try {

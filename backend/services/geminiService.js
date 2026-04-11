@@ -410,29 +410,92 @@ const validateQueryCategory = async (
     return {
       isMatch: keywordResult.detectedCategory === safeSelectedCategory,
       correctCategory: keywordResult.detectedCategory,
+      confidence: keywordResult.confidence,
     };
   }
 
   // 🤖 AI FALLBACK
-  const fallback = { isMatch: true, correctCategory: safeSelectedCategory };
+  const fallback = {
+    isMatch: true,
+    correctCategory: safeSelectedCategory,
+    confidence: keywordResult.confidence || 0,
+  };
 
-  const prompt = `Check whether the selected category matches the query.
+  const [derivedTitle = "", ...descriptionParts] = String(queryText || "").split("\n");
+  const derivedDescription = descriptionParts.join("\n").trim();
 
-Allowed categories:
-${JSON.stringify(validCategories)}
+  const prompt = `You are a legal domain classifier for a consumer rights platform.
 
-IMPORTANT:
+Your task is to classify the user's query into ONE of the following MAIN CATEGORIES only:
 
-* Prioritize context over generic words like refund.
+MAIN CATEGORIES:
+1. Shopping & Marketplace
+2. Health & Safety
+3. Digital & Telecom
+4. Financial Services
+5. Housing & Property
+6. Travel & Transport
+7. Utilities
+8. Education
 
-Return ONLY JSON:
+IMPORTANT RULES:
+
+1. PRIORITIZE CONTEXT over keywords
+   - Do NOT classify based only on words like "billing", "payment", "price"
+
+2. DOMAIN MAPPING (VERY IMPORTANT):
+
+- Hospital, doctor, medical, treatment -> Health & Safety
+- Food, restaurant, expired food -> Health & Safety
+- Electricity, water, gas bill -> Utilities
+- Online shopping, Amazon, delivery -> Shopping & Marketplace
+- Bank, loan, insurance -> Financial Services
+- House, rent, builder -> Housing & Property
+- Travel, flights, tickets -> Travel & Transport
+- College, fees, exams -> Education
+- Online fraud, cyber scam -> Digital & Telecom
+
+3. If multiple signals exist:
+   -> Choose the MOST RELEVANT DOMAIN, not generic terms
+
+4. Ignore misleading words:
+   - "billing" != Utilities unless it's electricity/water/etc.
+   - "payment" != Financial Services unless bank-related
+
+INPUT:
+Title: ${derivedTitle.trim()}
+Description: ${derivedDescription}
+Selected Category: ${selectedCategory}
+
+FEW-SHOT EXAMPLES:
+
+Example 1:
+Title: Excessive Hospital Billing
+Description: Hospital charged high amount without breakdown
+-> Health & Safety
+
+Example 2:
+Title: High Electricity Bill
+-> Utilities
+
+Example 3:
+Title: Wrong Product Delivered
+-> Shopping & Marketplace
+
+Example 4:
+Title: Expired Food Served
+-> Health & Safety
+
+Example 5:
+Title: Bank deducted extra charges
+-> Financial Services
+
+OUTPUT (STRICT JSON ONLY):
 {
-"isMatch": true/false,
-"correctCategory": "Category Name"
-}
-
-Query: ${queryText}
-Selected Category: ${selectedCategory}`;
+  "detectedCategory": "Health & Safety",
+  "isMatch": true/false,
+  "confidence": 0-1
+}`;
 
   const text = await generateText(prompt);
   const parsed = extractFirstJSONObject(text);
@@ -443,23 +506,36 @@ Selected Category: ${selectedCategory}`;
       return {
         isMatch: keywordResult.detectedCategory === safeSelectedCategory,
         correctCategory: keywordResult.detectedCategory,
+        confidence: keywordResult.confidence,
       };
     }
     return fallback;
   }
 
-  const aiCategory =
-    typeof parsed.correctCategory === "string"
-      ? parsed.correctCategory.trim()
-      : "";
+  const aiCategoryRaw =
+    typeof parsed.detectedCategory === "string"
+      ? parsed.detectedCategory
+      : typeof parsed.correctCategory === "string"
+        ? parsed.correctCategory
+        : "";
+
+  const aiCategory = aiCategoryRaw.trim();
 
   const correctCategory = validCategories.includes(aiCategory)
     ? aiCategory
     : getClosestValidItem(aiCategory, validCategories, safeSelectedCategory);
 
+  const parsedConfidence =
+    typeof parsed.confidence === "number" ? parsed.confidence : null;
+  const normalizedConfidence =
+    parsedConfidence === null
+      ? keywordResult.confidence || 0
+      : Math.min(1, Math.max(0, parsedConfidence));
+
   return {
     isMatch: parsed.isMatch,
     correctCategory,
+    confidence: normalizedConfidence,
   };
 };
 
