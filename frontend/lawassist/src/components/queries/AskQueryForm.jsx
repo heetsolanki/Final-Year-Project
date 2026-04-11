@@ -3,7 +3,11 @@ import axios from "axios";
 import API_URL from "../../api";
 import AlertPopup from "../ui/AlertPopup";
 import { categories } from "../../data";
-import { suggestQuerySubcategory } from "../../services/aiService";
+import {
+  suggestQuerySubcategory,
+  validateQueryCategoryAI,
+} from "../../services/aiService";
+import { debounce } from "../../utils/debounce";
 
 const AskQueryForm = ({
   onClose,
@@ -100,6 +104,54 @@ const AskQueryForm = ({
     [],
   );
 
+  const triggerSwitchCategoryFlow = useCallback((aiResult, selectedCategory) => {
+    const detectedCategory =
+      aiResult?.detectedCategory || aiResult?.correctCategory || selectedCategory;
+
+    if (!detectedCategory || detectedCategory === selectedCategory) {
+      return;
+    }
+
+    setCategoryCorrection({
+      selectedCategory,
+      correctCategory: detectedCategory,
+      message: aiResult?.message || "",
+    });
+  }, []);
+
+  const validateCategoryAI = useCallback(async (title, description, selectedCategory) => {
+    try {
+      return await validateQueryCategoryAI({
+        title,
+        description,
+        selectedCategory,
+      });
+    } catch (error) {
+      console.error("AI validation failed:", error);
+      return { isMatch: true, confidence: 0 };
+    }
+  }, []);
+
+  const debouncedValidateCategory = useCallback(
+    debounce(async (title, description, selectedCategory) => {
+      const safeTitle = (title || "").trim();
+      const safeDescription = (description || "").trim();
+
+      if (!selectedCategory || (!safeTitle && !safeDescription)) return;
+
+      const aiResult = await validateCategoryAI(
+        safeTitle,
+        safeDescription,
+        selectedCategory,
+      );
+
+      if (!aiResult?.isMatch && Number(aiResult?.confidence || 0) > 0.6) {
+        triggerSwitchCategoryFlow(aiResult, selectedCategory);
+      }
+    }, 600),
+    [triggerSwitchCategoryFlow, validateCategoryAI],
+  );
+
   // Trigger subcategory suggestion when category changes (not on every description keystroke)
   useEffect(() => {
     if (!formData.category) {
@@ -130,6 +182,19 @@ const AskQueryForm = ({
     });
   };
 
+  useEffect(() => {
+    debouncedValidateCategory(
+      formData.title,
+      formData.description,
+      formData.category,
+    );
+  }, [
+    debouncedValidateCategory,
+    formData.category,
+    formData.description,
+    formData.title,
+  ]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -145,6 +210,20 @@ const AskQueryForm = ({
           savedAt: new Date().toISOString(),
         }));
         setShowLoginPopup(true);
+        return;
+      }
+
+      const submitValidation = await validateCategoryAI(
+        formData.title,
+        formData.description,
+        formData.category,
+      );
+
+      if (
+        !submitValidation?.isMatch
+        && Number(submitValidation?.confidence || 0) > 0.7
+      ) {
+        triggerSwitchCategoryFlow(submitValidation, formData.category);
         return;
       }
 

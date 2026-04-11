@@ -53,3 +53,28 @@ export const suggestQuerySubcategory = async ({
 
   return res.data?.suggestedSubcategory || "";
 };
+
+/*
+ * Calls backend category validator and returns AI match details.
+ */
+export const validateQueryCategoryAI = async ({
+  title,
+  description,
+  selectedCategory,
+}) => {
+  const res = await axios.post(`${API_URL}/api/queries/validate-category`, {
+    title,
+    description,
+    selectedCategory,
+  });
+
+  return {
+    detectedCategory: res.data?.detectedCategory || selectedCategory || "",
+    isMatch: typeof res.data?.isMatch === "boolean" ? res.data.isMatch : true,
+    confidence:
+      typeof res.data?.confidence === "number"
+        ? res.data.confidence
+        : 0,
+  };
+};
+
