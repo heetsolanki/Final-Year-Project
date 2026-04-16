@@ -53,6 +53,22 @@ const formatAadhaar = (value) => {
   return parts.join("-");
 };
 
+const formatBarCouncilId = (value) => {
+  const sanitized = String(value || "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "")
+    .slice(0, 10);
+
+  const stateCode = sanitized.slice(0, 2).replace(/[^A-Z]/g, "");
+  const enrollmentNo = sanitized.slice(2, 6).replace(/\D/g, "");
+  const year = sanitized.slice(6, 10).replace(/\D/g, "");
+
+  let formatted = stateCode;
+  if (enrollmentNo) formatted += `/${enrollmentNo}`;
+  if (year) formatted += `/${year}`;
+  return formatted;
+};
+
 const ExpertProfile = () => {
   const navigate = useNavigate();
   const [showProfilePopup, setShowProfilePopup] = useState(false);
@@ -107,7 +123,7 @@ const ExpertProfile = () => {
       }
 
       setFormData({
-        barCouncilId: data.barCouncilId || "",
+        barCouncilId: formatBarCouncilId(data.barCouncilId || ""),
         specialization: data.specialization || "",
         otherSpecialization: "",
         experience: data.experience || "",
@@ -142,6 +158,8 @@ const ExpertProfile = () => {
 
     if (name === "state") {
       setFormData({ ...formData, state: value, city: "" });
+    } else if (name === "barCouncilId") {
+      setFormData({ ...formData, barCouncilId: formatBarCouncilId(value) });
     } else if (name === "specialization") {
       const nextOptions = expertiseBySpecialization[value] || [];
       setFormData((prev) => ({
@@ -154,10 +172,15 @@ const ExpertProfile = () => {
     } else if (name === "idDocumentType") {
       // Reset ID number when type changes
       setFormData({ ...formData, idDocumentType: value, idNumber: "" });
-    } else if (name === "idNumber" && formData.idDocumentType === "aadhaar") {
-      // Format Aadhaar number with hyphens
-      const formatted = formatAadhaar(value);
-      setFormData({ ...formData, idNumber: formatted });
+    } else if (name === "idNumber") {
+      if (formData.idDocumentType === "aadhaar") {
+        // Format Aadhaar number with hyphens
+        const formatted = formatAadhaar(value);
+        setFormData({ ...formData, idNumber: formatted });
+      } else {
+        // Keep government ID values uppercase for consistent validation/storage.
+        setFormData({ ...formData, idNumber: String(value).toUpperCase() });
+      }
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -289,6 +312,7 @@ const ExpertProfile = () => {
         endpoint,
         {
           ...formData,
+          barCouncilId: formatBarCouncilId(formData.barCouncilId),
           idNumber: idNumberToSend,
           specialization:
             formData.specialization === "Other"

@@ -11,6 +11,33 @@ const {
   isWithinAvailability,
 } = require("../utils/availability");
 
+const normalizeBarCouncilId = (value = "") => {
+  const sanitized = String(value || "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "")
+    .slice(0, 10);
+
+  const stateCode = sanitized.slice(0, 2).replace(/[^A-Z]/g, "");
+  const enrollmentNo = sanitized.slice(2, 6).replace(/\D/g, "");
+  const year = sanitized.slice(6, 10).replace(/\D/g, "");
+
+  let formatted = stateCode;
+  if (enrollmentNo) formatted += `/${enrollmentNo}`;
+  if (year) formatted += `/${year}`;
+  return formatted;
+};
+
+const normalizeDocumentNumber = (documentType, value = "") => {
+  if (documentType === "aadhaar") {
+    return String(value || "").replace(/\D/g, "");
+  }
+
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toUpperCase();
+};
+
 const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) => {
   try {
     const expertId = req.user.userId;
@@ -31,17 +58,28 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
       idProofUrl,
     } = req.body;
 
+    const normalizedBarCouncilId = normalizeBarCouncilId(barCouncilId);
+    const normalizedIdNumber = normalizeDocumentNumber(idDocumentType, idNumber);
+
     // ── Validations ──
 
     // Bar Council ID format: XX/1234/2020
-    if (barCouncilId && !/^[A-Z]{2}\/[0-9]{4}\/[0-9]{4}$/.test(barCouncilId)) {
+    if (barCouncilId && !/^[A-Z]{2}\/[0-9]{4}\/[0-9]{4}$/.test(normalizedBarCouncilId)) {
       return res.status(400).json({ message: "Invalid Bar Council ID format. Expected: XX/1234/2020" });
     }
 
     // Check Bar Council ID uniqueness
-    if (barCouncilId) {
-      const existing = await Expert.findOne({ barCouncilId, userId: { $ne: expertId } });
-      if (existing) {
+    if (normalizedBarCouncilId) {
+      const existingBarCouncil = await Expert.find({
+        barCouncilId: { $exists: true, $ne: null, $ne: "" },
+        userId: { $ne: expertId },
+      }).select("barCouncilId");
+
+      const duplicateBarCouncil = existingBarCouncil.some(
+        (item) => normalizeBarCouncilId(item.barCouncilId) === normalizedBarCouncilId,
+      );
+
+      if (duplicateBarCouncil) {
         return res.status(400).json({ message: "This Bar Council ID is already registered with another expert" });
       }
     }
@@ -60,7 +98,7 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
       return res.status(400).json({ message: "Invalid document type selected" });
     }
 
-    if (idNumber && idDocumentType) {
+    if (normalizedIdNumber && idDocumentType) {
       const idValidation = {
         aadhaar: { regex: /^\d{12}$/, msg: "Aadhaar must be exactly 12 digits" },
         pan: { regex: /^[A-Z]{5}\d{4}[A-Z]$/, msg: "PAN must be in format: ABCDE1234F" },
@@ -70,22 +108,25 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
       };
 
       const rule = idValidation[idDocumentType];
-      if (rule && !rule.regex.test(idNumber)) {
+      if (rule && !rule.regex.test(normalizedIdNumber)) {
         return res.status(400).json({ message: rule.msg });
       }
     }
 
-    // Check Government ID uniqueness (document type + ID number)
-    if (idDocumentType && idNumber) {
-      const existingGovId = await Expert.findOne({
-        idDocumentType,
-        idNumber,
+    // Check Government ID uniqueness (by document number)
+    if (normalizedIdNumber) {
+      const existingGovIds = await Expert.find({
+        idNumber: { $exists: true, $ne: null, $ne: "" },
         userId: { $ne: expertId },
-      });
+      }).select("idNumber idDocumentType");
 
-      if (existingGovId) {
+      const duplicateDocument = existingGovIds.some(
+        (item) => normalizeDocumentNumber(item.idDocumentType, item.idNumber) === normalizedIdNumber,
+      );
+
+      if (duplicateDocument) {
         return res.status(400).json({
-          message: "This Government ID is already registered with another expert",
+          message: "This document number is already registered with another expert",
         });
       }
     }
@@ -130,7 +171,7 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
       return res.status(400).json({ message: "Follow-up fee cannot exceed consultation fee" });
     }
 
-    expert.barCouncilId = barCouncilId;
+    expert.barCouncilId = normalizedBarCouncilId;
     expert.specialization = specialization;
     expert.experience = experience;
     expert.consultationFee = parsedConsultationFee;
@@ -142,7 +183,7 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
     expert.expertiseAreas = expertiseAreas;
     expert.bio = bio;
     expert.idDocumentType = idDocumentType;
-    expert.idNumber = idNumber;
+    expert.idNumber = normalizedIdNumber;
     expert.idProofUrl = idProofUrl;
 
     const completion = calculateProfileCompletion(expert);
