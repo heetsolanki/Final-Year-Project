@@ -22,6 +22,9 @@ const FOUL_WORDS = [
   "idiot",
   "stupid",
   "loser",
+  "shithead",
+  "shitty",
+  "bullshit",
 
   // Hindi / Hinglish (Roman)
   "kutta",
