@@ -3,14 +3,42 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 
-const GEMINI_MODEL_PRIORITY = [
-  "gemini-3.1-flash-lite-preview",
-  "gemini-1.5-flash-002",
-  "gemini-1.5-flash-002-lite",
-  "gemini-1.5-pro",
-];
+const GEMINI_MODELS = Object.freeze({
+  SIMPLE_PRIMARY: "gemini-3.1-flash-lite-preview",
+  FALLBACK_FLASH: "gemini-2.5-flash",
+  COMPLEX_PRIMARY: "gemini-2.5-pro",
+});
+
+const TASK_TYPES = Object.freeze({
+  SIMPLE: "SIMPLE",
+  COMPLEX: "COMPLEX",
+});
 
 const MAX_RETRIES_PER_MODEL = 2;
+
+const SIMPLE_TASK_KEYWORDS = [
+  "summarize",
+  "summary",
+  "simplify",
+  "plain language",
+  "short explanation",
+  "explain simply",
+];
+
+const COMPLEX_TASK_KEYWORDS = [
+  "moderation",
+  "classify",
+  "categorize",
+  "categorization",
+  "decision",
+  "validate category",
+  "subcategory",
+  "appropriate",
+  "isappropriate",
+  "is match",
+  "detectedcategory",
+  "json",
+];
 
 const CATEGORY_KEYWORDS = {
   "Shopping & Marketplace": [
@@ -171,6 +199,39 @@ const getAiClient = () => {
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const normalizeTaskType = (taskType) =>
+  taskType === TASK_TYPES.COMPLEX || String(taskType || "").toUpperCase() === TASK_TYPES.COMPLEX
+    ? TASK_TYPES.COMPLEX
+    : TASK_TYPES.SIMPLE;
+
+const inferTaskTypeFromPrompt = (prompt = "") => {
+  const normalizedPrompt = String(prompt).toLowerCase();
+
+  if (COMPLEX_TASK_KEYWORDS.some((keyword) => normalizedPrompt.includes(keyword))) {
+    return TASK_TYPES.COMPLEX;
+  }
+
+  if (SIMPLE_TASK_KEYWORDS.some((keyword) => normalizedPrompt.includes(keyword))) {
+    return TASK_TYPES.SIMPLE;
+  }
+
+  return TASK_TYPES.SIMPLE;
+};
+
+const resolveTaskType = ({ taskType, prompt }) => normalizeTaskType(taskType || inferTaskTypeFromPrompt(prompt));
+
+const getModelRouteForTask = (taskType) => {
+  if (taskType === TASK_TYPES.COMPLEX) {
+    return [GEMINI_MODELS.COMPLEX_PRIMARY, GEMINI_MODELS.FALLBACK_FLASH];
+  }
+
+  return [
+    GEMINI_MODELS.SIMPLE_PRIMARY,
+    GEMINI_MODELS.FALLBACK_FLASH,
+    GEMINI_MODELS.COMPLEX_PRIMARY,
+  ];
+};
+
 const isRetryableGeminiError = (error) => {
   const status = Number(error?.status);
   const message = String(error?.message || "").toUpperCase();
@@ -201,13 +262,18 @@ const extractResponseText = (response) => {
   return "";
 };
 
-const generateTextWithFallback = async (prompt) => {
+const generateTextWithFallback = async (prompt, options = {}) => {
   const ai = getAiClient();
   let lastRetryableError = null;
+  const taskType = resolveTaskType({ taskType: options.taskType, prompt });
+  const taskLabel = options.taskLabel || taskType;
+  const modelRoute = getModelRouteForTask(taskType);
 
-  for (let modelIndex = 0; modelIndex < GEMINI_MODEL_PRIORITY.length; modelIndex += 1) {
-    const model = GEMINI_MODEL_PRIORITY[modelIndex];
-    console.log(`[Gemini] Trying model: ${model}`);
+  console.log(`[Gemini] Task ${taskLabel} routed to ${taskType} handling`);
+
+  for (let modelIndex = 0; modelIndex < modelRoute.length; modelIndex += 1) {
+    const model = modelRoute[modelIndex];
+    console.log(`[Gemini] Task ${taskLabel} selected model: ${model}`);
 
     for (let retryCount = 0; retryCount <= MAX_RETRIES_PER_MODEL; retryCount += 1) {
       try {
@@ -234,23 +300,23 @@ const generateTextWithFallback = async (prompt) => {
         if (retryCount < MAX_RETRIES_PER_MODEL) {
           const waitMs = 1000 * (2 ** retryCount);
           console.warn(
-            `[Gemini] Retry ${retryCount + 1}/${MAX_RETRIES_PER_MODEL} for model ${model} in ${waitMs}ms due to: ${error.message}`,
+            `[Gemini] Retry ${retryCount + 1}/${MAX_RETRIES_PER_MODEL} for task ${taskLabel} on model ${model} in ${waitMs}ms due to: ${error.message}`,
           );
           await delay(waitMs);
           continue;
         }
 
-        if (modelIndex < GEMINI_MODEL_PRIORITY.length - 1) {
-          const nextModel = GEMINI_MODEL_PRIORITY[modelIndex + 1];
+        if (modelIndex < modelRoute.length - 1) {
+          const nextModel = modelRoute[modelIndex + 1];
           console.warn(
-            `[Gemini] Switching from model ${model} to next model ${nextModel} after retries were exhausted.`,
+            `[Gemini] Switching task ${taskLabel} from model ${model} to next model ${nextModel} after retries were exhausted.`,
           );
         }
       }
     }
   }
 
-  const error = new Error("All Gemini models are currently unavailable after retries.");
+  const error = new Error(`All Gemini models failed for ${taskLabel} after retries.`);
   error.cause = lastRetryableError || null;
   throw error;
 };
@@ -364,7 +430,10 @@ Tone: professional and trustworthy
 Return plain text only.`;
 
   try {
-    return await generateTextWithFallback(prompt);
+    return await generateTextWithFallback(prompt, {
+      taskType: TASK_TYPES.SIMPLE,
+      taskLabel: "generateExpertBio",
+    });
   } catch (error) {
     console.error("Gemini generateExpertBio error:", error);
     throw error;
@@ -393,9 +462,40 @@ ${lawText}
 Return only the simplified explanation.`;
 
   try {
-    return await generateTextWithFallback(prompt);
+    return await generateTextWithFallback(prompt, {
+      taskType: TASK_TYPES.SIMPLE,
+      taskLabel: "summarizeLawText",
+    });
   } catch (error) {
     console.error("Gemini summarizeLawText error:", error);
+    throw error;
+  }
+};
+
+/*
+
+* Rephrases text while preserving meaning.
+  */
+const rephraseText = async (inputText) => {
+  const prompt = `Rephrase the following text to make it clearer and easier to read while keeping the original meaning.
+
+Rules:
+
+* Preserve the meaning
+* Keep it concise
+* Do not add new facts
+* Return plain text only
+
+Text:
+${inputText}`;
+
+  try {
+    return await generateTextWithFallback(prompt, {
+      taskType: TASK_TYPES.SIMPLE,
+      taskLabel: "rephraseText",
+    });
+  } catch (error) {
+    console.error("Gemini rephraseText error:", error);
     throw error;
   }
 };
@@ -419,7 +519,10 @@ Rules:
 * Return plain text only`;
 
   try {
-    const text = await generateTextWithFallback(prompt);
+    const text = await generateTextWithFallback(prompt, {
+      taskType: TASK_TYPES.SIMPLE,
+      taskLabel: "generateConsultationTitle",
+    });
     return text.replace(/[\n\r]+/g, " ").slice(0, 120);
   } catch (error) {
     console.error("Gemini generateConsultationTitle error:", error);
@@ -451,7 +554,10 @@ Return ONLY JSON:
 
 Query: ${queryText}`;
 
-  const text = await generateTextWithFallback(prompt);
+  const text = await generateTextWithFallback(prompt, {
+    taskType: TASK_TYPES.COMPLEX,
+    taskLabel: "analyzeUserQuery",
+  });
   const parsed = extractFirstJSONObject(text);
 
   if (!parsed || typeof parsed.isAppropriate !== "boolean") {
@@ -580,7 +686,10 @@ OUTPUT (STRICT JSON ONLY):
   "confidence": 0-1
 }`;
 
-  const text = await generateTextWithFallback(prompt);
+  const text = await generateTextWithFallback(prompt, {
+    taskType: TASK_TYPES.COMPLEX,
+    taskLabel: "validateQueryCategory",
+  });
   const parsed = extractFirstJSONObject(text);
 
   if (!parsed || typeof parsed.isMatch !== "boolean") {
@@ -654,7 +763,10 @@ Return ONLY JSON:
 Query: ${queryText}
 Category: ${category}`;
 
-  const text = await generateTextWithFallback(prompt);
+  const text = await generateTextWithFallback(prompt, {
+    taskType: TASK_TYPES.COMPLEX,
+    taskLabel: "detectSubcategory",
+  });
   const parsed = extractFirstJSONObject(text);
 
   const aiSubcategory =
@@ -674,6 +786,7 @@ Category: ${category}`;
 module.exports = {
   generateExpertBio,
   summarizeLawText,
+  rephraseText,
   generateConsultationTitle,
   analyzeUserQuery,
   validateQueryCategory,
