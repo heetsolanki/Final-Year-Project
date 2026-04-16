@@ -1,15 +1,18 @@
 import API_URL from "../api";
 import { useState, useEffect } from "react";
 import { Scale, Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import AuthInput from "../components/auth/AuthInput";
 import AuthButton from "../components/auth/AuthButton";
 import AlertPopup from "../components/ui/AlertPopup";
 import BlockedUserPopup from "../components/users/BlockedUserPopup";
 
 function Login() {
+  const location = useLocation();
   const [showSuccess, setShowSuccess] = useState(false);
   const [showBlocked, setShowBlocked] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [loginPromptMessage, setLoginPromptMessage] = useState("Please log in to continue.");
   const [showPassword, setShowPassword] = useState(false);
   const [redirectPath, setRedirectPath] = useState("/user-dashboard");
   const [loading, setLoading] = useState(false);
@@ -19,6 +22,14 @@ function Login() {
   });
 
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    const promptMessage = location.state?.loginPrompt;
+    if (promptMessage) {
+      setLoginPromptMessage(promptMessage);
+      setShowLoginPrompt(true);
+    }
+  }, [location.state]);
 
   const handleChange = (e) => {
     setForm({
@@ -223,6 +234,13 @@ function Login() {
               description="You are being redirected to your dashboard."
               redirectTo={redirectPath}
               onClose={() => setShowSuccess(false)}
+            />
+            <AlertPopup
+              show={showLoginPrompt}
+              type="warning"
+              title="Please Log In"
+              description={loginPromptMessage}
+              onClose={() => setShowLoginPrompt(false)}
             />
             {showBlocked && <BlockedUserPopup onClose={() => {
               setShowBlocked(false);

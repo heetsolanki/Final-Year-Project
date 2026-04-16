@@ -204,7 +204,14 @@ const UserDashboard = () => {
         return <UserNotificationsTab refreshKey={refreshKey} />;
 
       case "profile":
-        return <UserProfileTab setActiveTab={setActiveTab} />;
+        return (
+          <UserProfileTab
+            setActiveTab={setActiveTab}
+            pendingQuery={pendingQuery}
+            onContinuePendingQuery={handleContinueQuery}
+            onDismissPendingQuery={handleDismissBanner}
+          />
+        );
 
       default:
         return null;
@@ -236,7 +243,7 @@ const UserDashboard = () => {
           />
 
           {/* Pending Query Banner */}
-          {pendingQuery && (
+          {pendingQuery && activeTab !== "profile" && (
             <div className="mt-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 animate-fadeIn">
               <div className="flex items-start gap-3">
                 <div className="p-2 bg-blue-100 rounded-lg shrink-0">

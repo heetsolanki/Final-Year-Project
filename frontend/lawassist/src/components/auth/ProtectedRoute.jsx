@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import API_URL from "../../api";
 import BlockedUserPopup from "../users/BlockedUserPopup";
 
 const ProtectedRoute = ({ children, allowedRole }) => {
+  const location = useLocation();
   const [isBlocked, setIsBlocked] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -42,7 +43,16 @@ const ProtectedRoute = ({ children, allowedRole }) => {
   }, [token]);
 
   if (!token) {
-    return <Navigate to="/login" replace />;
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{
+          loginPrompt: "Please log in to continue.",
+          redirectAfterLogin: location.pathname,
+        }}
+      />
+    );
   }
 
   try {
@@ -80,7 +90,16 @@ const ProtectedRoute = ({ children, allowedRole }) => {
 
     return children;
   } catch (error) {
-    return <Navigate to="/login" replace />;
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{
+          loginPrompt: "Please log in to continue.",
+          redirectAfterLogin: location.pathname,
+        }}
+      />
+    );
   }
 };
 

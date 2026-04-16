@@ -3,7 +3,14 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 
-const GEMINI_MODEL = "gemini-3.1-flash-lite-preview";
+const GEMINI_MODEL_PRIORITY = [
+  "gemini-3.1-flash-lite-preview",
+  "gemini-1.5-flash-002",
+  "gemini-1.5-flash-002-lite",
+  "gemini-1.5-pro",
+];
+
+const MAX_RETRIES_PER_MODEL = 2;
 
 const CATEGORY_KEYWORDS = {
   "Shopping & Marketplace": [
@@ -162,14 +169,90 @@ const getAiClient = () => {
   return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 };
 
-const generateText = async (prompt) => {
-  const ai = getAiClient();
-  const response = await ai.models.generateContent({
-    model: GEMINI_MODEL,
-    contents: prompt,
-  });
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  return String(response?.text || "").trim();
+const isRetryableGeminiError = (error) => {
+  const status = Number(error?.status);
+  const message = String(error?.message || "").toUpperCase();
+  return status === 503 || message.includes("UNAVAILABLE");
+};
+
+const extractResponseText = (response) => {
+  const directText = String(response?.text || "").trim();
+  if (directText) return directText;
+
+  const candidates = Array.isArray(response?.candidates)
+    ? response.candidates
+    : [];
+
+  for (const candidate of candidates) {
+    const parts = Array.isArray(candidate?.content?.parts)
+      ? candidate.content.parts
+      : [];
+
+    const combined = parts
+      .map((part) => String(part?.text || ""))
+      .join("\n")
+      .trim();
+
+    if (combined) return combined;
+  }
+
+  return "";
+};
+
+const generateTextWithFallback = async (prompt) => {
+  const ai = getAiClient();
+  let lastRetryableError = null;
+
+  for (let modelIndex = 0; modelIndex < GEMINI_MODEL_PRIORITY.length; modelIndex += 1) {
+    const model = GEMINI_MODEL_PRIORITY[modelIndex];
+    console.log(`[Gemini] Trying model: ${model}`);
+
+    for (let retryCount = 0; retryCount <= MAX_RETRIES_PER_MODEL; retryCount += 1) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: prompt,
+        });
+
+        const text = extractResponseText(response);
+        if (!text) {
+          throw new Error(`Empty text response from model ${model}`);
+        }
+
+        console.log(`[Gemini] Model succeeded: ${model}`);
+        return text;
+      } catch (error) {
+        if (!isRetryableGeminiError(error)) {
+          console.error(`[Gemini] Non-retryable error on model ${model}:`, error.message);
+          throw error;
+        }
+
+        lastRetryableError = error;
+
+        if (retryCount < MAX_RETRIES_PER_MODEL) {
+          const waitMs = 1000 * (2 ** retryCount);
+          console.warn(
+            `[Gemini] Retry ${retryCount + 1}/${MAX_RETRIES_PER_MODEL} for model ${model} in ${waitMs}ms due to: ${error.message}`,
+          );
+          await delay(waitMs);
+          continue;
+        }
+
+        if (modelIndex < GEMINI_MODEL_PRIORITY.length - 1) {
+          const nextModel = GEMINI_MODEL_PRIORITY[modelIndex + 1];
+          console.warn(
+            `[Gemini] Switching from model ${model} to next model ${nextModel} after retries were exhausted.`,
+          );
+        }
+      }
+    }
+  }
+
+  const error = new Error("All Gemini models are currently unavailable after retries.");
+  error.cause = lastRetryableError || null;
+  throw error;
 };
 
 const extractFirstJSONObject = (text = "") => {
@@ -281,7 +364,7 @@ Tone: professional and trustworthy
 Return plain text only.`;
 
   try {
-    return await generateText(prompt);
+    return await generateTextWithFallback(prompt);
   } catch (error) {
     console.error("Gemini generateExpertBio error:", error);
     throw error;
@@ -310,7 +393,7 @@ ${lawText}
 Return only the simplified explanation.`;
 
   try {
-    return await generateText(prompt);
+    return await generateTextWithFallback(prompt);
   } catch (error) {
     console.error("Gemini summarizeLawText error:", error);
     throw error;
@@ -336,7 +419,7 @@ Rules:
 * Return plain text only`;
 
   try {
-    const text = await generateText(prompt);
+    const text = await generateTextWithFallback(prompt);
     return text.replace(/[\n\r]+/g, " ").slice(0, 120);
   } catch (error) {
     console.error("Gemini generateConsultationTitle error:", error);
@@ -368,7 +451,7 @@ Return ONLY JSON:
 
 Query: ${queryText}`;
 
-  const text = await generateText(prompt);
+  const text = await generateTextWithFallback(prompt);
   const parsed = extractFirstJSONObject(text);
 
   if (!parsed || typeof parsed.isAppropriate !== "boolean") {
@@ -497,7 +580,7 @@ OUTPUT (STRICT JSON ONLY):
   "confidence": 0-1
 }`;
 
-  const text = await generateText(prompt);
+  const text = await generateTextWithFallback(prompt);
   const parsed = extractFirstJSONObject(text);
 
   if (!parsed || typeof parsed.isMatch !== "boolean") {
@@ -571,7 +654,7 @@ Return ONLY JSON:
 Query: ${queryText}
 Category: ${category}`;
 
-  const text = await generateText(prompt);
+  const text = await generateTextWithFallback(prompt);
   const parsed = extractFirstJSONObject(text);
 
   const aiSubcategory =
