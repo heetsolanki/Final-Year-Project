@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import API_URL from "../../api";
 import AlertPopup from "../ui/AlertPopup";
@@ -132,8 +132,8 @@ const AskQueryForm = ({
     }
   }, []);
 
-  const debouncedValidateCategory = useCallback(
-    debounce(async (title, description, selectedCategory) => {
+  const debouncedValidateCategory = useMemo(
+    () => debounce(async (title, description, selectedCategory) => {
       const safeTitle = (title || "").trim();
       const safeDescription = (description || "").trim();
 
