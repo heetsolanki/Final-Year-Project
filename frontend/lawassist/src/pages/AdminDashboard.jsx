@@ -32,12 +32,20 @@ const ADMIN_TABS = [
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
-  const [refreshKey] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [showLogoutToast] = useState(false);
   const [isMasterAdmin, setIsMasterAdmin] = useState(false);
   const [switchRoute, setSwitchRoute] = useState("/user-dashboard");
   const [switchLabel, setSwitchLabel] = useState("Back to Dashboard");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const refreshInterval = setInterval(() => {
+      setRefreshKey((prev) => prev + 1);
+    }, 5000);
+
+    return () => clearInterval(refreshInterval);
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
