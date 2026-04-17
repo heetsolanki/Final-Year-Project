@@ -35,26 +35,26 @@ function Home() {
   return (
     <>
       {/* HERO SECTION */}
-      <section className="pt-56 max-md:pt-40 bg-white mb-20 max-md:mb-12 fade-up">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center justify-between gap-16 max-md:gap-10">
+      <section className="pt-36 sm:pt-44 lg:pt-56 bg-white mb-12 sm:mb-16 lg:mb-20 fade-up">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col lg:flex-row items-center justify-between gap-8 sm:gap-12 lg:gap-16">
           {/* LEFT CONTENT */}
           <div className="max-w-xl">
-            <h1 className="text-5xl max-md:text-3xl font-bold text-[#0A1F44] leading-tight max-md:leading-snug max-md:text-center">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0A1F44] leading-tight sm:leading-snug text-center lg:text-left">
               Know Your Consumer Rights. Get Legal Help Instantly.
             </h1>
-            <p className="mt-6 text-lg max-md:text-base text-gray-600 max-md:text-center">
+            <p className="mt-4 sm:mt-6 text-base sm:text-lg text-gray-600 text-center lg:text-left">
               Submit complaints, connect with legal experts, and navigate your
               rights with confidence.
             </p>
-            <div className="mt-8 flex gap-4 max-md:flex-col max-md:items-center">
+            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
               <button
-                className="bg-[#1e3a8a] text-white px-7 py-3 rounded-lg hover:bg-[#123A6F] transition max-md:w-full max-md:text-center"
+                className="bg-[#1e3a8a] text-white px-4 py-2.5 md:px-6 md:py-3 rounded-lg hover:bg-[#123A6F] transition w-full sm:w-auto text-center"
                 onClick={() => (window.location.href = "/queries")}
               >
                 Submit a Query
               </button>
               <button
-                className="border border-[#1e3a8a] text-[#1e3a8a] px-7 py-3 rounded-lg hover:bg-[#1e3a8a] hover:text-white transition max-md:w-full max-md:text-center"
+                className="border border-[#1e3a8a] text-[#1e3a8a] px-4 py-2.5 md:px-6 md:py-3 rounded-lg hover:bg-[#1e3a8a] hover:text-white transition w-full sm:w-auto text-center"
                 onClick={() => (window.location.href = "/explore-rights")}
               >
                 Explore Your Rights
@@ -63,11 +63,11 @@ function Home() {
           </div>
 
           {/* RIGHT MINI CARDS */}
-          <div className="bg-gray-100 p-6 max-md:p-4 rounded-2xl grid grid-cols-2 gap-6 max-md:gap-4">
+          <div className="w-full max-w-xl bg-gray-100 p-4 sm:p-6 rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {miniCards.map((card) => (
               <div
                 key={card.id}
-                className="bg-white w-40 max-md:w-full h-40 max-md:h-32 rounded-xl shadow-md transition hover:shadow-lg max-md:text-sm max-md:px-4 max-md:py-3"
+                className="bg-white w-full min-h-[8rem] sm:min-h-[10rem] rounded-xl shadow-md transition hover:shadow-lg text-sm sm:text-base px-3 py-3 sm:px-4 sm:py-4"
               >
                 <div className="h-full">
                   <div className="flex h-full flex-col items-center justify-center px-3 py-3">
@@ -82,8 +82,8 @@ function Home() {
       </section>
 
       {/* FEATURES SECTION */}
-      <section className="py-24 max-md:py-16 bg-[#f6f8fb] fade-up">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="py-16 sm:py-20 lg:py-24 bg-[#f6f8fb] fade-up">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           {/* Section Heading */}
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="section-title">Our Key Features</h2>
@@ -120,8 +120,8 @@ function Home() {
       </section>
 
       {/* HOW IT WORKS SECTION */}
-      <section className="bg-white py-24 max-md:py-16 text-center fade-up">
-        <div className="max-w-7xl mx-auto px-6 text-center">
+      <section className="bg-white py-16 sm:py-20 lg:py-24 text-center fade-up">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 text-center">
           {/* Heading */}
           <h2 className="section-title">How It Works</h2>
           <div className="section-underline"></div>
@@ -129,7 +129,7 @@ function Home() {
             Four simple steps to get the legal help you need.
           </p>
           {/* Steps */}
-          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-md:gap-12 mt-20 max-md:mt-14 relative">
+          <div className="max-w-7xl mx-auto px-2 sm:px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 mt-12 sm:mt-16 lg:mt-20 relative">
             {/* Horizontal line */}
             <div className="hidden lg:block absolute top-8 left-[5%] w-[90%] h-[2px] bg-gray-300"></div>
             {steps.map((step) => (
@@ -151,8 +151,8 @@ function Home() {
       </section>
 
       {/* CATEGORIES SECTION */}
-      <section className="py-24 max-md:py-16 bg-[#f6f8fb] fade-up">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="py-16 sm:py-20 lg:py-24 bg-[#f6f8fb] fade-up">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           {/* Heading */}
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="section-title">Consumer Rights Categories</h2>

@@ -7,7 +7,7 @@ const LegalPageLayout = ({ title, description, children }) => {
 
       {/* Header Section - uses same heading classes as other pages */}
       <div className="pt-28 sm:pt-32 lg:pt-40 pb-6 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-[900px] mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center">
           <h1 className="section-title">{title}</h1>
           <div className="section-underline"></div>
           <p className="section-subtitle">{description}</p>
@@ -16,7 +16,7 @@ const LegalPageLayout = ({ title, description, children }) => {
 
       {/* Main Content */}
       <main className="flex-1 py-10 md:py-14 px-4 md:px-6">
-        <div className="max-w-[900px] mx-auto">
+        <div className="max-w-4xl mx-auto">
           {/* Content Sections */}
           <div className="space-y-6 md:space-y-8">
             {children}

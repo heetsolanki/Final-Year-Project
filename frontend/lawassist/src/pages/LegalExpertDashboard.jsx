@@ -117,8 +117,8 @@ const LegalExpertDashboard = () => {
 
   return (
     <>
-      <div className="user-dashboard-wrapper bg-slate-50 min-h-screen">
-        <div className="user-dashboard-container max-w-7xl mx-auto px-4 md:px-6">
+      <div className="user-dashboard-wrapper bg-slate-50 min-h-screen overflow-x-hidden">
+        <div className="user-dashboard-container max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           {/* Verification / Inactive Banners */}
           {expert.verificationStatus === "profile_incomplete" && (
             <div className="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-4 shadow-sm">
@@ -142,7 +142,7 @@ const LegalExpertDashboard = () => {
           )}
 
           {expert.verificationStatus === "under_review" && (
-            <div className="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-4 shadow-sm inline-flex items-center gap-2 w-full">
+            <div className="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-4 shadow-sm flex flex-col sm:flex-row sm:items-center gap-2 w-full">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border border-yellow-300 whitespace-nowrap">
                 <span className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
                 Under Review
