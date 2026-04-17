@@ -1,12 +1,12 @@
 const DashboardTabs = ({ activeTab, setActiveTab, tabs = [] }) => {
   return (
-    <div className="mt-8 border-b border-gray-200">
-      <div className="flex gap-6 md:gap-8 overflow-x-auto whitespace-nowrap px-1 pb-2">
+    <div className="mt-6 sm:mt-8 border-b border-gray-200">
+      <div className="flex gap-4 sm:gap-6 md:gap-8 overflow-x-auto whitespace-nowrap px-1 pb-2 scrollbar-hide">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`relative pb-3 text-sm md:text-[15px] font-medium transition-colors duration-200
+            className={`relative pb-3 pt-1 text-sm md:text-[15px] font-medium transition-colors duration-200 min-h-[44px]
             ${
               activeTab === tab.id
                 ? "text-[#1E3A8A]"

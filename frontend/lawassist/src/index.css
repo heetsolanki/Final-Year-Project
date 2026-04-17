@@ -4,7 +4,7 @@
 
 /* ================= GLOBAL ================= */
 
-.html {
+html {
   @apply scroll-smooth;
 }
 
@@ -13,6 +13,7 @@ body {
   background-image: linear-gradient(180deg, #f8fafc 0%, #ffffff 18%, #ffffff 100%);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
 :root {
@@ -124,7 +125,7 @@ a:hover {
 /* ================= LAYOUT ================= */
 
 .container-custom {
-  @apply max-w-7xl mx-auto px-6;
+  @apply max-w-7xl mx-auto px-4 sm:px-6 md:px-8;
 }
 
 .section-padding {
@@ -207,7 +208,7 @@ a:hover {
 /* SECTION TITLES, SUBTITLES & LINES */
 
 .section-title {
-  @apply text-4xl font-bold text-[#0A1F44];
+  @apply text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0A1F44];
 }
 
 .section-underline {
@@ -215,7 +216,7 @@ a:hover {
 }
 
 .section-subtitle {
-  @apply text-gray-600 text-center max-w-2xl mx-auto leading-relaxed;
+  @apply text-sm sm:text-base text-gray-600 text-center max-w-2xl mx-auto leading-relaxed px-2;
 }
 
 /* FLOATING BUTTON */
@@ -232,7 +233,7 @@ a:hover {
 /* MOBILE RESPONSIVENESS */
 @media (max-width: 768px) {
   .floating-btn {
-    @apply w-12 h-12
+    @apply w-12 h-12;
   }
 }
 
@@ -241,11 +242,11 @@ a:hover {
    ============================================================ */
 
 .nav-wrapper {
-  @apply fixed top-8 left-1/2 -translate-x-1/2 w-[92%] max-w-[1300px] z-50;
+  @apply fixed top-4 sm:top-6 md:top-8 left-1/2 -translate-x-1/2 w-[95%] md:w-[92%] max-w-[1300px] z-50;
 }
 
 .navbar {
-  @apply relative grid grid-cols-[1fr_auto_1fr] items-center gap-4 px-8 py-4 rounded-full bg-white/70 backdrop-blur-xl shadow-lg border border-white/40;
+  @apply relative grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-4 px-4 sm:px-6 md:px-8 py-3 sm:py-4 rounded-2xl md:rounded-full bg-white/70 backdrop-blur-xl shadow-lg border border-white/40;
 }
 
 .nav-links {
@@ -285,7 +286,7 @@ a:hover {
 }
 
 .nav-btn {
-  @apply px-6 py-2 rounded-full text-sm transition whitespace-nowrap;
+  @apply px-5 sm:px-6 py-2.5 rounded-full text-sm transition whitespace-nowrap min-h-[44px];
 }
 
 .nav-login {
@@ -323,7 +324,7 @@ a:hover {
 }
 
 .mobile-menu {
-  @apply hidden flex-col items-center gap-6 mt-4 px-6 py-6 rounded-2xl bg-white/90 backdrop-blur-xl shadow-xl border border-white/40 max-h-[calc(100vh-7rem)] overflow-y-auto;
+  @apply hidden flex-col items-stretch gap-4 mt-3 sm:mt-4 px-4 sm:px-6 py-4 sm:py-6 rounded-2xl bg-white/90 backdrop-blur-xl shadow-xl border border-white/40 max-h-[calc(100vh-7rem)] overflow-y-auto;
 }
 
 .mobile-menu.active {
@@ -360,7 +361,7 @@ a:hover {
   }
 
   .navbar {
-    @apply px-6 py-5 rounded-2xl;
+    @apply px-4 py-4 rounded-2xl;
   }
 
   .nav-logo-text {
@@ -371,7 +372,11 @@ a:hover {
   .mobile-menu .nav-link,
   .mobile-menu .nav-login,
   .mobile-menu .nav-register {
-    @apply w-full text-center justify-center;
+    @apply w-full text-center justify-center min-h-[44px] flex items-center;
+  }
+
+  .mobile-menu .nav-link::after {
+    display: none;
   }
 }
 
@@ -571,7 +576,7 @@ a:hover {
 }
 
 .delete-modal {
-  @apply bg-white rounded-xl shadow-2xl w-[380px] max-w-[90%] p-6 text-center;
+  @apply bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 text-center;
 }
 
 .delete-title {
@@ -604,7 +609,7 @@ a:hover {
 }
 
 .success-modal {
-  @apply bg-white rounded-xl shadow-2xl w-[380px] max-w-[90%] p-6 text-center;
+  @apply bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 text-center;
 }
 
 .success-title {
@@ -672,7 +677,7 @@ a:hover {
    ============================================================ */
 
 .auth-wrapper {
-  @apply min-h-screen bg-gray-50 flex items-center justify-center px-4 py-10 pt-32;
+  @apply min-h-screen bg-gray-50 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-10 pt-28 sm:pt-32;
 }
 
 .auth-container {
@@ -696,7 +701,7 @@ a:hover {
 }
 
 .auth-right {
-  @apply p-8 sm:p-10 md:p-14 flex flex-col justify-center;
+  @apply p-6 sm:p-8 md:p-12 flex flex-col justify-center;
 }
 
 .auth-title {
@@ -806,6 +811,12 @@ a:hover {
 
 .user-dashboard-container:hover {
   @apply shadow-xl -translate-y-1;
+}
+
+@media (max-width: 768px) {
+  .user-dashboard-container:hover {
+    @apply shadow-sm translate-y-0;
+  }
 }
 
 .user-dashboard-title {

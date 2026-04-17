@@ -220,8 +220,8 @@ const UserDashboard = () => {
 
   return (
     <>
-      <div className="user-dashboard-wrapper bg-slate-50 min-h-screen">
-        <div className="user-dashboard-container max-w-7xl mx-auto px-4 md:px-6">
+      <div className="user-dashboard-wrapper bg-slate-50 min-h-screen overflow-x-hidden">
+        <div className="user-dashboard-container max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           {/* Top Profile Card */}
           <DashboardTopCard
             userName={userName}
@@ -256,16 +256,16 @@ const UserDashboard = () => {
                   <p className="text-xs text-gray-500 mt-0.5 truncate">
                     You have a saved query: "{pendingQuery.title}"
                   </p>
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex flex-col sm:flex-row gap-2 mt-3">
                     <button
                       onClick={handleContinueQuery}
-                      className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
+                      className="px-3 py-2 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition w-full sm:w-auto"
                     >
                       Continue Query
                     </button>
                     <button
                       onClick={handleDismissBanner}
-                      className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                      className="px-3 py-2 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition w-full sm:w-auto"
                     >
                       Dismiss
                     </button>

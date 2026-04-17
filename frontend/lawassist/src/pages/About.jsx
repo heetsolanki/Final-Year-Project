@@ -40,27 +40,27 @@ function About() {
 
   return (
     <>
-      <main className="pt-40">
+      <main className="pt-28 sm:pt-32 lg:pt-40 overflow-x-hidden">
         {/* HERO SECTION */}
         <section
-          className="pt-24 max-md:pt-16 pb-24 max-md:pb-16 relative overflow-hidden"
+          className="pt-16 sm:pt-20 lg:pt-24 pb-16 sm:pb-20 lg:pb-24 relative overflow-hidden"
           style={{
             backgroundColor: "#f9fafc",
             backgroundImage:
               "repeating-linear-gradient(135deg, rgba(10,31,68,0.03) 0px, rgba(10,31,68,0.03) 1px, transparent 1px, transparent 14px)",
           }}
         >
-          <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center justify-between gap-16 max-md:gap-10 max-md:text-center relative z-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col lg:flex-row items-center justify-between gap-10 sm:gap-12 lg:gap-16 text-center lg:text-left relative z-10">
             {/* LEFT CONTENT */}
             <div>
-              <h1 className="text-6xl max-md:text-3xl font-bold text-[#0A1F44] leading-tight max-md:leading-snug max-md:text-center">
+              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-[#0A1F44] leading-tight sm:leading-snug">
                 Making Consumer <br />
                 Rights Simple <br />& Accessible
               </h1>
 
-              <div className="w-16 h-1 bg-[#C9A227] my-8 max-md:my-6 rounded-full max-md:mx-auto"></div>
+              <div className="w-16 h-1 bg-[#C9A227] my-6 sm:my-8 rounded-full mx-auto lg:mx-0"></div>
 
-              <p className="text-lg max-md:text-base text-gray-600 max-w-lg leading-relaxed max-md:text-center max-md:mx-auto">
+              <p className="text-base sm:text-lg text-gray-600 max-w-lg leading-relaxed mx-auto lg:mx-0">
                 A structured digital platform designed to simplify consumer
                 legal guidance. Know your rights, take action, and get the help
                 you deserve.
@@ -70,25 +70,25 @@ function About() {
             {/* RIGHT GRAPHIC */}
             <div className="relative flex items-center justify-center">
               <div
-                className="absolute rounded-full max-md:w-[220px] max-md:h-[220px] w-[340px] h-[340px]"
+                className="absolute rounded-full w-[220px] h-[220px] sm:w-[280px] sm:h-[280px] lg:w-[340px] lg:h-[340px]"
                 style={{ background: "rgba(10,31,68,0.05)" }}
               ></div>
               <div
-                className="absolute rounded-full max-md:w-[180px] max-md:h-[180px] w-[280px] h-[280px]"
+                className="absolute rounded-full w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] lg:w-[280px] lg:h-[280px]"
                 style={{ background: "rgba(10,31,68,0.08)" }}
               ></div>
               <div
-                className="absolute rounded-full max-md:w-[140px] max-md:h-[140px] w-[220px] h-[220px]"
+                className="absolute rounded-full w-[140px] h-[140px] sm:w-[170px] sm:h-[170px] lg:w-[220px] lg:h-[220px]"
                 style={{ background: "rgba(10,31,68,0.12)" }}
               ></div>
 
-              <div className="w-[180px] h-[180px] max-md:w-[120px] max-md:h-[120px] bg-[#0A1F44] rounded-full flex items-center justify-center relative z-10">
-                <Scale className="w-16 h-16 max-md:w-10 max-md:h-10 text-[#C9A227]" />
+              <div className="w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] lg:w-[180px] lg:h-[180px] bg-[#0A1F44] rounded-full flex items-center justify-center relative z-10">
+                <Scale className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 text-[#C9A227]" />
                 <div
-                  className="absolute top-0 right-0 w-14 h-14 max-md:w-10 max-md:h-10 bg-[#C9A227] rounded-full flex items-center justify-center shadow-xl z-20"
+                  className="absolute top-0 right-0 w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-[#C9A227] rounded-full flex items-center justify-center shadow-xl z-20"
                   style={{ transform: "translate(30%, -30%)" }}
                 >
-                  <Shield className="w-6 h-6 max-md:w-6 max-md:h-6 text-[#0A1F44]" />
+                  <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-[#0A1F44]" />
                 </div>
               </div>
             </div>
@@ -96,8 +96,8 @@ function About() {
         </section>
 
         {/* WHO WE ARE */}
-        <section className="bg-[#f4f6f9] py-24">
-          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20 max-md:gap-12 items-center max-md:text-center">
+        <section className="bg-[#f4f6f9] py-16 sm:py-20 lg:py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-20 items-center text-center lg:text-left">
             {/* LEFT CONTENT */}
             <div>
               <h2 className="section-title">Who We Are</h2>
@@ -117,7 +117,7 @@ function About() {
 
             {/* RIGHT CARD */}
             <div
-              className="bg-white rounded-2xl shadow-lg p-10 max-md:p-6 relative w-full h-full"
+              className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 lg:p-10 relative w-full h-full"
               style={{ borderTop: "4px solid #C9A227" }}
             >
               <div className="w-16 h-16 bg-[#0A1F44] rounded-xl flex items-center justify-center mb-6">
@@ -136,9 +136,9 @@ function About() {
         </section>
 
         {/* MISSION */}
-        <section className="bg-[#0A1F44] py-24 text-center">
-          <div className="max-w-7xl mx-auto px-6">
-            <h2 className="text-4xl max-md:text-2xl font-bold text-white">
+        <section className="bg-[#0A1F44] py-16 sm:py-20 lg:py-24 text-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
               Our Mission
             </h2>
             <div className="w-16 h-1 bg-[#C9A227] mx-auto my-6 rounded-full"></div>
@@ -148,7 +148,7 @@ function About() {
               and structured for every consumer.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-10 max-md:gap-6 mt-20 max-md:mt-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-6 sm:gap-8 lg:gap-10 mt-12 sm:mt-16 lg:mt-20">
               {missions.map((mission) => (
                 <div
                   key={mission.id}
@@ -188,8 +188,8 @@ function About() {
         </section>
 
         {/* WHAT WE OFFER */}
-        <section className="bg-[#f4f6f9] py-24 text-center">
-          <div className="max-w-7xl mx-auto px-6">
+        <section className="bg-[#f4f6f9] py-16 sm:py-20 lg:py-24 text-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
             <h2 className="section-title">What We Offer</h2>
             <div className="section-underline"></div>
 
@@ -198,7 +198,7 @@ function About() {
               consumer rights with ease.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 max-md:gap-6 mt-20 max-md:mt-12 text-left">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 mt-12 sm:mt-16 lg:mt-20 text-left">
               {offers.map((offer) => (
                 <div
                   key={offer.id}
@@ -227,11 +227,11 @@ function About() {
         </section>
 
         {/* DEVELOPER SECTION */}
-        <section className="bg-white py-24 text-center">
+        <section className="bg-white py-16 sm:py-20 lg:py-24 text-center">
           <h2 className="section-title">About the Developers</h2>
           <div className="section-underline"></div>
 
-          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20 max-md:gap-12 items-center mt-20 max-md:mt-12 text-left">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-20 items-center mt-12 sm:mt-16 lg:mt-20 text-left">
             {/* LEFT SIDE */}
             <div>
               <div className="w-16 h-16 bg-[#0A1F44] rounded-2xl flex items-center justify-center mb-6">

@@ -169,8 +169,8 @@ const ChatPage = () => {
 
   return (
     <>
-      <div className="pt-28 sm:pt-32 pb-4 sm:pb-6 min-h-screen bg-gray-50 flex justify-center px-2 sm:px-3">
-        <div className="w-full max-w-[1200px] flex flex-col gap-3">
+      <div className="pt-24 sm:pt-28 md:pt-32 pb-4 sm:pb-6 min-h-screen bg-gray-50 flex justify-center px-2 sm:px-4 md:px-6 overflow-x-hidden">
+        <div className="w-full max-w-7xl flex flex-col gap-3">
           {/* Back Button */}
           <button
             onClick={() => navigate("/user-dashboard")}
@@ -183,7 +183,7 @@ const ChatPage = () => {
           {/* Chat Container */}
           <div className="w-full h-[calc(100vh-7rem)] md:h-[82vh] bg-white rounded-2xl shadow-xl flex overflow-hidden border relative">
             <div
-              className={`w-full md:w-[320px] border-r ${
+              className={`w-full md:w-[22rem] lg:w-[24rem] border-r ${
                 chatOpen ? "hidden md:block" : "block"
               }`}
             >

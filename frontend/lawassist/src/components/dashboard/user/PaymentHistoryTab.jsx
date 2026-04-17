@@ -193,14 +193,14 @@ const PaymentHistoryTab = () => {
               key={p.paymentId}
               className="border border-gray-200 rounded-xl p-4 space-y-2"
             >
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-gray-800">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-semibold text-gray-800 min-w-0 break-words">
                   {p.expertName}
                 </span>
                 <StatusBadge status={p.paymentStatus} />
               </div>
 
-              <div className="flex items-center justify-between text-sm text-gray-600">
+              <div className="flex items-center justify-between gap-2 text-sm text-gray-600">
                 <span>
                   {p.paymentMethod === "UPI"
                     ? "UPI"
@@ -209,8 +209,8 @@ const PaymentHistoryTab = () => {
                 <span className="font-bold text-gray-800">₹{p.amount}</span>
               </div>
 
-              <div className="flex items-center justify-between text-xs text-gray-400">
-                <span className="font-mono">
+              <div className="flex items-center justify-between gap-2 text-xs text-gray-400">
+                <span className="font-mono truncate max-w-[55%]">
                   {p.transactionId || p.paymentId}
                 </span>
                 <span>
@@ -223,17 +223,17 @@ const PaymentHistoryTab = () => {
               </div>
 
               {p.paymentStatus === "Success" && (
-                <div className="flex items-center gap-3 pt-1">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
                   <button
                     onClick={() => setSelectedPayment(p)}
-                    className="flex items-center gap-1 text-xs text-[#1E3A8A] font-medium hover:underline transition"
+                    className="flex items-center justify-center gap-1 text-xs text-[#1E3A8A] font-medium hover:underline transition min-h-[40px]"
                   >
                     <Receipt size={13} />
                     View Receipt
                   </button>
                   <button
                     onClick={() => handleDownload(p)}
-                    className="flex items-center gap-1 text-xs text-gray-500 font-medium hover:text-[#1E3A8A] transition"
+                    className="flex items-center justify-center gap-1 text-xs text-gray-500 font-medium hover:text-[#1E3A8A] transition min-h-[40px]"
                   >
                     <Download size={13} />
                     Download Invoice
