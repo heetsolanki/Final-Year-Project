@@ -1,75 +1,121 @@
-# 🏛️ LawAssist – Consumer Rights Legal Help System
+# ⚖️ LawAssist – Consumer Rights Legal Help System
 
-LawAssist is a full-stack MERN web application designed to simplify access to consumer rights and legal assistance. It enables users to explore laws, understand their rights, and raise queries, while experts can manage and respond through a structured system.
-
-The platform also integrates AI-powered features to enhance user queries and improve overall usability.
+## 📖 Overview
+LawAssist is a full-stack MERN web application designed to simplify **consumer rights awareness**.  
+It allows users to explore legal information, ask queries, and interact with experts through a structured and user-friendly platform.
 
 ---
 
 ## 🚀 Features
 
+### 🔍 Core Functionalities
+- Explore categorized consumer rights laws  
+- Detailed law explanations with expandable sections  
+- Smart search functionality  
+- Ask and manage legal queries  
+- Save important topics  
+
+---
+
 ### 👤 User Features
-- Explore consumer rights by categories
-- View detailed law explanations with structured sections (accordion-based UI)
-- Smart search to quickly find relevant laws
-- Ask legal queries through a guided form
-- Track query status:
-  - Pending
-  - In Review
-  - Answered
-  - Resolved
-- Save/bookmark important legal topics
-- Receive notifications for updates
+- User authentication (Login/Register)  
+- Submit queries and track responses  
+- Save favorite topics  
 
 ---
 
-### 👨‍⚖️ Expert Features
-- Dedicated expert dashboard
-- View and manage assigned queries
-- Respond to user queries
-- Update query status dynamically
-- Handle consultations efficiently
+### 🧑‍⚖️ Expert Features
+- Respond to user queries  
+- Manage consultations  
+- Dashboard with activity overview  
 
 ---
 
-### 💬 Real-Time Communication
-- Real-time chat between users and experts
-- Enables direct interaction for better problem resolution
-- Improves response speed and user experience
+### 💬 Real-Time Chat
+- Live chat using Socket.io  
+- Foul language detection & moderation  
+- Seamless communication between users and experts  
 
 ---
 
-### 🤖 AI-Powered Features
-- AI-based query rephrasing for better clarity
-- Automatic category & subcategory suggestion
-- Smart assistance to improve user input before submission
+### 💳 Payment Simulation
+- Simulated payment system  
+- Random success/failure scenarios  
+- Demonstrates real-world payment flow  
 
 ---
 
-### 📊 Dashboard & UI
-- Modern, responsive UI built using Tailwind CSS
-- Reusable components (cards, tabs, stats grid, dashboards)
-- User and Expert dashboards with consistent design
-- Interactive notification panel with animations
-- Clean and intuitive layout for better UX
+### ☁️ File Uploads
+- Integrated Cloudinary for secure file storage  
+- Optimized media handling  
+- Supports document uploads  
+
+---
+
+### 📧 Email Notifications
+- Integrated EmailJS  
+- Notifications for:
+  - Query updates  
+  - General alerts  
+
+---
+
+### 📱 Responsive Design
+- Fully responsive UI using Tailwind CSS  
+- Works across mobile, tablet, and desktop  
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- React.js
-- Tailwind CSS
+- React.js  
+- Tailwind CSS  
 
 ### Backend
-- Node.js
-- Express.js
+- Node.js  
+- Express.js  
 
 ### Database
-- MongoDB
+- MongoDB  
 
-### Other Technologies
-- REST APIs
-- Role-based authentication system
-- AI API integration
-- Real-time communication (chat system)
+### Integrations
+- Cloudinary (file uploads)  
+- EmailJS (email services)  
+- Socket.io (real-time chat)  
+
+---
+
+## 🌐 Deployment
+- Frontend: Vercel  
+- Backend: Render  
+
+---
+
+## 📂 Project Structure
+- /client → React frontend
+- /server → Node.js backend
+- /models → MongoDB schemas
+- /routes → API routes
+- /controllers → Business logic
+
+---
+
+## ⚙️ Key Highlights
+- Real-world problem solving (consumer rights awareness)  
+- Clean and modular UI design  
+- Scalable backend architecture  
+- Real-time communication system  
+- Production-level deployment setup  
+
+---
+
+## 🤝 Contribution
+This is an academic project. Suggestions and improvements are welcome!
+
+---
+
+## 📬 Contact
+Feel free to connect for feedback or collaboration.
+
+---
