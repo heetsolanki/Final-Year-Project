@@ -23,8 +23,8 @@ function Home() {
     "Financial Services": "For banking disputes, insurance claim issues, and payment-related problems.",
     "Housing & Property": "Helps with builder delays, rental disputes, and possession concerns.",
     "Travel & Transport": "Supports refund, cancellation, overcharge, and service-quality disputes.",
-    Utilities: "Handles electricity, water, and utility billing or service interruptions.",
-    Education: "For fee disputes, false promises, and institutional service issues.",
+    "Utilities": "Handles electricity, water, and utility billing or service interruptions.",
+    "Education": "For fee disputes, false promises, and institutional service issues.",
   };
 
   const toggleFlipCard = (key) => {
@@ -33,7 +33,7 @@ function Home() {
   };
 
   return (
-    <>
+    <div className="overflow-x-hidden overflow-y-hidden scroll-smooth">
       {/* HERO SECTION */}
       <section className="pt-36 sm:pt-44 lg:pt-56 bg-white mb-12 sm:mb-16 lg:mb-20 fade-up">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col lg:flex-row items-center justify-between gap-8 sm:gap-12 lg:gap-16">
@@ -63,18 +63,16 @@ function Home() {
           </div>
 
           {/* RIGHT MINI CARDS */}
-          <div className="w-full max-w-xl bg-gray-100 p-4 sm:p-6 rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div className="bg-gray-100 p-6 max-md:p-4 rounded-2xl grid grid-cols-2 gap-6 max-md:gap-4">
             {miniCards.map((card) => (
               <div
                 key={card.id}
-                className="bg-white w-full min-h-[8rem] sm:min-h-[10rem] rounded-xl shadow-md transition hover:shadow-lg text-sm sm:text-base px-3 py-3 sm:px-4 sm:py-4"
+                className="bg-white w-40 max-md:w-full h-40 max-md:h-32 flex flex-col items-center justify-center rounded-xl shadow-md transition hover:shadow-lg max-md:text-sm max-md:px-4 max-md:py-3"
               >
-                <div className="h-full">
-                  <div className="flex h-full flex-col items-center justify-center px-3 py-3">
-                    {card.icon}
-                    <h3 className="mt-3 font-semibold text-[#0A1F44] text-center">{card.title}</h3>
-                  </div>
-                </div>
+                {card.icon}
+                <h3 className="mt-3 font-semibold text-[#0A1F44]">
+                  {card.title}
+                </h3>
               </div>
             ))}
           </div>
@@ -188,7 +186,7 @@ function Home() {
         </div>
       </section>
       <BackToTopButton />
-    </>
+    </div>
   );
 }
 

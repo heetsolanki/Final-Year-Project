@@ -324,7 +324,7 @@ a:hover {
 }
 
 .mobile-menu {
-  @apply hidden flex-col items-stretch gap-4 mt-3 sm:mt-4 px-4 sm:px-6 py-4 sm:py-6 rounded-2xl bg-white/90 backdrop-blur-xl shadow-xl border border-white/40 max-h-[calc(100vh-7rem)] overflow-y-auto;
+  @apply hidden flex-col items-stretch gap-4 mt-3 sm:mt-4 px-4 sm:px-6 py-4 sm:py-6 rounded-2xl bg-white/90 backdrop-blur-xl shadow-xl border border-white/40;
 }
 
 .mobile-menu.active {
@@ -360,6 +360,18 @@ a:hover {
     @apply top-4 w-[95%];
   }
 
+  html,
+  body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  body::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
   .navbar {
     @apply px-4 py-4 rounded-2xl;
   }
@@ -370,9 +382,14 @@ a:hover {
 
   .nav-btn,
   .mobile-menu .nav-link,
+  .mobile-menu .nav-profile-link,
   .mobile-menu .nav-login,
   .mobile-menu .nav-register {
     @apply w-full text-center justify-center min-h-[44px] flex items-center;
+  }
+
+  .mobile-menu .nav-profile-link {
+    @apply max-w-none;
   }
 
   .mobile-menu .nav-link::after {

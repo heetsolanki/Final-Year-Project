@@ -93,6 +93,17 @@ function Navbar() {
     setIsOpen(false);
   }, [location.pathname]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 1100) {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
@@ -336,10 +347,45 @@ function Navbar() {
           </>
         ) : (
           <>
-            <div className="nav-profile-link w-full justify-center">
-              <User2Icon size={18} />
-              <span className="nav-profile-name">{userName}</span>
-            </div>
+            {userRole === "consumer" && (
+              <Link
+                to="/user-dashboard"
+                className="nav-profile-link w-full justify-center"
+                onClick={() => {
+                  setIsOpen(false);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                <User2Icon size={18} />
+                <span className="nav-profile-name">{userName}</span>
+              </Link>
+            )}
+            {userRole === "legalExpert" && (
+              <Link
+                to="/legal-expert-dashboard"
+                className="nav-profile-link w-full justify-center"
+                onClick={() => {
+                  setIsOpen(false);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                <User2Icon size={18} />
+                <span className="nav-profile-name">{userName}</span>
+              </Link>
+            )}
+            {userRole === "admin" && (
+              <Link
+                to="/admin-dashboard"
+                className="nav-profile-link w-full justify-center"
+                onClick={() => {
+                  setIsOpen(false);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                <User2Icon size={18} />
+                <span className="nav-profile-name">{userName}</span>
+              </Link>
+            )}
             <button
               className="nav-btn nav-register w-full"
               onClick={() => {
