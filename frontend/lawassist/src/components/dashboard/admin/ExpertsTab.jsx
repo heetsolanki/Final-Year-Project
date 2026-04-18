@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import API_URL from "../../../api";
+import { toPdfOpenUrl } from "../../../utils/documentLinks";
 import {
   ShieldCheck,
   ShieldX,
@@ -531,12 +532,12 @@ const AdminExpertsTab = ({ refreshKey }) => {
                     </p>
                     {viewExpert.governmentIdUrl ? (
                       <a
-                        href={viewExpert.governmentIdUrl}
+                        href={toPdfOpenUrl(viewExpert.governmentIdUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 text-sm hover:underline break-all"
                       >
-                        {viewExpert.governmentIdUrl}
+                        Open Government ID PDF
                       </a>
                     ) : (
                       <p className="text-sm text-gray-500">No file uploaded</p>
@@ -549,12 +550,12 @@ const AdminExpertsTab = ({ refreshKey }) => {
                     </p>
                     {viewExpert.barCouncilDocUrl ? (
                       <a
-                        href={viewExpert.barCouncilDocUrl}
+                        href={toPdfOpenUrl(viewExpert.barCouncilDocUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 text-sm hover:underline break-all"
                       >
-                        {viewExpert.barCouncilDocUrl}
+                        Open Bar Council PDF
                       </a>
                     ) : (
                       <p className="text-sm text-gray-500">No file uploaded</p>

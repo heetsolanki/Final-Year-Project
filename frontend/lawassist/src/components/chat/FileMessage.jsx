@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { FileText, Download, ExternalLink } from "lucide-react";
-import API_URL from "../../api";
+import { toAbsoluteDocumentUrl, toPdfOpenUrl } from "../../utils/documentLinks";
 
 const IMAGE_TYPES = ["jpg", "jpeg", "png"];
 
 const FileMessage = ({ fileUrl, fileName, fileType, isMine }) => {
-  const fullUrl = /^https?:\/\//i.test(fileUrl || "")
-    ? fileUrl
-    : `${API_URL}${fileUrl}`;
+  const fullUrl = toAbsoluteDocumentUrl(fileUrl);
+  const openUrl = toPdfOpenUrl(fileUrl);
   const isImage = IMAGE_TYPES.includes(fileType?.toLowerCase());
   const [downloading, setDownloading] = useState(false);
 
@@ -65,7 +64,7 @@ const FileMessage = ({ fileUrl, fileName, fileType, isMine }) => {
       {/* Action buttons */}
       <div className="flex items-center gap-2">
         <a
-          href={fullUrl}
+          href={openUrl || fullUrl}
           target="_blank"
           rel="noreferrer"
           className={`flex items-center gap-1 px-2 py-1 rounded-lg border text-xs transition no-underline ${btnBase}`}
