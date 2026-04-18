@@ -3,11 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 
-const GEMINI_MODELS = Object.freeze({
-  SIMPLE_PRIMARY: "gemini-3.1-flash-lite-preview",
-  FALLBACK_FLASH: "gemini-2.5-flash",
-  COMPLEX_PRIMARY: "gemini-2.5-pro",
-});
+const GEMINI_MODEL = "gemini-3.1-flash-lite-preview";
 
 const TASK_TYPES = Object.freeze({
   SIMPLE: "SIMPLE",
@@ -15,30 +11,6 @@ const TASK_TYPES = Object.freeze({
 });
 
 const MAX_RETRIES_PER_MODEL = 2;
-
-const SIMPLE_TASK_KEYWORDS = [
-  "summarize",
-  "summary",
-  "simplify",
-  "plain language",
-  "short explanation",
-  "explain simply",
-];
-
-const COMPLEX_TASK_KEYWORDS = [
-  "moderation",
-  "classify",
-  "categorize",
-  "categorization",
-  "decision",
-  "validate category",
-  "subcategory",
-  "appropriate",
-  "isappropriate",
-  "is match",
-  "detectedcategory",
-  "json",
-];
 
 const CATEGORY_KEYWORDS = {
   "Shopping & Marketplace": [
@@ -199,39 +171,6 @@ const getAiClient = () => {
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const normalizeTaskType = (taskType) =>
-  taskType === TASK_TYPES.COMPLEX || String(taskType || "").toUpperCase() === TASK_TYPES.COMPLEX
-    ? TASK_TYPES.COMPLEX
-    : TASK_TYPES.SIMPLE;
-
-const inferTaskTypeFromPrompt = (prompt = "") => {
-  const normalizedPrompt = String(prompt).toLowerCase();
-
-  if (COMPLEX_TASK_KEYWORDS.some((keyword) => normalizedPrompt.includes(keyword))) {
-    return TASK_TYPES.COMPLEX;
-  }
-
-  if (SIMPLE_TASK_KEYWORDS.some((keyword) => normalizedPrompt.includes(keyword))) {
-    return TASK_TYPES.SIMPLE;
-  }
-
-  return TASK_TYPES.SIMPLE;
-};
-
-const resolveTaskType = ({ taskType, prompt }) => normalizeTaskType(taskType || inferTaskTypeFromPrompt(prompt));
-
-const getModelRouteForTask = (taskType) => {
-  if (taskType === TASK_TYPES.COMPLEX) {
-    return [GEMINI_MODELS.COMPLEX_PRIMARY, GEMINI_MODELS.FALLBACK_FLASH];
-  }
-
-  return [
-    GEMINI_MODELS.SIMPLE_PRIMARY,
-    GEMINI_MODELS.FALLBACK_FLASH,
-    GEMINI_MODELS.COMPLEX_PRIMARY,
-  ];
-};
-
 const isRetryableGeminiError = (error) => {
   const status = Number(error?.status);
   const message = String(error?.message || "").toUpperCase();
@@ -265,58 +204,44 @@ const extractResponseText = (response) => {
 const generateTextWithFallback = async (prompt, options = {}) => {
   const ai = getAiClient();
   let lastRetryableError = null;
-  const taskType = resolveTaskType({ taskType: options.taskType, prompt });
-  const taskLabel = options.taskLabel || taskType;
-  const modelRoute = getModelRouteForTask(taskType);
+  const taskLabel = options.taskLabel || options.taskType || TASK_TYPES.SIMPLE;
 
-  console.log(`[Gemini] Task ${taskLabel} routed to ${taskType} handling`);
+  console.log(`[Gemini] Task ${taskLabel} selected model: ${GEMINI_MODEL}`);
 
-  for (let modelIndex = 0; modelIndex < modelRoute.length; modelIndex += 1) {
-    const model = modelRoute[modelIndex];
-    console.log(`[Gemini] Task ${taskLabel} selected model: ${model}`);
+  for (let retryCount = 0; retryCount <= MAX_RETRIES_PER_MODEL; retryCount += 1) {
+    try {
+      const response = await ai.models.generateContent({
+        model: GEMINI_MODEL,
+        contents: prompt,
+      });
 
-    for (let retryCount = 0; retryCount <= MAX_RETRIES_PER_MODEL; retryCount += 1) {
-      try {
-        const response = await ai.models.generateContent({
-          model,
-          contents: prompt,
-        });
+      const text = extractResponseText(response);
+      if (!text) {
+        throw new Error(`Empty text response from model ${GEMINI_MODEL}`);
+      }
 
-        const text = extractResponseText(response);
-        if (!text) {
-          throw new Error(`Empty text response from model ${model}`);
-        }
+      console.log(`[Gemini] Model succeeded: ${GEMINI_MODEL}`);
+      return text;
+    } catch (error) {
+      if (!isRetryableGeminiError(error)) {
+        console.error(`[Gemini] Non-retryable error on model ${GEMINI_MODEL}:`, error.message);
+        throw error;
+      }
 
-        console.log(`[Gemini] Model succeeded: ${model}`);
-        return text;
-      } catch (error) {
-        if (!isRetryableGeminiError(error)) {
-          console.error(`[Gemini] Non-retryable error on model ${model}:`, error.message);
-          throw error;
-        }
+      lastRetryableError = error;
 
-        lastRetryableError = error;
-
-        if (retryCount < MAX_RETRIES_PER_MODEL) {
-          const waitMs = 1000 * (2 ** retryCount);
-          console.warn(
-            `[Gemini] Retry ${retryCount + 1}/${MAX_RETRIES_PER_MODEL} for task ${taskLabel} on model ${model} in ${waitMs}ms due to: ${error.message}`,
-          );
-          await delay(waitMs);
-          continue;
-        }
-
-        if (modelIndex < modelRoute.length - 1) {
-          const nextModel = modelRoute[modelIndex + 1];
-          console.warn(
-            `[Gemini] Switching task ${taskLabel} from model ${model} to next model ${nextModel} after retries were exhausted.`,
-          );
-        }
+      if (retryCount < MAX_RETRIES_PER_MODEL) {
+        const waitMs = 1000 * (2 ** retryCount);
+        console.warn(
+          `[Gemini] Retry ${retryCount + 1}/${MAX_RETRIES_PER_MODEL} for task ${taskLabel} on model ${GEMINI_MODEL} in ${waitMs}ms due to: ${error.message}`,
+        );
+        await delay(waitMs);
+        continue;
       }
     }
   }
 
-  const error = new Error(`All Gemini models failed for ${taskLabel} after retries.`);
+  const error = new Error(`Gemini model ${GEMINI_MODEL} failed for ${taskLabel} after retries.`);
   error.cause = lastRetryableError || null;
   throw error;
 };
