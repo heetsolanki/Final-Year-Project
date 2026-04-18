@@ -134,7 +134,7 @@ const AdminLogsTab = ({ refreshKey }) => {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 md:p-8 space-y-6">
+      <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-indigo-50 rounded-xl">

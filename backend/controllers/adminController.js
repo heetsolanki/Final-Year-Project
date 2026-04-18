@@ -13,6 +13,8 @@ const queryWarningEmail = require("../template/queryWarningEmail");
 const queryStatusUpdateEmail = require("../template/queryStatusUpdateEmail");
 const expertQueryNotification = require("../template/expertQueryNotification");
 const accountBlockedEmail = require("../template/accountBlockedEmail");
+const accountUnblockedEmail = require("../template/accountUnblockedEmail");
+const accountDeletedEmail = require("../template/accountDeletedEmail");
 const { createNotification, NOTIFICATION_TYPES } = require("../services/notificationService");
 
 /* ================= ADMIN DASHBOARD STATS ================= */
@@ -189,6 +191,13 @@ exports.unblockUser = async (req, res) => {
       type: NOTIFICATION_TYPES.ACCOUNT_STATUS,
       relatedId: userId,
     });
+
+    sendEmail(
+      user.email,
+      "Account Unblocked - LawAssist",
+      accountUnblockedEmail(user.name),
+      { category: "user_unblocked", targetId: userId, performedBy: req.user.userId },
+    ).catch((err) => console.error("Unblock email error:", err));
 
     res.json({
       message: "User unblocked",
@@ -461,6 +470,13 @@ exports.unblockExpert = async (req, res) => {
       type: NOTIFICATION_TYPES.ACCOUNT_STATUS,
       relatedId: userId,
     });
+
+    sendEmail(
+      expert.email,
+      "Account Unblocked - LawAssist",
+      accountUnblockedEmail(expert.name),
+      { category: "expert_unblocked", targetId: userId, performedBy: req.user.userId },
+    ).catch((err) => console.error("Unblock email error:", err));
 
     await logActivity("Expert unblocked", req.user.userId, userId);
 
@@ -913,6 +929,13 @@ exports.deleteUser = async (req, res) => {
     // Try Expert first
     const expert = await Expert.findOne({ userId });
     if (expert) {
+      sendEmail(
+        expert.email,
+        "Account Deleted - LawAssist",
+        accountDeletedEmail(expert.name),
+        { category: "expert_deleted", targetId: userId, performedBy: req.user.userId },
+      ).catch((err) => console.error("Delete account email error:", err));
+
       await Query.deleteMany({ expertId: userId });
       await Expert.deleteOne({ userId });
       await logActivity("User deleted (expert)", req.user.userId, userId);
@@ -925,6 +948,14 @@ exports.deleteUser = async (req, res) => {
       if (user.isMasterAdmin) {
         return res.status(403).json({ message: "Cannot delete master admin account" });
       }
+
+      sendEmail(
+        user.email,
+        "Account Deleted - LawAssist",
+        accountDeletedEmail(user.name),
+        { category: "user_deleted", targetId: userId, performedBy: req.user.userId },
+      ).catch((err) => console.error("Delete account email error:", err));
+
       await Query.deleteMany({ userId });
       await User.deleteOne({ userId });
       await logActivity("User deleted", req.user.userId, userId);

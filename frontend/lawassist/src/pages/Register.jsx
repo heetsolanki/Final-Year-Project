@@ -87,12 +87,13 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const normalizedEmail = form.email.trim().toLowerCase();
 
     let newErrors = {};
 
     if (!form.fullName.trim()) newErrors.fullName = "Full name is required";
 
-    if (!emailValid) newErrors.email = "Enter a valid email address";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) newErrors.email = "Enter a valid email address";
 
     if (!Object.values(passwordChecks).every(Boolean))
       newErrors.password = "Password does not meet all requirements";
@@ -111,7 +112,7 @@ function Register() {
           },
           body: JSON.stringify({
             name: form.fullName,
-            email: form.email,
+            email: normalizedEmail,
             password: form.password,
             role: role === "consumer" ? "consumer" : "legalExpert",
           }),

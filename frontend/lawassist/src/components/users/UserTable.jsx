@@ -4,7 +4,7 @@ import UserRow from "./UserRow";
 const UserTable = ({ users, onAction, actionLoading }) => {
   return (
     <div className="rounded-xl border border-gray-100 overflow-x-auto">
-      <table className="w-full text-sm text-left">
+      <table className="w-full min-w-[820px] text-sm text-left">
         <thead>
           <tr className="bg-gray-50 border-b border-gray-100">
             <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">

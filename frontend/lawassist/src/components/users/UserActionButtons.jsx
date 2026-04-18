@@ -34,7 +34,7 @@ const UserActionButtons = ({ user, onAction, actionLoading }) => {
   const isDeleting = actionLoading === `delete-${user.userId}`;
 
   return (
-    <div className="flex items-center gap-1.5 whitespace-nowrap">
+    <div className="flex items-center flex-wrap gap-1.5">
       {/* Promote — for consumers or active experts, not blocked, not already admin */}
       {user.role !== "admin" && !isBlocked && (!isExpert || user.verificationStatus === "active") && (
         <button

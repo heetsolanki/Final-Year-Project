@@ -115,9 +115,9 @@ const AdminOverviewTab = ({ refreshKey }) => {
         }
       `}</style>
       {/* Main Card Wrapper */}
-      <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 md:p-8 space-y-8">
+      <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8">
         {/* Welcome Back Card */}
-        <div className="group relative rounded-2xl px-8 md:px-16 py-10 md:py-12 shadow-md hover:shadow-lg overflow-hidden bg-gradient-to-r from-[#0A1F44] via-[#132D5E] to-[#0A1F44] transition-shadow duration-300">
+        <div className="group relative rounded-2xl px-5 sm:px-8 md:px-16 py-8 sm:py-10 md:py-12 shadow-md hover:shadow-lg overflow-hidden bg-gradient-to-r from-[#0A1F44] via-[#132D5E] to-[#0A1F44] transition-shadow duration-300">
           {/* Subtle shimmer sweep */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent" style={{ animation: 'shimmer 8s ease-in-out infinite' }} />

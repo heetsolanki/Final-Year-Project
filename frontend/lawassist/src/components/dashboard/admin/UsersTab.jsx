@@ -240,9 +240,9 @@ const AdminUsersTab = ({ refreshKey }) => {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 md:p-8 space-y-6">
+      <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex max-sm:flex-col items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-blue-50 rounded-xl border border-blue-100">
               <Users size={20} className="text-blue-600" />
@@ -293,12 +293,12 @@ const AdminUsersTab = ({ refreshKey }) => {
             />
           </div>
 
-          <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-50/50 hover:bg-white hover:border-gray-300 transition-all duration-200">
+          <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-50/50 hover:bg-white hover:border-gray-300 transition-all duration-200 w-full sm:w-auto">
             <Filter size={14} className="text-gray-400 shrink-0" />
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="outline-none text-sm bg-transparent cursor-pointer text-gray-600"
+              className="outline-none text-sm bg-transparent cursor-pointer text-gray-600 w-full"
             >
               <option value="All">All Roles</option>
               <option value="consumer">Consumer</option>
@@ -307,12 +307,12 @@ const AdminUsersTab = ({ refreshKey }) => {
             </select>
           </div>
 
-          <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-50/50 hover:bg-white hover:border-gray-300 transition-all duration-200">
+          <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-50/50 hover:bg-white hover:border-gray-300 transition-all duration-200 w-full sm:w-auto">
             <Filter size={14} className="text-gray-400 shrink-0" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="outline-none text-sm bg-transparent cursor-pointer text-gray-600"
+              className="outline-none text-sm bg-transparent cursor-pointer text-gray-600 w-full"
             >
               <option value="All">All Status</option>
               <option value="active">Active</option>

@@ -185,7 +185,7 @@ const AdminExpertsTab = ({ refreshKey }) => {
     const isUnblocking = actionLoading === `unblock-${uid}`;
 
     return (
-      <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
+      <div className="flex items-center flex-wrap gap-2 pt-3 border-t border-gray-100">
         {/* View Profile — always shown */}
         <button
           onClick={() => handleViewProfile(uid)}
@@ -271,9 +271,9 @@ const AdminExpertsTab = ({ refreshKey }) => {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 md:p-8 space-y-6">
+      <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-purple-50 rounded-xl border border-purple-100">
               <BadgeCheck size={20} className="text-purple-600" />
@@ -316,12 +316,12 @@ const AdminExpertsTab = ({ refreshKey }) => {
             />
           </div>
 
-          <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-50/50 hover:bg-white hover:border-gray-300 transition-all duration-200">
+          <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-50/50 hover:bg-white hover:border-gray-300 transition-all duration-200 w-full sm:w-auto">
             <Filter size={14} className="text-gray-400 shrink-0" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="outline-none text-sm bg-transparent cursor-pointer text-gray-600"
+              className="outline-none text-sm bg-transparent cursor-pointer text-gray-600 w-full"
             >
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -405,7 +405,7 @@ const AdminExpertsTab = ({ refreshKey }) => {
       {/* ===== View Profile Modal ===== */}
       {(viewExpert || viewLoading) && (
         <div className="global-modal-overlay">
-          <div className="global-modal-panel max-w-lg w-full mx-4 max-h-[85vh] overflow-y-auto">
+          <div className="global-modal-panel max-w-lg w-full mx-3 sm:mx-4 max-h-[90vh] sm:max-h-[85vh] overflow-y-auto">
             {viewLoading ? (
               <div className="flex items-center justify-center py-20">
                 <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
@@ -413,13 +413,13 @@ const AdminExpertsTab = ({ refreshKey }) => {
             ) : (
               <>
                 {/* Modal Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100 gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-purple-50 border border-purple-200 flex items-center justify-center">
-                      <User size={18} className="text-purple-600" />
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-purple-50 border border-purple-200 flex items-center justify-center shrink-0">
+                      <User size={17} className="text-purple-600" />
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-800">
+                    <div className="min-w-0">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-800 truncate">
                         {viewExpert.name}
                       </h3>
                       <span
@@ -435,32 +435,32 @@ const AdminExpertsTab = ({ refreshKey }) => {
                   </div>
                   <button
                     onClick={() => setViewExpert(null)}
-                    className="p-2 rounded-lg hover:bg-gray-100 transition"
+                    className="p-2 rounded-lg hover:bg-gray-100 transition shrink-0"
                   >
                     <X size={18} className="text-gray-500" />
                   </button>
                 </div>
 
                 {/* Modal Body */}
-                <div className="p-6 space-y-4 text-sm">
-                  <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                     <div>
                       <p className="text-gray-400 text-xs mb-1">Email</p>
-                      <p className="flex items-center gap-1.5 text-gray-700">
-                        <Mail size={14} className="text-gray-400" />
+                      <p className="flex items-start gap-1.5 text-gray-700 break-all leading-relaxed min-w-0">
+                        <Mail size={14} className="text-gray-400 shrink-0 mt-0.5" />
                         {viewExpert.email}
                       </p>
                     </div>
                     <div>
                       <p className="text-gray-400 text-xs mb-1">User ID</p>
-                      <p className="text-gray-700">{viewExpert.userId}</p>
+                      <p className="text-gray-700 break-all leading-relaxed">{viewExpert.userId}</p>
                     </div>
                     <div>
                       <p className="text-gray-400 text-xs mb-1">
                         Specialization
                       </p>
-                      <p className="flex items-center gap-1.5 text-gray-700">
-                        <Briefcase size={14} className="text-gray-400" />
+                      <p className="flex items-start gap-1.5 text-gray-700 leading-relaxed">
+                        <Briefcase size={14} className="text-gray-400 shrink-0 mt-0.5" />
                         {viewExpert.specialization || "--"}
                       </p>
                     </div>
@@ -474,8 +474,8 @@ const AdminExpertsTab = ({ refreshKey }) => {
                     </div>
                     <div>
                       <p className="text-gray-400 text-xs mb-1">Location</p>
-                      <p className="flex items-center gap-1.5 text-gray-700">
-                        <MapPin size={14} className="text-gray-400" />
+                      <p className="flex items-start gap-1.5 text-gray-700 leading-relaxed">
+                        <MapPin size={14} className="text-gray-400 shrink-0 mt-0.5" />
                         {[viewExpert.city, viewExpert.state]
                           .filter(Boolean)
                           .join(", ") || "--"}
@@ -493,8 +493,8 @@ const AdminExpertsTab = ({ refreshKey }) => {
                       <p className="text-gray-400 text-xs mb-1">
                         Government ID
                       </p>
-                      <p className="flex items-center gap-1.5 text-gray-700">
-                        <FileText size={14} className="text-gray-400" />
+                      <p className="flex items-start gap-1.5 text-gray-700 break-all leading-relaxed">
+                        <FileText size={14} className="text-gray-400 shrink-0 mt-0.5" />
                         {viewExpert.idNumber || "--"}
                       </p>
                     </div>
@@ -535,7 +535,7 @@ const AdminExpertsTab = ({ refreshKey }) => {
                         href={toPdfOpenUrl(viewExpert.governmentIdUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 text-sm hover:underline break-all"
+                        className="text-blue-600 text-sm hover:underline break-all leading-relaxed"
                       >
                         Open Government ID PDF
                       </a>
@@ -553,7 +553,7 @@ const AdminExpertsTab = ({ refreshKey }) => {
                         href={toPdfOpenUrl(viewExpert.barCouncilDocUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 text-sm hover:underline break-all"
+                        className="text-blue-600 text-sm hover:underline break-all leading-relaxed"
                       >
                         Open Bar Council PDF
                       </a>
@@ -602,7 +602,7 @@ const AdminExpertsTab = ({ refreshKey }) => {
                   {viewExpert.bio && (
                     <div>
                       <p className="text-gray-400 text-xs mb-1">Bio</p>
-                      <p className="text-gray-700 leading-relaxed">
+                      <p className="text-gray-700 leading-relaxed text-sm sm:text-[15px]">
                         {viewExpert.bio}
                       </p>
                     </div>

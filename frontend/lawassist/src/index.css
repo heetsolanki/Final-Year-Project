@@ -18,13 +18,16 @@ body {
 
 :root {
   --ui-smooth: cubic-bezier(0.22, 0.9, 0.32, 1);
+  --ui-fast: 0.2s;
+  --ui-medium: 0.32s;
+  --ui-slow: 0.46s;
   --modal-z: 2147483646;
   --toast-z: 2147483645;
   --hover-lift: translateY(-3px);
 }
 
 main {
-  animation: pageFadeIn 0.35s var(--ui-smooth);
+  animation: pageFadeIn 0.4s var(--ui-smooth);
 }
 
 a,
@@ -32,8 +35,47 @@ button,
 input,
 textarea,
 select {
-  transition: color 0.22s ease, background-color 0.22s ease, border-color 0.22s ease,
-    box-shadow 0.28s var(--ui-smooth), transform 0.28s var(--ui-smooth);
+  transition: color var(--ui-fast) ease, background-color var(--ui-fast) ease,
+    border-color var(--ui-fast) ease, box-shadow var(--ui-medium) var(--ui-smooth),
+    transform var(--ui-medium) var(--ui-smooth), opacity var(--ui-fast) ease;
+}
+
+/* Smooth default transitions for shared UI surfaces and icons */
+section,
+article,
+.global-modal-panel,
+.surface-soft,
+.panel-soft {
+  transition: background-color 0.24s ease, border-color 0.24s ease,
+    box-shadow var(--ui-medium) var(--ui-smooth), transform var(--ui-medium) var(--ui-smooth),
+    opacity var(--ui-fast) ease;
+}
+
+svg {
+  transition: color 0.2s ease, fill 0.2s ease, stroke 0.2s ease,
+    transform 0.24s var(--ui-smooth), opacity 0.2s ease;
+}
+
+img,
+video {
+  transition: transform var(--ui-slow) var(--ui-smooth), filter var(--ui-medium) ease,
+    opacity var(--ui-fast) ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  transition: box-shadow var(--ui-fast) ease, border-color var(--ui-fast) ease,
+    background-color var(--ui-fast) ease;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgba(30, 58, 138, 0.25);
+  outline-offset: 2px;
 }
 
 /* Global interaction polish */
@@ -99,11 +141,20 @@ a:hover {
 .global-modal-overlay {
   @apply fixed inset-0 flex items-center justify-center bg-black/45 backdrop-blur-sm p-4;
   z-index: var(--modal-z);
+  animation: overlayFadeIn 0.22s ease;
 }
 
 .global-modal-panel {
   @apply bg-white rounded-2xl shadow-2xl;
-  animation: modalIn 0.24s var(--ui-smooth);
+  animation: modalIn 0.28s var(--ui-smooth);
+}
+
+.profile-modal-overlay {
+  animation: overlayFadeIn 0.22s ease;
+}
+
+.profile-modal-box {
+  animation: modalIn 0.28s var(--ui-smooth);
 }
 
 .fade-up {
@@ -120,6 +171,58 @@ a:hover {
 /* Section entrance helper (safe for existing markup if class is added later) */
 .animate-on-load {
   animation: fadeIn 0.45s var(--ui-smooth);
+}
+
+/* Subtle global entrance motion for common surfaces */
+.tabs-container,
+.user-dashboard-container,
+.expert-dashboard-container,
+.auth-container,
+.footer-surface,
+.feature-card,
+.profile-summary,
+.profile-section,
+.dashboard-top-card,
+.global-modal-panel {
+  animation: softRiseIn 0.46s var(--ui-smooth);
+}
+
+.features-grid > *,
+.footer-grid > *,
+.profile-grid > *,
+.grid > .feature-card,
+.grid > [class*="rounded"],
+.space-y-3 > *,
+.space-y-4 > *,
+.space-y-5 > * {
+  animation: softRiseIn 0.48s var(--ui-smooth);
+}
+
+.features-grid > *:nth-child(2),
+.footer-grid > *:nth-child(2),
+.profile-grid > *:nth-child(2),
+.space-y-3 > *:nth-child(2),
+.space-y-4 > *:nth-child(2),
+.space-y-5 > *:nth-child(2) {
+  animation-delay: 40ms;
+}
+
+.features-grid > *:nth-child(3),
+.footer-grid > *:nth-child(3),
+.profile-grid > *:nth-child(3),
+.space-y-3 > *:nth-child(3),
+.space-y-4 > *:nth-child(3),
+.space-y-5 > *:nth-child(3) {
+  animation-delay: 80ms;
+}
+
+.features-grid > *:nth-child(4),
+.footer-grid > *:nth-child(4),
+.profile-grid > *:nth-child(4),
+.space-y-3 > *:nth-child(4),
+.space-y-4 > *:nth-child(4),
+.space-y-5 > *:nth-child(4) {
+  animation-delay: 120ms;
 }
 
 /* ================= LAYOUT ================= */
@@ -1382,5 +1485,25 @@ a:hover {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes softRiseIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }

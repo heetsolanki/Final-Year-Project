@@ -14,9 +14,15 @@ const { notifyAdmins, NOTIFICATION_TYPES } = require("../services/notificationSe
 exports.registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
+    const normalizedEmail = String(email || "").trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      return res.status(400).json({ message: "Email is required" });
+    }
 
     const existingUser =
-      (await User.findOne({ email })) || (await Expert.findOne({ email }));
+      (await User.findOne({ email: normalizedEmail })) ||
+      (await Expert.findOne({ email: normalizedEmail }));
 
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
@@ -45,14 +51,14 @@ exports.registerUser = async (req, res) => {
       newUser = await Expert.create({
         userId,
         name,
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
         role: "legalExpert",
         profileCompleted: false,
       });
 
       await sendEmail(
-        email,
+        normalizedEmail,
         "Welcome to LawAssist - Legal Expert",
         expertWelcomeEmail(name, userId),
         { category: "register_expert", targetId: userId },
@@ -69,13 +75,13 @@ exports.registerUser = async (req, res) => {
       newUser = await User.create({
         userId,
         name,
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
         role: "consumer",
       });
 
       await sendEmail(
-        email,
+        normalizedEmail,
         "Welcome to LawAssist",
         welcomeEmailTemplate(name, userId),
         { category: "register_user", targetId: userId },
@@ -114,8 +120,9 @@ exports.registerUser = async (req, res) => {
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const normalizedEmail = String(email || "").trim().toLowerCase();
 
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email: normalizedEmail });
     let role;
 
     if (user) {
@@ -125,7 +132,7 @@ exports.loginUser = async (req, res) => {
       else if (dbRole === "expert") role = "legalExpert";
       else role = dbRole;
     } else {
-      user = await Expert.findOne({ email });
+      user = await Expert.findOne({ email: normalizedEmail });
       // Use the expert's actual role from DB (could be "admin" if promoted)
       role = user ? user.role : "legalExpert";
     }
@@ -172,10 +179,11 @@ exports.loginUser = async (req, res) => {
 exports.sendResetOTP = async (req, res) => {
   try {
     const { email } = req.body;
+    const normalizedEmail = String(email || "").trim().toLowerCase();
 
     const [consumerAccount, expertAccount] = await Promise.all([
-      User.findOne({ email }),
-      Expert.findOne({ email }),
+      User.findOne({ email: normalizedEmail }),
+      Expert.findOne({ email: normalizedEmail }),
     ]);
 
     const user = consumerAccount || expertAccount;
@@ -197,7 +205,7 @@ exports.sendResetOTP = async (req, res) => {
 
     const otpTemplate = passwordResetOTPEmail(otp);
     const otpEmailSent = await sendEmail(
-      email,
+      normalizedEmail,
       "Password Reset OTP",
       otpTemplate.html,
       { text: otpTemplate.text, category: "password_reset_otp", targetId: user.userId },
@@ -216,11 +224,12 @@ exports.sendResetOTP = async (req, res) => {
 exports.verifyResetOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
+    const normalizedEmail = String(email || "").trim().toLowerCase();
 
     const hashedOTP = crypto.createHash("sha256").update(otp).digest("hex");
 
     const findPayload = {
-      email,
+      email: normalizedEmail,
       resetOTP: hashedOTP,
       otpExpire: { $gt: Date.now() },
     };
@@ -243,10 +252,10 @@ exports.verifyResetOTP = async (req, res) => {
 
     const frontendBaseUrl = process.env.FRONTEND_URL || "http://localhost:3000";
     const safeRole = expertMatch ? "legalExpert" : "consumer";
-    const resetUrl = `${frontendBaseUrl}/forgot-password?email=${encodeURIComponent(email)}&role=${encodeURIComponent(safeRole)}&token=${encodeURIComponent(resetToken)}`;
+    const resetUrl = `${frontendBaseUrl}/forgot-password?email=${encodeURIComponent(normalizedEmail)}&role=${encodeURIComponent(safeRole)}&token=${encodeURIComponent(resetToken)}`;
     const resetTemplate = passwordResetEmail({ resetUrl, appName: "LawAssist" });
 
-    const resetLinkEmailSent = await sendEmail(email, "Reset Your LawAssist Password", resetTemplate.html, {
+    const resetLinkEmailSent = await sendEmail(normalizedEmail, "Reset Your LawAssist Password", resetTemplate.html, {
       text: resetTemplate.text,
       category: "password_reset_link",
       targetId: match.userId,
@@ -266,9 +275,10 @@ exports.verifyResetOTP = async (req, res) => {
 exports.resetPassword = async (req, res) => {
   try {
     const { email, resetToken, password } = req.body;
+    const normalizedEmail = String(email || "").trim().toLowerCase();
 
     const query = {
-      email,
+      email: normalizedEmail,
       resetToken,
       resetTokenExpire: { $gt: Date.now() },
     };

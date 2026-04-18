@@ -6,6 +6,8 @@ const User = require("../models/User");
 const Notification = require("../models/Notification");
 const { createNotification, NOTIFICATION_TYPES } = require("../services/notificationService");
 const bcrypt = require("bcryptjs");
+const sendEmail = require("../utils/sendEmail");
+const accountDeletedEmail = require("../template/accountDeletedEmail");
 
 /* ================= GET PROFILE ================= */
 router.get(
@@ -84,6 +86,18 @@ router.delete(
   authorizeRole("consumer"),
   async (req, res) => {
     try {
+      const existingUser = await User.findOne({ userId: req.user.userId }).select("name email");
+      if (!existingUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      sendEmail(
+        existingUser.email,
+        "Account Deleted - LawAssist",
+        accountDeletedEmail(existingUser.name),
+        { category: "self_user_deleted", targetId: req.user.userId, performedBy: req.user.userId },
+      ).catch((err) => console.error("Delete account email error:", err));
+
       // Delete user's queries first
       await Query.deleteMany({ userId: req.user.userId });
 

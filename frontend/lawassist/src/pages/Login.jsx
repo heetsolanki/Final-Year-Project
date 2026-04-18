@@ -81,11 +81,12 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const normalizedEmail = form.email.trim().toLowerCase();
 
     let newErrors = {};
     setLoading(true);
 
-    if (!emailValid) newErrors.email = "Enter a valid email address";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) newErrors.email = "Enter a valid email address";
 
     if (!passwordValid) newErrors.password = "Invalid password format";
 
@@ -99,7 +100,7 @@ function Login() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            email: form.email,
+            email: normalizedEmail,
             password: form.password,
           }),
         });

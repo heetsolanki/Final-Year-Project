@@ -175,9 +175,9 @@ const AdminQueriesTab = ({ refreshKey }) => {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 md:p-8 space-y-6">
+      <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="p-2.5 bg-yellow-50 rounded-xl">
             <FileSearch size={20} className="text-yellow-600" />
           </div>
@@ -204,12 +204,12 @@ const AdminQueriesTab = ({ refreshKey }) => {
             />
           </div>
 
-          <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-50 hover:bg-white hover:border-gray-300 transition-all duration-200">
+          <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-50 hover:bg-white hover:border-gray-300 transition-all duration-200 w-full sm:w-auto">
             <Filter size={14} className="text-gray-400 shrink-0" />
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="outline-none text-sm bg-transparent cursor-pointer"
+              className="outline-none text-sm bg-transparent cursor-pointer w-full"
             >
               {STATUS_FILTERS.map((s) => (
                 <option key={s} value={s}>
@@ -220,12 +220,12 @@ const AdminQueriesTab = ({ refreshKey }) => {
           </div>
 
           {/* Category Filter */}
-          <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-50 hover:bg-white hover:border-gray-300 transition-all duration-200">
+          <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3.5 py-2.5 bg-gray-50 hover:bg-white hover:border-gray-300 transition-all duration-200 w-full sm:w-auto">
             <Filter size={14} className="text-gray-400 shrink-0" />
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="outline-none text-sm bg-transparent cursor-pointer"
+              className="outline-none text-sm bg-transparent cursor-pointer w-full"
             >
               {categories.map((c) => (
                 <option key={c} value={c}>
@@ -238,8 +238,8 @@ const AdminQueriesTab = ({ refreshKey }) => {
 
         {/* Table */}
         <div className="rounded-xl border border-gray-100 overflow-hidden">
-          <div className="overflow-hidden">
-            <table className="w-full text-sm text-left">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[840px] text-sm text-left">
               <thead>
                 <tr className="bg-gray-50/80 border-b border-gray-100">
                   <th className="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">

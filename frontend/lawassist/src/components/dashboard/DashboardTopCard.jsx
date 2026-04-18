@@ -41,16 +41,16 @@ const DashboardTopCard = ({
 
         {/* Manage Profile Button */}
         <div className="flex w-full md:w-auto flex-col items-stretch md:items-end justify-end gap-2">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 w-full md:w-auto">
+          <div className="flex flex-row items-center justify-end gap-2 w-full md:w-auto whitespace-nowrap">
             <DashboardNotificationBell
               onOpenNotifications={() => setActiveTab("notifications")}
             />
             <button
               onClick={() => setActiveTab("profile")}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium
+              className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium
               bg-white border border-gray-200 rounded-lg shadow-sm
               hover:bg-blue-50 hover:border-blue-300 transition
-              w-full md:w-auto"
+              w-auto"
             >
               <Settings size={16} />
               Manage Profile

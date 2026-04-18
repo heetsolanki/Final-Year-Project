@@ -7,6 +7,8 @@ const Notification = require("../models/Notification");
 const Expert = require("../models/Expert");
 const Query = require("../models/Query");
 const ExpertNotifyRequest = require("../models/ExpertNotifyRequest");
+const sendEmail = require("../utils/sendEmail");
+const accountDeletedEmail = require("../template/accountDeletedEmail");
 
 const {
   getExpertStats,
@@ -170,6 +172,18 @@ router.delete(
   authorizeRole("legalExpert"),
   async (req, res) => {
     try {
+      const existingExpert = await Expert.findOne({ userId: req.user.userId }).select("name email");
+      if (!existingExpert) {
+        return res.status(404).json({ message: "Expert not found" });
+      }
+
+      sendEmail(
+        existingExpert.email,
+        "Account Deleted - LawAssist",
+        accountDeletedEmail(existingExpert.name),
+        { category: "self_expert_deleted", targetId: req.user.userId, performedBy: req.user.userId },
+      ).catch((err) => console.error("Delete account email error:", err));
+
       await Query.deleteMany({ expertId: req.user.userId });
       await Expert.findOneAndDelete({ userId: req.user.userId });
       res.status(200).json({ message: "Expert account deleted successfully" });
