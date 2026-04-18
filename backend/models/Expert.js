@@ -122,7 +122,30 @@ const expertSchema = new mongoose.Schema(
       enum: ["aadhaar", "pan", "passport", "voter_id", "driving_license"],
     },
     idNumber: String,
-    idProofUrl: String,
+    governmentIdUrl: {
+      type: String,
+      required() {
+        return this.verificationStatus === "under_review" || this.verificationStatus === "active";
+      },
+    },
+    governmentIdPublicId: {
+      type: String,
+      required() {
+        return this.verificationStatus === "under_review" || this.verificationStatus === "active";
+      },
+    },
+    barCouncilDocUrl: {
+      type: String,
+      required() {
+        return this.verificationStatus === "under_review" || this.verificationStatus === "active";
+      },
+    },
+    barCouncilDocPublicId: {
+      type: String,
+      required() {
+        return this.verificationStatus === "under_review" || this.verificationStatus === "active";
+      },
+    },
 
     profileCompletion: {
       type: Number,

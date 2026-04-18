@@ -5,7 +5,9 @@ import API_URL from "../../api";
 const IMAGE_TYPES = ["jpg", "jpeg", "png"];
 
 const FileMessage = ({ fileUrl, fileName, fileType, isMine }) => {
-  const fullUrl = `${API_URL}${fileUrl}`;
+  const fullUrl = /^https?:\/\//i.test(fileUrl || "")
+    ? fileUrl
+    : `${API_URL}${fileUrl}`;
   const isImage = IMAGE_TYPES.includes(fileType?.toLowerCase());
   const [downloading, setDownloading] = useState(false);
 

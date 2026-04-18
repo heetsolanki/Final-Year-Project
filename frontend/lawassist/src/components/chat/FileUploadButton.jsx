@@ -3,15 +3,9 @@ import axios from "axios";
 import { Paperclip } from "lucide-react";
 import API_URL from "../../api";
 
-const ALLOWED_MIMES = [
-  "image/jpeg",
-  "image/png",
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-];
+const ALLOWED_MIMES = ["application/pdf"];
 
-const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 
 const FileUploadButton = ({ onUploadSuccess, onError, disabled }) => {
   const fileRef = useRef();
@@ -25,12 +19,12 @@ const FileUploadButton = ({ onUploadSuccess, onError, disabled }) => {
     if (!file) return;
 
     if (!ALLOWED_MIMES.includes(file.type)) {
-      onError("Invalid file type. Only JPG, PNG, PDF, DOC, DOCX are allowed.");
+      onError("Only PDF allowed.");
       return;
     }
 
     if (file.size > MAX_SIZE) {
-      onError("File too large. Maximum size is 5MB.");
+      onError("Max size 10MB.");
       return;
     }
 
@@ -68,7 +62,7 @@ const FileUploadButton = ({ onUploadSuccess, onError, disabled }) => {
         type="file"
         ref={fileRef}
         className="hidden"
-        accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+        accept=".pdf"
         onChange={handleFileChange}
       />
 

@@ -7,9 +7,26 @@ const expertAvailableEmail = require("../template/expertAvailableEmail");
 const sendEmail = require("../utils/sendEmail");
 const { createNotification, notifyAdmins, NOTIFICATION_TYPES } = require("../services/notificationService");
 const {
+  uploadPdfToCloudinary,
+  deleteFromCloudinary,
+  buildValidationError,
+} = require("../middleware/uploadMiddleware");
+const {
   isValidAvailabilityRange,
   isWithinAvailability,
 } = require("../utils/availability");
+
+const parseMaybeJson = (value, fallback = value) => {
+  if (typeof value !== "string") return value ?? fallback;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+};
+
+const validationResponse = (res, message, field, code = "VALIDATION_ERROR") =>
+  res.status(400).json(buildValidationError(message, field, code));
 
 const normalizeBarCouncilId = (value = "") => {
   const sanitized = String(value || "")
@@ -50,13 +67,18 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
       followUpFee,
       city,
       state,
-      languages,
-      expertiseAreas,
+      languages: rawLanguages,
+      expertiseAreas: rawExpertiseAreas,
       bio,
       idDocumentType,
       idNumber,
-      idProofUrl,
     } = req.body;
+
+    const files = req.files || {};
+    const governmentIdFile = files.governmentIdFile?.[0];
+    const barCouncilDocFile = files.barCouncilDocFile?.[0];
+    const languages = parseMaybeJson(rawLanguages, []);
+    const expertiseAreas = parseMaybeJson(rawExpertiseAreas, []);
 
     const normalizedBarCouncilId = normalizeBarCouncilId(barCouncilId);
     const normalizedIdNumber = normalizeDocumentNumber(idDocumentType, idNumber);
@@ -65,7 +87,7 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
 
     // Bar Council ID format: XX/1234/2020
     if (barCouncilId && !/^[A-Z]{2}\/[0-9]{4}\/[0-9]{4}$/.test(normalizedBarCouncilId)) {
-      return res.status(400).json({ message: "Invalid Bar Council ID format. Expected: XX/1234/2020" });
+      return validationResponse(res, "Invalid Bar Council ID format. Expected: XX/1234/2020", "barCouncilId");
     }
 
     // Check Bar Council ID uniqueness
@@ -80,7 +102,12 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
       );
 
       if (duplicateBarCouncil) {
-        return res.status(400).json({ message: "This Bar Council ID is already registered with another expert" });
+        return validationResponse(
+          res,
+          "This Bar Council ID is already registered with another expert",
+          "barCouncilId",
+          "DUPLICATE_BAR_COUNCIL_ID",
+        );
       }
     }
 
@@ -88,14 +115,14 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
     if (experience !== undefined && experience !== "") {
       const exp = Number(experience);
       if (isNaN(exp) || exp < 1 || exp > 50) {
-        return res.status(400).json({ message: "Years of experience must be between 1 and 50" });
+        return validationResponse(res, "Years of experience must be between 1 and 50", "experience");
       }
     }
 
     // ID document validation based on type
     const validDocTypes = ["aadhaar", "pan", "passport", "voter_id", "driving_license"];
     if (idDocumentType && !validDocTypes.includes(idDocumentType)) {
-      return res.status(400).json({ message: "Invalid document type selected" });
+      return validationResponse(res, "Invalid document type selected", "idDocumentType");
     }
 
     if (normalizedIdNumber && idDocumentType) {
@@ -109,7 +136,7 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
 
       const rule = idValidation[idDocumentType];
       if (rule && !rule.regex.test(normalizedIdNumber)) {
-        return res.status(400).json({ message: rule.msg });
+        return validationResponse(res, rule.msg, "idNumber");
       }
     }
 
@@ -125,23 +152,12 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
       );
 
       if (duplicateDocument) {
-        return res.status(400).json({
-          message: "This document number is already registered with another expert",
-        });
-      }
-    }
-
-    // Check Government ID proof file uniqueness
-    if (idProofUrl) {
-      const existingGovProof = await Expert.findOne({
-        idProofUrl,
-        userId: { $ne: expertId },
-      });
-
-      if (existingGovProof) {
-        return res.status(400).json({
-          message: "This Government ID proof is already registered with another expert",
-        });
+        return validationResponse(
+          res,
+          "This document number is already registered with another expert",
+          "idNumber",
+          "DUPLICATE_DOCUMENT",
+        );
       }
     }
 
@@ -149,6 +165,22 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
 
     if (!expert) {
       return res.status(404).json({ message: "Expert not found" });
+    }
+
+    if (!governmentIdFile && !expert.governmentIdUrl) {
+      return validationResponse(
+        res,
+        "Upload Government ID (PDF only) is required.",
+        "governmentIdFile",
+      );
+    }
+
+    if (!barCouncilDocFile && !expert.barCouncilDocUrl) {
+      return validationResponse(
+        res,
+        "Upload Bar Council Certificate (PDF only) is required.",
+        "barCouncilDocFile",
+      );
     }
 
     const parsedConsultationFee = consultationFee === undefined || consultationFee === ""
@@ -160,15 +192,75 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
       : Number(followUpFee);
 
     if (!Number.isFinite(parsedConsultationFee) || parsedConsultationFee <= 0) {
-      return res.status(400).json({ message: "Consultation fee must be greater than 0" });
+      return validationResponse(res, "Consultation fee must be greater than 0", "consultationFee");
     }
 
     if (!Number.isFinite(parsedFollowUpFee) || parsedFollowUpFee < 0) {
-      return res.status(400).json({ message: "Follow-up fee must be 0 or more" });
+      return validationResponse(res, "Follow-up fee must be 0 or more", "followUpFee");
     }
 
     if (parsedFollowUpFee > parsedConsultationFee) {
-      return res.status(400).json({ message: "Follow-up fee cannot exceed consultation fee" });
+      return validationResponse(res, "Follow-up fee cannot exceed consultation fee", "followUpFee");
+    }
+
+    let uploadedGovernmentId = null;
+    let uploadedBarCouncilDoc = null;
+
+    try {
+      if (governmentIdFile) {
+        uploadedGovernmentId = await uploadPdfToCloudinary({
+          file: governmentIdFile,
+          folder: "lawassist/government_ids",
+        });
+      }
+
+      if (barCouncilDocFile) {
+        uploadedBarCouncilDoc = await uploadPdfToCloudinary({
+          file: barCouncilDocFile,
+          folder: "lawassist/bar_council_docs",
+        });
+      }
+    } catch {
+      if (uploadedGovernmentId?.public_id) {
+        await deleteFromCloudinary(uploadedGovernmentId.public_id);
+      }
+      if (uploadedBarCouncilDoc?.public_id) {
+        await deleteFromCloudinary(uploadedBarCouncilDoc.public_id);
+      }
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to upload verification documents.",
+        errors: [
+          {
+            field: "documents",
+            code: "UPLOAD_FAILED",
+            message: "Cloudinary upload failed.",
+          },
+        ],
+      });
+    }
+
+    if (uploadedGovernmentId?.secure_url) {
+      console.log("[Expert Government ID Upload]", {
+        public_id: uploadedGovernmentId.public_id,
+        resource_type: uploadedGovernmentId.resource_type,
+        secure_url: uploadedGovernmentId.secure_url,
+      });
+      await deleteFromCloudinary(expert.governmentIdPublicId);
+      expert.governmentIdUrl = uploadedGovernmentId.secure_url;
+      expert.governmentIdPublicId = uploadedGovernmentId.public_id;
+    }
+
+    if (uploadedBarCouncilDoc?.secure_url) {
+      console.log("[Expert Bar Council Upload]", {
+        public_id: uploadedBarCouncilDoc.public_id,
+        resource_type: uploadedBarCouncilDoc.resource_type,
+        secure_url: uploadedBarCouncilDoc.secure_url,
+      });
+      await deleteFromCloudinary(expert.barCouncilDocPublicId);
+      expert.barCouncilDocUrl = uploadedBarCouncilDoc.secure_url;
+      expert.barCouncilDocPublicId = uploadedBarCouncilDoc.public_id;
     }
 
     expert.barCouncilId = normalizedBarCouncilId;
@@ -184,15 +276,16 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
     expert.bio = bio;
     expert.idDocumentType = idDocumentType;
     expert.idNumber = normalizedIdNumber;
-    expert.idProofUrl = idProofUrl;
 
     const completion = calculateProfileCompletion(expert);
     expert.profileCompletion = completion;
 
     if (verifyAfterSave && completion < 100) {
-      return res.status(400).json({
-        message: "Complete all required profile fields before requesting verification",
-      });
+      return validationResponse(
+        res,
+        "Complete all required profile fields before requesting verification",
+        "profile",
+      );
     }
 
     if (verifyAfterSave) {
@@ -226,9 +319,15 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
       profileCompletion: completion,
       verificationStatus: expert.verificationStatus,
       status: expert.status,
+      governmentIdUrl: expert.governmentIdUrl || "",
+      barCouncilDocUrl: expert.barCouncilDocUrl || "",
     });
   } catch (error) {
-    res.status(500).json({ message: "Error updating profile" });
+    res.status(500).json({
+      success: false,
+      message: "Error updating profile",
+      errors: [{ field: "server", code: "SERVER_ERROR", message: "Error updating profile" }],
+    });
   }
 };
 
@@ -564,7 +663,8 @@ const calculateProfileCompletion = (expert) => {
     expert.bio,
     expert.idDocumentType,
     expert.idNumber,
-    expert.idProofUrl,
+    expert.governmentIdUrl,
+    expert.barCouncilDocUrl,
   ];
 
   const filled = fields.filter(

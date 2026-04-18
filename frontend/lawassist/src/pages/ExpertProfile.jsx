@@ -23,6 +23,9 @@ import {
   expertiseBySpecialization,
 } from "../data";
 
+const PDF_MIME_TYPE = "application/pdf";
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+
 const ID_DOCUMENT_TYPES = [
   { value: "aadhaar", label: "Aadhaar Card", placeholder: "1234-5678-9012", hint: "12 digits (auto-formatted)" },
   { value: "pan", label: "PAN Card", placeholder: "ABCDE1234F", hint: "Format: ABCDE1234F" },
@@ -91,7 +94,16 @@ const ExpertProfile = () => {
     bio: "",
     idDocumentType: "",
     idNumber: "",
-    idProofUrl: "",
+  });
+
+  const [selectedFiles, setSelectedFiles] = useState({
+    governmentIdFile: null,
+    barCouncilDocFile: null,
+  });
+
+  const [existingDocs, setExistingDocs] = useState({
+    governmentIdUrl: "",
+    barCouncilDocUrl: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -115,6 +127,10 @@ const ExpertProfile = () => {
       setVerificationStatus(data.verificationStatus || "");
       setProfileStatus(data.status || "");
       setRejectionReason(data.rejectionReason || "");
+      setExistingDocs({
+        governmentIdUrl: data.governmentIdUrl || "",
+        barCouncilDocUrl: data.barCouncilDocUrl || "",
+      });
 
       // Format Aadhaar number if it exists and is not already formatted
       let idNumber = data.idNumber || "";
@@ -136,7 +152,6 @@ const ExpertProfile = () => {
         bio: data.bio || "",
         idDocumentType: data.idDocumentType || "",
         idNumber: idNumber,
-        idProofUrl: data.idProofUrl || "",
       });
     } catch (err) {
       console.log(err);
@@ -198,6 +213,39 @@ const ExpertProfile = () => {
     }));
   };
 
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    const file = files?.[0] || null;
+
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+    setServerError("");
+
+    if (!file) {
+      setSelectedFiles((prev) => ({ ...prev, [name]: null }));
+      return;
+    }
+
+    if (file.type !== PDF_MIME_TYPE) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "Only PDF allowed",
+      }));
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "Max size 10MB",
+      }));
+      return;
+    }
+
+    setSelectedFiles((prev) => ({ ...prev, [name]: file }));
+  };
+
   const validate = () => {
     const newErrors = {};
 
@@ -257,15 +305,12 @@ const ExpertProfile = () => {
       }
     }
 
-    // ID Proof URL
-    if (!formData.idProofUrl.trim()) {
-      newErrors.idProofUrl = "ID proof document URL is required";
-    } else {
-      try {
-        new URL(formData.idProofUrl);
-      } catch {
-        newErrors.idProofUrl = "Enter a valid URL";
-      }
+    if (!selectedFiles.governmentIdFile && !existingDocs.governmentIdUrl) {
+      newErrors.governmentIdFile = "Upload Government ID (PDF only) is required";
+    }
+
+    if (!selectedFiles.barCouncilDocFile && !existingDocs.barCouncilDocUrl) {
+      newErrors.barCouncilDocFile = "Upload Bar Council Certificate (PDF only) is required";
     }
 
     const consultationFee = Number(formData.consultationFee);
@@ -308,21 +353,54 @@ const ExpertProfile = () => {
           ? `${API_URL}/api/expert/verify-profile`
           : `${API_URL}/api/expert/save-profile`;
 
-      await axios.post(
+      const payload = new FormData();
+      payload.append("barCouncilId", formatBarCouncilId(formData.barCouncilId));
+      payload.append("idNumber", idNumberToSend);
+      payload.append(
+        "specialization",
+        formData.specialization === "Other"
+          ? formData.otherSpecialization
+          : formData.specialization,
+      );
+      payload.append("experience", formData.experience);
+      payload.append("consultationFee", formData.consultationFee);
+      payload.append("followUpFee", formData.followUpFee);
+      payload.append("state", formData.state);
+      payload.append("city", formData.city);
+      payload.append("bio", formData.bio || "");
+      payload.append("idDocumentType", formData.idDocumentType);
+      payload.append("languages", JSON.stringify(formData.languages));
+      payload.append("expertiseAreas", JSON.stringify(formData.expertiseAreas));
+
+      if (selectedFiles.governmentIdFile) {
+        payload.append("governmentIdFile", selectedFiles.governmentIdFile);
+      }
+
+      if (selectedFiles.barCouncilDocFile) {
+        payload.append("barCouncilDocFile", selectedFiles.barCouncilDocFile);
+      }
+
+      const response = await axios.post(
         endpoint,
+        payload,
         {
-          ...formData,
-          barCouncilId: formatBarCouncilId(formData.barCouncilId),
-          idNumber: idNumberToSend,
-          specialization:
-            formData.specialization === "Other"
-              ? formData.otherSpecialization
-              : formData.specialization,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
         },
       );
+
+      setExistingDocs((prev) => ({
+        governmentIdUrl:
+          response.data?.governmentIdUrl || prev.governmentIdUrl || "",
+        barCouncilDocUrl:
+          response.data?.barCouncilDocUrl || prev.barCouncilDocUrl || "",
+      }));
+      setSelectedFiles({
+        governmentIdFile: null,
+        barCouncilDocFile: null,
+      });
 
       if (mode === "verify") {
         setShowProfilePopup(true);
@@ -336,15 +414,25 @@ const ExpertProfile = () => {
       );
       setShowToast(true);
 
+      fetchProfile();
+
       if (mode === "save") {
         setTimeout(() => {
           navigate("/legal-expert-dashboard");
         }, 1000);
-      } else {
-        fetchProfile();
       }
     } catch (error) {
       const msg = error.response?.data?.message || "Error updating profile";
+      const structuredErrors = error.response?.data?.errors || [];
+      if (Array.isArray(structuredErrors) && structuredErrors.length > 0) {
+        setErrors((prev) => {
+          const next = { ...prev };
+          structuredErrors.forEach((item) => {
+            if (item?.field) next[item.field] = item.message;
+          });
+          return next;
+        });
+      }
       setServerError(msg);
       setToastType("error");
       setToastMessage(msg);
@@ -516,6 +604,36 @@ const ExpertProfile = () => {
                     Format: XX/1234/2020 (state code / number / year)
                   </p>
                   <FieldError field="barCouncilId" />
+
+                  <label className="mt-3 block text-sm font-medium">
+                    Upload Bar Council Certificate (PDF only) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="file"
+                    name="barCouncilDocFile"
+                    accept=".pdf"
+                    onChange={handleFileChange}
+                    className={inputClass("barCouncilDocFile")}
+                  />
+                  <p className="mt-1 text-xs text-gray-400">
+                    Only PDF allowed, Max size 10MB
+                  </p>
+                  {(selectedFiles.barCouncilDocFile || existingDocs.barCouncilDocUrl) && (
+                    <p className="mt-1 text-xs text-gray-600 break-all">
+                      Selected: {selectedFiles.barCouncilDocFile?.name || "Existing uploaded certificate"}
+                    </p>
+                  )}
+                  {existingDocs.barCouncilDocUrl && (
+                    <a
+                      href={existingDocs.barCouncilDocUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 inline-block text-xs text-blue-600 hover:underline break-all"
+                    >
+                      View uploaded Bar Council Certificate
+                    </a>
+                  )}
+                  <FieldError field="barCouncilDocFile" />
                 </div>
 
                 {/* Experience */}
@@ -801,23 +919,37 @@ const ExpertProfile = () => {
                 </div>
               </div>
 
-              {/* ID Proof URL */}
+              {/* Government ID Upload */}
               <div>
                 <label className="text-sm font-medium">
-                  Upload Document (URL) <span className="text-red-500">*</span>
+                  Upload Government ID (PDF only) <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="url"
-                  name="idProofUrl"
-                  placeholder="https://drive.google.com/..."
-                  value={formData.idProofUrl}
-                  onChange={handleChange}
-                  className={inputClass("idProofUrl")}
+                  type="file"
+                  name="governmentIdFile"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                  className={inputClass("governmentIdFile")}
                 />
                 <p className="mt-1 text-xs text-gray-400">
-                  Upload your document to Google Drive or similar and paste the shared link
+                  Only PDF allowed, Max size 10MB
                 </p>
-                <FieldError field="idProofUrl" />
+                {(selectedFiles.governmentIdFile || existingDocs.governmentIdUrl) && (
+                  <p className="mt-1 text-xs text-gray-600 break-all">
+                    Selected: {selectedFiles.governmentIdFile?.name || "Existing uploaded government ID"}
+                  </p>
+                )}
+                {existingDocs.governmentIdUrl && (
+                  <a
+                    href={existingDocs.governmentIdUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 inline-block text-xs text-blue-600 hover:underline break-all"
+                  >
+                    View uploaded Government ID
+                  </a>
+                )}
+                <FieldError field="governmentIdFile" />
               </div>
             </div>
 
