@@ -432,7 +432,15 @@ exports.unblockExpert = async (req, res) => {
       return res.status(404).json({ message: "Expert not found" });
     }
 
-    if (expert.profileCompletion === 100) {
+    const isProfileComplete = Number(expert.profileCompletion) === 100 || expert.profileCompleted === true;
+    const hasVerificationDocs = Boolean(
+      expert.governmentIdUrl
+      && expert.governmentIdPublicId
+      && expert.barCouncilDocUrl
+      && expert.barCouncilDocPublicId,
+    );
+
+    if (isProfileComplete && hasVerificationDocs) {
       expert.verificationStatus = "active";
       expert.status = "verified";
       expert.isVerified = true;
@@ -457,10 +465,14 @@ exports.unblockExpert = async (req, res) => {
     await logActivity("Expert unblocked", req.user.userId, userId);
 
     res.json({
-      message: "Expert unblocked successfully",
+      message:
+        isProfileComplete && hasVerificationDocs
+          ? "Expert unblocked successfully"
+          : "Expert unblocked and moved to profile incomplete due to missing verification details",
       expert,
     });
   } catch (error) {
+    console.error("Unblock expert error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
