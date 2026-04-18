@@ -525,21 +525,41 @@ const AdminExpertsTab = ({ refreshKey }) => {
                     </div>
                   </div>
 
-                  {viewExpert.idProofUrl && (
-                    <div>
-                      <p className="text-gray-400 text-xs mb-1">
-                        ID Proof Document
-                      </p>
+                  <div>
+                    <p className="text-gray-400 text-xs mb-1">
+                      Government ID Document
+                    </p>
+                    {viewExpert.governmentIdUrl ? (
                       <a
-                        href={viewExpert.idProofUrl}
+                        href={viewExpert.governmentIdUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 text-sm hover:underline break-all"
                       >
-                        {viewExpert.idProofUrl}
+                        {viewExpert.governmentIdUrl}
                       </a>
-                    </div>
-                  )}
+                    ) : (
+                      <p className="text-sm text-gray-500">No file uploaded</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <p className="text-gray-400 text-xs mb-1">
+                      Bar Council Certificate
+                    </p>
+                    {viewExpert.barCouncilDocUrl ? (
+                      <a
+                        href={viewExpert.barCouncilDocUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 text-sm hover:underline break-all"
+                      >
+                        {viewExpert.barCouncilDocUrl}
+                      </a>
+                    ) : (
+                      <p className="text-sm text-gray-500">No file uploaded</p>
+                    )}
+                  </div>
 
                   {viewExpert.languages && viewExpert.languages.length > 0 && (
                     <div>

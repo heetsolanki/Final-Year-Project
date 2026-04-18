@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { verifyToken, authorizeRole } = require("../middleware/authMiddleware");
 const verifyExpertStatus = require("../middleware/verifyExpertStatus");
+const { expertVerificationUpload } = require("../middleware/uploadMiddleware");
 const Notification = require("../models/Notification");
 const Expert = require("../models/Expert");
 const Query = require("../models/Query");
@@ -56,18 +57,21 @@ router.post(
   "/save-profile",
   verifyToken,
   authorizeRole("legalExpert"),
+  expertVerificationUpload,
   saveExpertProfile,
 );
 router.post(
   "/verify-profile",
   verifyToken,
   authorizeRole("legalExpert"),
+  expertVerificationUpload,
   verifyExpertProfile,
 );
 router.post(
   "/complete-profile",
   verifyToken,
   authorizeRole("legalExpert"),
+  expertVerificationUpload,
   completeExpertProfile,
 );
 router.get(

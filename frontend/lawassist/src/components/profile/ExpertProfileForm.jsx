@@ -131,6 +131,42 @@ const ProfileForm = ({ user, refresh }) => {
               className="w-full border border-gray-200 bg-gray-100 text-gray-500 rounded-lg px-3 py-2 text-sm cursor-not-allowed"
             />
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              Government ID Document
+            </label>
+            {user.governmentIdUrl ? (
+              <a
+                href={user.governmentIdUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-600 hover:underline break-all"
+              >
+                View uploaded Government ID
+              </a>
+            ) : (
+              <p className="text-sm text-gray-500">No file uploaded</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              Bar Council Certificate
+            </label>
+            {user.barCouncilDocUrl ? (
+              <a
+                href={user.barCouncilDocUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-600 hover:underline break-all"
+              >
+                View uploaded Bar Council Certificate
+              </a>
+            ) : (
+              <p className="text-sm text-gray-500">No file uploaded</p>
+            )}
+          </div>
         </div>
       </div>
 

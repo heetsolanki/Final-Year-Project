@@ -1,44 +1,48 @@
 const express = require("express");
 const router = express.Router();
-const path = require("path");
 const { verifyToken } = require("../middleware/authMiddleware");
-const upload = require("../config/multerConfig");
+const {
+  consultationUpload,
+  uploadPdfToCloudinary,
+  buildValidationError,
+} = require("../middleware/uploadMiddleware");
 
 /*
  * POST /api/upload/consultation
- * Accepts a single file, stores it in /uploads, returns metadata.
+ * Accepts a single PDF file, uploads to Cloudinary, returns metadata.
  * The caller then emits a socket `sendMessage` event with the metadata
  * so the message is broadcast to both chat participants.
  */
 router.post(
   "/consultation",
   verifyToken,
-  (req, res, next) => {
-    upload.single("file")(req, res, (err) => {
-      if (err) {
-        if (err.code === "LIMIT_FILE_SIZE") {
-          return res
-            .status(400)
-            .json({ message: "File too large. Maximum size is 5MB." });
-        }
-        return res.status(400).json({ message: err.message });
-      }
-      next();
-    });
-  },
-  (req, res) => {
+  consultationUpload,
+  async (req, res) => {
     if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded." });
+      return res.status(400).json(buildValidationError("PDF file is required.", "file"));
     }
 
-    const ext = path.extname(req.file.originalname).toLowerCase().replace(".", "");
+    try {
+      const uploaded = await uploadPdfToCloudinary({
+        file: req.file,
+        folder: "lawassist/consultation_docs",
+      });
 
-    res.json({
-      fileUrl: `/uploads/${req.file.filename}`,
-      fileName: req.file.originalname,
-      fileType: ext,
-      fileSize: req.file.size,
-    });
+      return res.json({
+        fileUrl: uploaded.secure_url,
+        filePublicId: uploaded.public_id,
+        resourceType: uploaded.resource_type,
+        fileName: req.file.originalname,
+        fileType: "pdf",
+        fileSize: req.file.size,
+      });
+    } catch {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to upload file to Cloudinary.",
+        errors: [{ field: "file", code: "UPLOAD_FAILED", message: "Cloud upload failed." }],
+      });
+    }
   }
 );
 
