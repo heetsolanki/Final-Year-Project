@@ -69,7 +69,6 @@ const uploadPdfToCloudinary = ({ file, folder }) =>
         folder,
         resource_type: "raw",
         public_id: publicId,
-        format: "pdf",
       },
       (error, result) => {
         if (error) {

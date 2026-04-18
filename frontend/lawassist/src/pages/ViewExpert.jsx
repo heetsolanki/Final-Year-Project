@@ -45,7 +45,10 @@ const ExpertProfile = () => {
       ? `${expert.availability.startTime} - ${expert.availability.endTime}`
       : "Not set";
 
-  const canStartConsultation = expert?.isActive && isWithinAvailability(expert?.availability);
+  const canStartConsultation =
+    expert?.isActive &&
+    expert?.verificationStatus === "active" &&
+    isWithinAvailability(expert?.availability);
 
   const showLoginRequiredPopup = useCallback((message) => {
     setAuthPopupMessage(message);
@@ -212,6 +215,12 @@ const ExpertProfile = () => {
                 <p className="text-xs text-gray-500">
                   Availability: {availabilityWindow}
                 </p>
+
+                {expert?.verificationStatus !== "active" && (
+                  <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                    This expert is not verified yet, so consultations cannot be started.
+                  </p>
+                )}
 
                 {!canStartConsultation && (
                   <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">

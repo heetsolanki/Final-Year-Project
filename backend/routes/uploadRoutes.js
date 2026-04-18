@@ -36,11 +36,12 @@ router.post(
         fileType: "pdf",
         fileSize: req.file.size,
       });
-    } catch {
+    } catch (error) {
+      console.error("[consultation upload error]", error);
       return res.status(500).json({
         success: false,
-        message: "Failed to upload file to Cloudinary.",
-        errors: [{ field: "file", code: "UPLOAD_FAILED", message: "Cloud upload failed." }],
+        message: error?.message || "Failed to upload file to Cloudinary.",
+        errors: [{ field: "file", code: "UPLOAD_FAILED", message: error?.message || "Cloud upload failed." }],
       });
     }
   }

@@ -55,6 +55,17 @@ const normalizeDocumentNumber = (documentType, value = "") => {
     .toUpperCase();
 };
 
+const deriveCloudinaryPublicIdFromUrl = (url = "") => {
+  if (!url || typeof url !== "string") return "";
+
+  // Expected Cloudinary raw URL shape:
+  // .../raw/upload/v1234567890/folder/file-name.pdf
+  const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[a-z0-9]+)?(?:\?|$)/i);
+  if (!match?.[1]) return "";
+
+  return decodeURIComponent(match[1]);
+};
+
 const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) => {
   try {
     const expertId = req.user.userId;
@@ -93,7 +104,7 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
     // Check Bar Council ID uniqueness
     if (normalizedBarCouncilId) {
       const existingBarCouncil = await Expert.find({
-        barCouncilId: { $exists: true, $ne: null, $ne: "" },
+        barCouncilId: { $exists: true, $nin: [null, ""] },
         userId: { $ne: expertId },
       }).select("barCouncilId");
 
@@ -143,7 +154,7 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
     // Check Government ID uniqueness (by document number)
     if (normalizedIdNumber) {
       const existingGovIds = await Expert.find({
-        idNumber: { $exists: true, $ne: null, $ne: "" },
+        idNumber: { $exists: true, $nin: [null, ""] },
         userId: { $ne: expertId },
       }).select("idNumber idDocumentType");
 
@@ -263,6 +274,15 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
       expert.barCouncilDocPublicId = uploadedBarCouncilDoc.public_id;
     }
 
+    // Backfill legacy records where URL exists but public_id was never stored.
+    if (!expert.governmentIdPublicId && expert.governmentIdUrl) {
+      expert.governmentIdPublicId = deriveCloudinaryPublicIdFromUrl(expert.governmentIdUrl);
+    }
+
+    if (!expert.barCouncilDocPublicId && expert.barCouncilDocUrl) {
+      expert.barCouncilDocPublicId = deriveCloudinaryPublicIdFromUrl(expert.barCouncilDocUrl);
+    }
+
     expert.barCouncilId = normalizedBarCouncilId;
     expert.specialization = specialization;
     expert.experience = experience;
@@ -323,6 +343,38 @@ const saveExpertProfileInternal = async ({ req, res, verifyAfterSave = false }) 
       barCouncilDocUrl: expert.barCouncilDocUrl || "",
     });
   } catch (error) {
+    if (error?.name === "ValidationError") {
+      const validationErrors = Object.entries(error.errors || {}).map(([field, detail]) => ({
+        field,
+        code: "VALIDATION_ERROR",
+        message: detail?.message || "Invalid value",
+      }));
+
+      return res.status(400).json({
+        success: false,
+        message: "Profile data validation failed",
+        errors: validationErrors.length
+          ? validationErrors
+          : [{ field: "profile", code: "VALIDATION_ERROR", message: "Invalid profile data" }],
+      });
+    }
+
+    if (error?.code === 11000) {
+      const duplicateField = Object.keys(error.keyPattern || error.keyValue || {})[0] || "profile";
+      return res.status(400).json({
+        success: false,
+        message: "Duplicate value detected",
+        errors: [
+          {
+            field: duplicateField,
+            code: "DUPLICATE_VALUE",
+            message: `${duplicateField} already exists`,
+          },
+        ],
+      });
+    }
+
+    console.error("[saveExpertProfileInternal]", error);
     res.status(500).json({
       success: false,
       message: "Error updating profile",
