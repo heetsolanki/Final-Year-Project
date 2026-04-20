@@ -53,7 +53,7 @@ It allows users to explore legal information, ask queries, and interact with exp
 ---
 
 ### 📧 Email Notifications
-- Integrated EmailJS  
+- Integrated NodeMailer  
 - Notifications for:
   - Query updates  
   - General alerts  
