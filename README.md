@@ -81,8 +81,10 @@ It allows users to explore legal information, ask queries, and interact with exp
 
 ### Integrations
 - Cloudinary (file uploads)  
-- EmailJS (email services)  
-- Socket.io (real-time chat)  
+- NodeMailer (email services)  
+- Socket.io (real-time chat)
+- Vercel (frontend deployment)
+- Render (backend deployment)
 
 ---
 
